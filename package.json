@@ -1,0 +1,26 @@
+{
+  "name": "tiny_scale",
+  "version": "1.0.0",
+  "description": "online service system",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.thsecourse.com:Lygepology/TinyScale.git"
+  },
+  "keywords": [
+    "online_service",
+    "javascirpt",
+    "node",
+    "websocket"
+  ],
+  "author": "Tiny Scale Group",
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "express": "^4.16.2",
+    "mongoose": "^4.13.4"
+  }
+}
