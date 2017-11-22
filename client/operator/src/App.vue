@@ -1,23 +1,39 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <router-view/>
+  <div class="chatall">
+    <chat-component></chat-component>
   </div>
+  <!-- <group-info></group-info> -->
 </template>
 
 <script>
+
+import ChatComponent from './components/ChatComponent'
+
 export default {
-  name: 'app'
+  components: {
+    ChatComponent
+  }
 }
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+*{
+  margin: 0;
+  padding: 0;
 }
+html {
+  height: 100%;
+}
+
+body {
+  height: 100%;
+}
+.chatall{
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  justify-content: space-between;
+  width: 600px;
+}
+
 </style>
