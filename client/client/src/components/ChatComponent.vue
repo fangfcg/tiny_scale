@@ -23,7 +23,7 @@ export default {
     ChatInput
   },
   created () {
-    this.chatobj.initSock()
+    this.chatobj.initSock.bind(this.chatobj)()
   },
   methods: {
     sendMsg (newMsg) {
@@ -33,14 +33,21 @@ export default {
       msgObj.msg = newMsg
       msgObj.type = 0
       this.chatobj.msgList.push(msgObj)
-      this.socket.emit('msg', {msg: msgObj.msg})
+      this.chatobj.socket.emit('msg', {msg: msgObj.msg})
     },
     callService () {
       var msgObj = Chat.createMsg()
       if (this.chatobj.status === 0) {
+        console.log(12345)
+        console.log(this.chatobj.socket)
         this.chatobj.socket.emit('service_request')
+        this.chatobj.status = 1
+        msgObj.msg = '正在为您分配客服，请稍候'
+        msgObj.type = 2
+        this.chatobj.msgList.push(msgObj)
       } else if (this.chatobj.status === 1) {
-        msgObj.msg = '正在为您分配客服，请稍后'
+        msgObj.msg = '正在为您分配客服，请稍候'
+        msgObj.type = 2
         this.chatobj.msgList.push(msgObj)
       } else {
         msgObj.msg = '客服正在为您服务'

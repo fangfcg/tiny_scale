@@ -23,7 +23,6 @@ export default {
   methods: {
   },
   created () {
-    this.$store.commit('initSock')
     // console.log(11112)
     // console.log(this.chatobj.userName)
     // console.log(Chat.msgList[0])

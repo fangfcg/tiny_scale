@@ -3,15 +3,15 @@
     <el-row class="customerSettings">
         <el-col :span="8" class="cSettingCol">
             队列人数<br />
-            {{this.$store.state.waitingNum}}
+            {{this.$store.state.chat.waitingNum}}
         </el-col>
         <el-col :span="8" class="cSettingCol">
             当前服务人数<br />
-            {{this.$store.state.customerNum}}
+            {{this.$store.state.chat.currentNum}}
         </el-col>
         <el-col :span="8" class="cSettingCol">
             本次已服务人数<br />
-            {{this.$store.state.todayNum}}
+            {{this.$store.state.chat.finishNum}}
         </el-col>
     </el-row>
     <el-row>

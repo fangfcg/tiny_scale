@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 var msgId = 0
 // below are some msg content for test.
-var serverAddress = 'http://localhost:8081'
+var serverAddress = 'http://183.172.152.40:8081'
 var user = function () {
   return {
     userid: null,
@@ -26,19 +26,36 @@ var Chat = {
       key: msgId
     }
   },
+  changeCard: function (userid) {
+    console.log('operator')
+    console.log(userid)
+
+    for (var j = 0; j < this.currentNum; j++) {
+      if (this.userList[j].userid === userid) {
+        this.currentUser = userid
+        this.currentIndex = j
+      }
+    }
+    console.log('index')
+    console.log(this.currentIndex)
+  },
   initSock: function () {
     this.socket = io(serverAddress)
     this.socket.on('new_customer', function () {
       this.waitingNum ++
-    })
+    }.bind(Chat))
     this.socket.on('get_next', function (userid) {
+      console.log('aaaa')
+      console.log(userid)
+      console.log('bbbb')
       var newUser = user()
-      this.currentUser = userid
       newUser.userid = userid
+      this.currentUser = userid
+      this.userList.push(newUser)
       this.currentNum ++
       this.waitingNum --
       this.currentIndex = this.currentNum - 1
-    })
+    }.bind(Chat))
     this.socket.on('msg', function (customId, inputMsg) {
       var clientMsg = this.createMsg()
       clientMsg.msg = inputMsg.msg
@@ -48,7 +65,7 @@ var Chat = {
           this.userList[j].msgList.push(clientMsg)
         }
       }
-    })
+    }.bind(Chat))
     this.socket.on('crash', function (userid) {
       if (userid === this.currentUser) {
         this.currentNum --
@@ -72,7 +89,7 @@ var Chat = {
           }
         }
       }
-    })
+    }.bind(Chat))
   },
   endService: function () {
     if (this.currentNum <= 0) {
