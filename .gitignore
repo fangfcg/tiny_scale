@@ -17,3 +17,4 @@ logo.png
 *.ntvs*
 *.njsproj
 *.sln
+package-lock.json

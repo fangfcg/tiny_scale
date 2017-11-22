@@ -1,15 +1,19 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import CustomMenu from '@/components/CustomMenu'
+import CustomTalk from '@/components/CustomTalk'
 
 Vue.use(Router)
 
 export default new Router({
   routes: [
     {
-      path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
+      path: '/CustomMenu',
+      component: CustomMenu
+    },
+    {
+      path: '/CustomTalk',
+      component: CustomTalk
     }
   ]
 })
