@@ -1,12 +1,14 @@
 <template>
   <div class="body-wrapper">
-    <template v-for="msgObj in chatobj.msgList">
-      <template v-if="msgObj.type === 2">
-        <chat-card-system :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-system>
-      </template>
-      <template>
-        <chat-card-other v-if="msgObj.type === 1" :name="msgObj.name" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-other>
-        <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-self>
+    <template v-if="this.$store.state.chat.currentNum > 0">
+      <template v-for="msgObj in this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList">
+        <template v-if="msgObj.type === 2">
+          <chat-card-system :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-system>
+        </template>
+        <template>
+          <chat-card-other v-if="msgObj.type === 1" :name="msgObj.name" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-other>
+          <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-self>
+        </template>
       </template>
     </template>
     <!-- <other-msg></other-msg> -->
@@ -32,8 +34,7 @@ export default {
     ChatCardSystem
   },
   methods: {
-  },
-  props: ['chatobj']
+  }
 }
 </script>
 

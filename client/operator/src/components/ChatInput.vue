@@ -21,12 +21,12 @@ export default {
       if (msg === '') {
         return
       }
-      this.state.store.commit()
-      this.$emit('sendMsg', msg)
+      this.$store.commit('sendMsg', msg)
+      // this.$emit('sendMsg', msg)
       this.msg = ''
     },
     finishService () {
-      this.state.store.commit()
+      this.$store.commit('endService')
     }
   }
 }
