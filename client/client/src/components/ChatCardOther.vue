@@ -1,6 +1,6 @@
 <template>
 <div class="other-wrap">
-  <img class="-header" width="35" height="35" src="client/client/src/assets/2.png" alt="nopic"/>
+  <img class="-header" width="35" height="35" src="assets/2.png" alt="nopic"/>
   <div class="-msg">{{msg}}</div>
 </div>
 </template>

@@ -39,11 +39,15 @@ var Chat = {
       this.waitingNum --
       this.currentIndex = this.currentNum - 1
     })
-    this.socket.on('msg', function (inputMsg) {
+    this.socket.on('msg', function (customId, inputMsg) {
       var clientMsg = this.createMsg()
-      clientMsg.msg = inputMsg
+      clientMsg.msg = inputMsg.msg
       clientMsg.type = 1
-      this.userList[this.currentIndex].msgList.push(clientMsg)
+      for (var j = 0; j < this.currentNum; j++) {
+        if (this.userList[j].userid === customId) {
+          this.userList[j].msgList.push(clientMsg)
+        }
+      }
     })
     this.socket.on('crash', function (userid) {
       if (userid === this.currentUser) {
@@ -94,7 +98,7 @@ var Chat = {
     newMsg.msg = msg
     newMsg.type = 0
     this.userList[this.currentIndex].msgList.push(newMsg)
-    this.socket.emit()
+    this.socket.emit('msg', this.currentUser, {msg: msg})
   }
 }
 
