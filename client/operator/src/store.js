@@ -31,6 +31,17 @@ const mutations = {
     state.customerArray.splice(n, 1)
     state.customerNum -= 1
     state.currentCustomer = -1
+  },
+  getNext (state) {
+
+  },
+  initSock (state) {
+
+  },
+  sendMsg (state, msg) {
+  },
+  endService (state) {
+
   }
 }
 

@@ -43,8 +43,10 @@ export default {
   }
   */
   .-header{
-    position: relative;
-  	left: ~'calc(100% - 50px)';
+    position: absolute;
+    //margin-right:-550px; 
+    //left: 400px;
+    right: 15px;
     border-radius: 3px;
     height:35px;
     width: 35px;

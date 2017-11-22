@@ -46,8 +46,7 @@
         } else if (this.$store.state.waitingNum <= 0) {
           alert('错误！当前没有用户在队列中')
         } else {
-          this.$store.commit('customerNumChange', 1)
-          this.$store.commit('waitingChange', -1)
+          this.$store.commit('get_next')
         }
       },
       sleepService: function () {

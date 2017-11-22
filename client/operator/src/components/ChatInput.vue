@@ -2,7 +2,7 @@
   <div class="foot-wrapper">
     <input class="chat-input-line" type="text" name="" @keyup.enter="send(msg)" v-model="msg">
     <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
-    <span class="operator-sub" @click="callService()">人工客服</span>
+    <span class="operator-sub" @click="finishService()">结束服务</span>
   </div>
 </template>
 
@@ -21,14 +21,12 @@ export default {
       if (msg === '') {
         return
       }
-      // CHAT.submit(msg)
-      // this.msg=''
-      // console.log(CHAT)
+      this.state.store.commit()
       this.$emit('sendMsg', msg)
       this.msg = ''
     },
-    callService () {
-      this.$emit('callService')
+    finishService () {
+      this.state.store.commit()
     }
   }
 }
