@@ -1,8 +1,17 @@
 <template>
-  <div class="chatall">
-    <chat-component></chat-component>
+    <div id="app">
+    <header>
+      <el-row>
+        <el-col :span="24">
+          <el-menu class="el-menu-demo":router=true mode="horizontal">
+            <el-menu-item index="/CustomMenu">客服界面</el-menu-item>
+            <el-menu-item index="/CustomTalk">会话界面</el-menu-item>
+          </el-menu>
+        </el-col>
+      </el-row>
+    </header>
+    <router-view></router-view>
   </div>
-  <!-- <group-info></group-info> -->
 </template>
 
 <script>
