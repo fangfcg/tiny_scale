@@ -24,8 +24,6 @@ export default {
     return {
     }
   },
-  created () {
-  },
   components: {
     ChatCardOther,
     ChatCardSelf,

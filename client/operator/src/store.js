@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import Chat from './api/operator'
 
 Vue.use(Vuex)
 
@@ -8,7 +9,8 @@ const state = {
   customerNum: 3,
   todayNum: 3,
   customerArray: [{id: 12}, {id: 23}, {id: 34}],
-  currentCustomer: -1
+  currentCustomer: -1,
+  chat: Chat
 }
 
 const mutations = {
@@ -31,6 +33,18 @@ const mutations = {
     state.customerArray.splice(n, 1)
     state.customerNum -= 1
     state.currentCustomer = -1
+  },
+  getNext (state) {
+    state.chat.getNext()
+  },
+  initSock (state) {
+    state.chat.initSock()
+  },
+  sendMsg (state, msg) {
+    state.chat.sendMsg(msg)
+  },
+  endService (state) {
+    state.chat.endService()
   }
 }
 

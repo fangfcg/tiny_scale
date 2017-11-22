@@ -41,14 +41,14 @@
     },
     methods: {
       getGuest: function () {
-        if (this.isSleeping === true) {
+        this.$store.commit('getNext')
+        /* if (this.isSleeping === true) {
           alert('当前处于休息状态，不允许接入新的客户！')
         } else if (this.$store.state.waitingNum <= 0) {
           alert('错误！当前没有用户在队列中')
         } else {
-          this.$store.commit('customerNumChange', 1)
-          this.$store.commit('waitingChange', -1)
-        }
+          this.$store.commit('getNext')
+        } */
       },
       sleepService: function () {
         if (this.isSleeping === true) {

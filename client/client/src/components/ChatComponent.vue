@@ -22,6 +22,9 @@ export default {
     ChatBody,
     ChatInput
   },
+  created () {
+    this.chatobj.initSock()
+  },
   methods: {
     sendMsg (newMsg) {
       console.log(newMsg)
@@ -29,27 +32,22 @@ export default {
       msgObj.name = Chat.userName
       msgObj.msg = newMsg
       msgObj.type = 0
-      Chat.msgList.push(msgObj)
+      this.chatobj.msgList.push(msgObj)
+      this.socket.emit('msg', {msg: msgObj.msg})
     },
     callService () {
       var msgObj = Chat.createMsg()
       if (this.chatobj.status === 0) {
-        this.chatobj.status = 1
-        msgObj.msg = '已收到消息，即将为您分配客服'
+        this.chatobj.socket.emit('service_request')
       } else if (this.chatobj.status === 1) {
         msgObj.msg = '正在为您分配客服，请稍后'
-        // this.chatobj.status = 2
+        this.chatobj.msgList.push(msgObj)
       } else {
         msgObj.msg = '客服正在为您服务'
+        msgObj.type = 2
+        this.chatobj.msgList.push(msgObj)
       }
-      msgObj.type = 2
-      Chat.msgList.push(msgObj)
     }
-  },
-  created () {
-    // console.log(11112)
-    // console.log(this.chatobj.userName)
-    // console.log(Chat.msgList[0])
   }
 }
 </script>
