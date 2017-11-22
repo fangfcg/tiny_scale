@@ -1,2 +1,17 @@
 node_modules
 .vscode
+/client/dist/
+/client/npm-debug.log*
+/client/yarn-debug.log*
+/client/yarn-error.log*
+/client/test/unit/coverage/
+/test/e2e/reports/
+selenium-debug.log
+logo.png
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
