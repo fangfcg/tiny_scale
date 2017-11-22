@@ -7,7 +7,7 @@ function OperatorAllocator(){
     this.node = null;
 }
 
-OperatorAllocator.prototype.createOperator = function(operator){
+OperatorAllocator.prototype.addOperator = function(operator){
     var item = new LinkedList.Item();
     item.operator = operator;
     this.list.append(item);
