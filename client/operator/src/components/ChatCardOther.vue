@@ -28,10 +28,13 @@ export default {
   padding: 5px 5px 0 5px;
   position: relative;
   .-header{
-    justify-content: center;
+    position: relative;
+    //justify-content: center;
     border-radius: 3px;
     height:35px;
     width: 35px;
+    left: -270px;
+    //margin-left: -540px;  
   }
   .-name{
     /*background-color: #fff;*/
