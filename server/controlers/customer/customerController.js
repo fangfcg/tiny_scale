@@ -1,7 +1,6 @@
 function customerController(){
     this.customerAccepted = 0;
     this.customers = {};
-    this.operatorListener = null;
     this.event = new (require('events'))();
     this.operatorListener = null;
 
