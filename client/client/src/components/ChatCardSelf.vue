@@ -1,6 +1,6 @@
 <template>
 <div class="self-wrap">
-  <img class="-header" width="35" height="35" src="client/src/assets/1.jpg" alt="nopic"/>
+  <img class="-header" width="35" height="35" src="client/client/src/assets/1.jpg" alt="nopic"/>
   <!-- <span class="-name">超级厉害</span> -->
   <div class="-msg">{{msg}}</div>
 </div>
