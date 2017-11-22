@@ -7,7 +7,7 @@ function operatorControler(){
     this.operatorAllocator = require('./operatorAllocator');
 
     //设置event处理函数
-    this.event.on('allocate_operator', this._allocateOperator);
+    this.event.on('allocate_operator', this._allocateOperator.bind(this));
     this.event.on('msg', this._customerMsg.bind(this));
     this.event.on('crash', this._crash.bind(this));
 }
@@ -15,12 +15,11 @@ function operatorControler(){
 operatorControler.prototype.newSocket = function(socket){
     var tmpId = ++this.operatorAccepted;
     this.operators[this.operatorAccepted] = {socket:socket, waitingList:[], chatting:new Set()};
-    socket.handshake.session.tempId = this.operatorAccepted;    //tempId只用来作为在线客服的索引
     this.operatorAllocator.addOperator(this.operatorAccepted);
 
     socket.on('get_next', this._getNext.bind(this, tmpId));
     socket.on('msg', this._operatorMsg.bind(this));
-    socket.on('end_service', this._endService.bind(this));
+    socket.on('end_service', this._endService.bind(this, tmpId));
     socket.on('disconnect', this._disconnect.bind(this, tmpId));
 };
 
@@ -28,7 +27,7 @@ operatorControler.prototype.newSocket = function(socket){
 //传来的customerId应该用来找到这个customer
 operatorControler.prototype._allocateOperator = function(customerId, customerSession){
     //TODO:添加熟人优先分配算法
-    var res =  this.operatorAllocator._allocateOperator();
+    var res =  this.operatorAllocator.allocateOperator();
     if(res)
     {
         //分配了有效的客服，则对客服进行通知
@@ -40,9 +39,13 @@ operatorControler.prototype._allocateOperator = function(customerId, customerSes
 operatorControler.prototype._getNext = function(operatorId){
     var operator = this.operators[operatorId];
     var nextId = operator.waitingList.shift();
-    operator.socket.emit('get_next', nextId);
-    operator.chatting.add(nextId);
-    this.customerListener.emit('operator_connected', nextId);
+    if(nextId)
+    {
+        operator.socket.emit('get_next', nextId);
+        operator.chatting.add(nextId);
+        this.customerListener.emit('operator_connected', nextId);
+    }
+    
 };
 operatorControler.prototype._customerMsg = function(customerId, operatorId, msg){
     this.operators[operatorId].socket.emit('msg', customerId, msg);

@@ -38,7 +38,7 @@ customerController.prototype._operatorMsg = function(customerId, msg){
     this.customers[customerId].socket.emit('msg', msg);
 };
 customerController.prototype._endService = function(customerId){
-    this.customers[customerId].socket.emit('end_service');
+    this.customers[customerId].socket.emit('operator_disconnected');
     this.customers[customerId].serviceOperatorId = null;
 };
 customerController.prototype._crash = function(customerId){
@@ -46,7 +46,7 @@ customerController.prototype._crash = function(customerId){
     this.customers[customerId].serviceOperatorId = null;
 };
 customerController.prototype._disconnect = function(customerId){
-    var customer = this.customers[customerId]
+    var customer = this.customers[customerId];
     if(customer.serviceOperatorId){
         this.operatorListener.emit('crash', customer.serviceOperatorId);
     }
