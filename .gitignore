@@ -1,2 +1,4 @@
 node_modules
 .vscode
+server/test_pages/
+server/index.js
