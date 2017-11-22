@@ -45,6 +45,11 @@ const mutations = {
   },
   endService (state) {
     state.chat.endService()
+  },
+  changeCard (state, userid) {
+    state.chat.changeCard(userid)
+    console.log('store.js')
+    console.log(userid)
   }
 }
 
