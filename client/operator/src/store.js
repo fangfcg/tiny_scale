@@ -5,8 +5,10 @@ Vue.use(Vuex)
 
 const state = {
   waitingNum: 5,
-  customerNum: 0,
-  todayNum: 3
+  customerNum: 3,
+  todayNum: 3,
+  customerArray: [{id: 12}, {id: 23}, {id: 34}],
+  currentCustomer: -1
 }
 
 const mutations = {
@@ -21,6 +23,14 @@ const mutations = {
   },
   todayNumUpdate (state, n) {
     state.todayNum = n
+  },
+  customerArrayAdd (state, obj) {
+    state.customerArray.push(obj)
+  },
+  customerArrayDelete (state, n) {
+    state.customerArray.splice(n, 1)
+    state.customerNum -= 1
+    state.currentCustomer = -1
   }
 }
 
