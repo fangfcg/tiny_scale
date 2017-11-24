@@ -48,7 +48,9 @@ operatorControler.prototype._getNext = function(operatorId){
     
 };
 operatorControler.prototype._customerMsg = function(customerId, operatorId, msg){
-    this.operators[operatorId].socket.emit('msg', customerId, msg);
+    if(this.operators[operatorId]){
+        this.operators[operatorId].socket.emit('msg', customerId, msg);
+    }
 };
 operatorControler.prototype._operatorMsg = function(customerId, msg){
     this.customerListener.emit('msg', customerId, msg);

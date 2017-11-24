@@ -31,7 +31,10 @@ customerController.prototype._operatorConnected = function(customerId){
 //处理从客户方发来的消息
 customerController.prototype._customerMsg = function(customerId, msg){
     var operatorId = this.customers[customerId].serviceOperatorId;
-    this.operatorListener.emit('msg', customerId, operatorId, msg);
+    if(operatorId)
+    {
+        this.operatorListener.emit('msg', customerId, operatorId, msg);
+    }
 };
 //处理从客服方发来的消息
 customerController.prototype._operatorMsg = function(customerId, msg){
