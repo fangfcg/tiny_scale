@@ -1,2 +1,2 @@
-export const urlClient = 'http://59.66.137.79:12345';
-export const urlOperator = 'http://59.66.137.79:12345';
+export const urlClient = 'http://localhost:12345';
+export const urlOperator = 'http://localhost:12345';
