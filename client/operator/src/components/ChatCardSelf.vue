@@ -51,13 +51,6 @@ export default {
     height:35px;
     width: 35px;
   }
- /* .-name{
-    background-color: #fff;
-    position: absolute;
-    font-size: 14px;
-    padding: 2px;
-    margin: 0 10px;
-  }*/
   .-msg{
     background-color: #b2e281;
     padding: 10px;

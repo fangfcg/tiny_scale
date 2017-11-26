@@ -62,6 +62,9 @@
 </script>
 
 <style>
+  .customServiceMenu {
+    text-align: center;
+  }
   .customerSettings {
     font-size: 25px;
   }

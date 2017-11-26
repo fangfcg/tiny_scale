@@ -25,6 +25,7 @@ export default {
 <style lang='less'>
 .other-wrap{
   /*background-color: #666;*/
+  margin-left:15px;
   padding: 5px 5px 0 5px;
   position: relative;
   .-header{
@@ -56,6 +57,7 @@ export default {
     width:-moz-fit-content;
     max-width: 200px;
     word-wrap: break-word;
+    box-shadow: 0 0 1px #888888;
   }
 }
 </style>

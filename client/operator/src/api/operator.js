@@ -14,7 +14,8 @@ var Chat = {
   waitingNum: 0,
   currentNum: 0,
   finishNum: 0,
-  userList: [],
+  userList: [{
+  }],
   socket: null,
   createMsg: function () {
     msgId++

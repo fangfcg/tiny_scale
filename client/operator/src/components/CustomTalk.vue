@@ -8,13 +8,13 @@
                 </el-menu-item>
             </el-menu>
         </el-col>
-        <template v-if="this.$store.state.chat.currentNum > 0">
+        <!--<template v-if="this.$store.state.chat.currentNum > 0">-->
             <el-col :span="10">
                 <div class="chatall">
                     <chat-component></chat-component>
                 </div>
             </el-col>
-        </template>
+        <!--</template>-->
     </el-row>
     </div>
 </template>
@@ -49,8 +49,8 @@ export default {
 .chatall{
   display: flex;
   flex-direction: column;
-  height: 600px;
   justify-content: space-between;
   width: 600px;
+  height: 600px;
 }
 </style>

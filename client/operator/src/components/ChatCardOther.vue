@@ -33,7 +33,6 @@ export default {
     border-radius: 3px;
     height:35px;
     width: 35px;
-    left: -270px;
     //margin-left: -540px;  
   }
   .-name{
