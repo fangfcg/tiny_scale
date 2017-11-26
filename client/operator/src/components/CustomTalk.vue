@@ -3,18 +3,18 @@
     <el-row>
         <el-col :span="6">
             <el-menu class="el-menu-vertical-demo">
-                <el-menu-item v-for="cus in this.$store.state.chat.userList":key="cus.id":index="cus.userid" @click="changeCard(cus.userid)" >
+                <el-menu-item v-for="cus in this.$store.state.chat.userList":key="cus.id":index="cus.userid.toString()" @click="changeCard(cus.userid)" >
                     用户{{cus.userid}}
                 </el-menu-item>
             </el-menu>
         </el-col>
-        <!--<template v-if="this.$store.state.chat.currentNum > 0">-->
+        <template v-if="this.$store.state.chat.currentNum > 0">
             <el-col :span="10">
                 <div class="chatall">
                     <chat-component></chat-component>
                 </div>
             </el-col>
-        <!--</template>-->
+        </template>
     </el-row>
     </div>
 </template>

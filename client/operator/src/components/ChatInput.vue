@@ -3,7 +3,7 @@
     <textarea placeholder="按 Enter 发送" name="" @keyup.enter="send(msg)" v-model="msg"></textarea>
     <div class="button-area">
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
-      <span class="operator-sub" @click="callService()">人工客服</span>
+      <span class="operator-sub" @click="finishService()">结束服务</span>
     </div>
   </div>
 </template>

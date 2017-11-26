@@ -1,7 +1,8 @@
 import io from 'socket.io-client'
+import {urlOperator} from '../../../../config'
 var msgId = 0
 // below are some msg content for test.
-var serverAddress = 'http://183.172.152.40:8081'
+var serverAddress = urlOperator
 var user = function () {
   return {
     userid: null,
@@ -14,8 +15,7 @@ var Chat = {
   waitingNum: 0,
   currentNum: 0,
   finishNum: 0,
-  userList: [{
-  }],
+  userList: [],
   socket: null,
   createMsg: function () {
     msgId++
@@ -43,6 +43,7 @@ var Chat = {
   initSock: function () {
     this.socket = io(serverAddress)
     this.socket.on('new_customer', function () {
+      console.log(1231232132131231)
       this.waitingNum ++
     }.bind(Chat))
     this.socket.on('get_next', function (userid) {
@@ -109,6 +110,7 @@ var Chat = {
     }
   },
   getNext: function () {
+    console.log(123)
     this.socket.emit('get_next')
   },
   sendMsg: function (msg) {

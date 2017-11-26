@@ -1,7 +1,8 @@
 import io from 'socket.io-client'
+import {urlClient} from '../../../../config'
 var msgId = 0
-var serverAddress = 'http://183.172.152.40:8081'
-
+var serverAddress = urlClient
+console.log(urlClient)
 var Chat = {
   msgList: [],
   socket: null,
@@ -58,6 +59,7 @@ var Chat = {
   callService () {
     var msgObj = this.createMsg()
     if (this.status === 0) {
+      console.log(21345)
       this.socket.emit('service_request')
       this.status = 1
       msgObj.msg = '正在为您分配客服，请稍候'
