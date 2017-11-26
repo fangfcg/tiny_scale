@@ -23,7 +23,7 @@ customerController.prototype._serviceRequest = function(customerId){
 };
 customerController.prototype._operatorAllocated = function(customerId ,operatorId){
     this.customers[customerId].serviceOperatorId = operatorId;
-    this.customers[customerId].socket.emit('service_response', customerId ? true : false);
+    this.customers[customerId].socket.emit('service_response', operatorId ? true : false);
 };
 customerController.prototype._operatorConnected = function(customerId){
     this.customers[customerId].socket.emit('operator_connected');
