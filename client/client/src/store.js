@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Chat from './api/operator'
+import Chat from './api/client'
 
 Vue.use(Vuex)
 
@@ -9,14 +9,20 @@ const state = {
 }
 
 const mutations = {
-  getNext (state) {
-    state.chat.getNext()
+  callService (state) {
+    state.chat.callService()
   },
   initSock (state) {
     state.chat.initSock()
   },
   sendMsg (state, msg) {
     state.chat.sendMsg(msg)
+  },
+  endService (state) {
+    state.chat.endService()
+  },
+  changeCard (state, userid) {
+    state.chat.changeCard(userid)
   }
 }
 

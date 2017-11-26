@@ -22,7 +22,6 @@ export default {
         return
       }
       this.$store.commit('sendMsg', msg)
-      // this.$emit('sendMsg', msg)
       this.msg = ''
     },
     finishService () {

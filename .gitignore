@@ -1,4 +1,5 @@
 node_modules
+/assets/
 .vscode
 server/test_pages/
 server/index.js
