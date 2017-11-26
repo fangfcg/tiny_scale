@@ -17,6 +17,13 @@ const mutations = {
   },
   sendMsg (state, msg) {
     state.chat.sendMsg(msg)
+  },
+  endService (state) {
+    console.log('fcgendservice')
+    state.chat.endService()
+  },
+  changeCard (state, userid) {
+    state.chat.changeCard(userid)
   }
 }
 

@@ -18,6 +18,7 @@ var Chat = {
     }
   },
   initSock () {
+    console.log(serverAddress)
     this.socket = io(serverAddress)
     this.socket.on('service_response', function (data) {
       var sysmsg = Chat.createMsg()

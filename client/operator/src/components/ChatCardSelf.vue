@@ -1,6 +1,6 @@
 <template>
 <div class="self-wrap">
-  <img class="-header" width="35" height="35" src="assets/1.jpg" alt="nopic"/>
+  <img class="-header" width="35" height="35" src="assets/2.png" alt="nopic"/>
   <!-- <span class="-name">超级厉害</span> -->
   <div class="-msg">{{msg}}</div>
 </div>
@@ -67,6 +67,7 @@ export default {
     width:-moz-fit-content;
     max-width: 200px;
     word-wrap: break-word;
+    box-shadow: 0 0 1px #888888;
   }
 }
 </style>
