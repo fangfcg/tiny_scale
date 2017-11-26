@@ -17,12 +17,6 @@ const mutations = {
   },
   sendMsg (state, msg) {
     state.chat.sendMsg(msg)
-  },
-  endService (state) {
-    state.chat.endService()
-  },
-  changeCard (state, userid) {
-    state.chat.changeCard(userid)
   }
 }
 

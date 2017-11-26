@@ -1,6 +1,6 @@
 <template>
 <div class="other-wrap">
-  <img class="-header" width="35" height="35" src="assets/2.png" alt="nopic"/>
+  <img class="-header" width="35" height="35" src="assets/1.jpg" alt="nopic"/>
   <div class="-msg">{{msg}}</div>
 </div>
 </template>
@@ -25,6 +25,7 @@ export default {
 <style lang='less'>
 .other-wrap{
   /*background-color: #666;*/
+  margin-left:15px;
   padding: 5px 5px 0 5px;
   position: relative;
   .-header{
@@ -57,6 +58,7 @@ export default {
     width:-webkit-fit-content;
     width:-moz-fit-content;
     max-width: 200px;
+    box-shadow: 0 0 1px #888888;
     word-wrap: break-word;
   }
 }
