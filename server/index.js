@@ -1,4 +1,3 @@
-/*
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -28,5 +27,4 @@ io.on('connection', socket=>{
     else{
         operator.newSocket(socket);
     }
-}); */
-require('./models/modelTests');
+});
