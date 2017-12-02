@@ -4,6 +4,7 @@ node_modules
 .vscode
 server/test_pages/
 server/public
+server/*Test.js
 dist/
 npm-debug.log*
 yarn-debug.log*
