@@ -1,3 +1,4 @@
+/*
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
@@ -27,12 +28,5 @@ io.on('connection', socket=>{
     else{
         operator.newSocket(socket);
     }
-    /*
-    if(path.port == '8080'){
-        customer.newSocket(socket);
-    }
-    else{
-        operator.newSocket(socket);
-    }
-    */
-});
+}); */
+require('./models/modelTests');
