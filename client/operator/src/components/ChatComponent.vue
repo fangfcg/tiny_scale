@@ -1,7 +1,8 @@
 <template>
   <div class="chatbox">
-    <chat-body></chat-body>
-    <chat-input></chat-input>
+    <div class="chattop"></div>
+    <chat-body class="chatbody"></chat-body>
+    <chat-input class="chatinput"></chat-input>
   </div>
   <!-- <group-info></group-info> -->
 </template>
@@ -23,9 +24,6 @@ export default {
   methods: {
   },
   created () {
-    // console.log(11112)
-    // console.log(this.chatobj.userName)
-    // console.log(Chat.msgList[0])
   }
 }
 </script>
@@ -42,12 +40,28 @@ html {
 body {
   height: 100%;
 }
+
+.chattop{
+  height: 60px;
+  background-color: #2e3238;
+}
 .chatbox{
   width: 100%;
   //display: flex;
   //flex-direction: column;
   height: 100%;
   justify-content: space-between;
+  border:1px;
+  border-color: #2e3238;
+  border-radius:5px;
+  box-shadow: 0 0 3px #888888;
+  .chatbody{
+    height: 400px;
+  }
+  .chatinput{
+    height: 120px;
+    float: top;
+  }
 }
 
 chat-input {

@@ -1,7 +1,8 @@
 <template>
   <div class="chatbox">
-    <chat-body :chatobj="chatobj"></chat-body>
-    <chat-input v-on:sendMsg="sendMsg" v-on:callService="callService"></chat-input>
+    <div class="chattop"></div>
+    <chat-body class="chatbody"></chat-body>
+    <chat-input class="chatinput"></chat-input>
   </div>
   <!-- <group-info></group-info> -->
 </template>
@@ -10,12 +11,10 @@
 
 import ChatBody from './ChatBody'
 import ChatInput from './ChatInput'
-import Chat from '../api/client'
 
 export default {
   data () {
     return {
-      chatobj: Chat
     }
   },
   components: {
@@ -23,38 +22,9 @@ export default {
     ChatInput
   },
   created () {
-    this.chatobj.initSock.bind(this.chatobj)()
+    this.$store.commit('initSock')
   },
   methods: {
-    sendMsg (newMsg) {
-      console.log(newMsg)
-      var msgObj = Chat.createMsg()
-      msgObj.name = Chat.userName
-      msgObj.msg = newMsg
-      msgObj.type = 0
-      this.chatobj.msgList.push(msgObj)
-      this.chatobj.socket.emit('msg', {msg: msgObj.msg})
-    },
-    callService () {
-      var msgObj = Chat.createMsg()
-      if (this.chatobj.status === 0) {
-        console.log(12345)
-        console.log(this.chatobj.socket)
-        this.chatobj.socket.emit('service_request')
-        this.chatobj.status = 1
-        msgObj.msg = '正在为您分配客服，请稍候'
-        msgObj.type = 2
-        this.chatobj.msgList.push(msgObj)
-      } else if (this.chatobj.status === 1) {
-        msgObj.msg = '正在为您分配客服，请稍候'
-        msgObj.type = 2
-        this.chatobj.msgList.push(msgObj)
-      } else {
-        msgObj.msg = '客服正在为您服务'
-        msgObj.type = 2
-        this.chatobj.msgList.push(msgObj)
-      }
-    }
   }
 }
 </script>
@@ -71,16 +41,30 @@ html {
 body {
   height: 100%;
 }
+
+.chattop{
+  height: 50px;
+  background-color: #2e3238;
+}
+
 .chatbox{
   width: 100%;
   //display: flex;
   //flex-direction: column;
   height: 100%;
   justify-content: space-between;
+  border:1px;
+  border-color: #2e3238;
+  border-radius:5px;
+  box-shadow: 0 0 3px #888888;
+  .chatbody{
+    height: 400px;
+  }
+  .chatinput{
+    height: 120px;
+    float: top;
+  }
 }
 
-chat-input {
-  float: top;
 
-}
 </style>

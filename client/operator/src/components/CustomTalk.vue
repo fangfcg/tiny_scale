@@ -3,7 +3,7 @@
     <el-row>
         <el-col :span="6">
             <el-menu class="el-menu-vertical-demo">
-                <el-menu-item v-for="cus in this.$store.state.chat.userList":key="cus.id":index="cus.userid" @click="changeCard(cus.userid)" >
+                <el-menu-item v-for="cus in this.$store.state.chat.userList":key="cus.id":index="cus.userid.toString()" @click="changeCard(cus.userid)" >
                     用户{{cus.userid}}
                 </el-menu-item>
             </el-menu>
@@ -49,8 +49,8 @@ export default {
 .chatall{
   display: flex;
   flex-direction: column;
-  height: 600px;
   justify-content: space-between;
   width: 600px;
+  height: 600px;
 }
 </style>

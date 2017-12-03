@@ -1,6 +1,6 @@
 <template>
-  <div class="body-wrapper">
-    <template v-for="msgObj in chatobj.msgList">
+  <div class="content">
+    <template v-for="msgObj in this.$store.state.chat.msgList">
       <template v-if="msgObj.type === 2">
         <chat-card-system :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-system>
       </template>
@@ -30,15 +30,14 @@ export default {
     ChatCardSystem
   },
   methods: {
-  },
-  props: ['chatobj']
+  }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='less'>
-.body-wrapper{
-  background-color: #DCDCDC;
+.content{
+  background-color: #eee;
   height: ~'calc(100% - 90px)';
   overflow-y: scroll;
   width: 100%;

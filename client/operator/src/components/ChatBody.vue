@@ -1,6 +1,6 @@
 <template>
   <div class="body-wrapper">
-    <template v-if="this.$store.state.chat.currentNum > 0">
+    <!--<template v-if="this.$store.state.chat.currentNum > 0">-->
       <template v-for="msgObj in this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList">
         <template v-if="msgObj.type === 2">
           <chat-card-system :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-system>
@@ -10,8 +10,7 @@
           <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-self>
         </template>
       </template>
-    </template>
-    <!-- <other-msg></other-msg> -->
+    <!--</template>-->
   </div>
 
 </template>
@@ -41,7 +40,7 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='less'>
 .body-wrapper{
-  background-color: #DCDCDC;
+  background-color: #eee;
   height: ~'calc(100% - 90px)';
   overflow-y: scroll;
   width: 100%;

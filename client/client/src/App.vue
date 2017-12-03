@@ -6,7 +6,7 @@
 </template>
 
 <script>
-
+本地仓库
 import ChatComponent from './components/ChatComponent'
 
 export default {
@@ -31,9 +31,10 @@ body {
 .chatall{
   display: flex;
   flex-direction: column;
-  height: 100%;
+  height: 600px;
   justify-content: space-between;
   width: 600px;
+  margin: auto;
 }
 
 </style>

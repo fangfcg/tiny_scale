@@ -72,6 +72,7 @@ export default {
     width:-moz-fit-content;
     max-width: 200px;
     word-wrap: break-word;
+    box-shadow: 0 0 1px #888888;
   }
 }
 </style>

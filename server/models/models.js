@@ -11,7 +11,10 @@ mongoose.connect(config.connectUrl, {useMongoClient:true});
 var db = {};
 var file_list = fs.readdirSync(__dirname)
   .filter(file => {
-    return (file.indexOf('.') !== 0) && (file !== basename) && (file.slice(-3) === '.js');
+    return (file.indexOf('.') !== 0) 
+      && (file !== basename) 
+      && (file.slice(-3) === '.js') 
+      && !(file.toLowerCase().includes("test"));
 });
 file_list.forEach(file =>{
     var model = require(path.join(__dirname, file))(Schema, mongoose);
