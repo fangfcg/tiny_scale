@@ -7,7 +7,8 @@ var config = require('./dbconfig.json');
 mongoose.Promise = require('bluebird');
 var Schema = mongoose.Schema;
 //注意，由于存在operation buffering, 在连接后直接使用models不会报错，这样保证了只会连接一次
-mongoose.connect(config.connectUrl, {useMongoClient:true});
+const url = process.env.IS_TEST ? config.testUrl : config.productUrl;
+mongoose.connect(url, {useMongoClient:true});
 var db = {};
 var file_list = fs.readdirSync(__dirname)
   .filter(file => {
@@ -20,4 +21,9 @@ file_list.forEach(file =>{
     var model = require(path.join(__dirname, file))(Schema, mongoose);
     db[model.modelName] = model;
   });
+db.dropDatabase = async function(){
+  if(process.env.IS_TEST){
+    await mongoose.connection.dropDatabase();
+  }
+};
 module.exports = db;

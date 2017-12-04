@@ -17,8 +17,12 @@ var port  = 8080;
 server.listen(port, function(){
     console.log('listening at port ' + port);
 });
-
-app.use(express.static(__dirname + '/public'));
+app.get('/route', function(req, res){
+    res.status(404);
+    res.send('page not found');
+});
+//app.use(express.static(__dirname + '/test_pages/dist'));
+/*
 io.on('connection', socket=>{
     var path = new URL(socket.handshake.headers.referer);
     if(path.pathname === "/customer.html"){
@@ -27,4 +31,5 @@ io.on('connection', socket=>{
     else{
         operator.newSocket(socket);
     }
-});
+});*/
+module.exports = server;
