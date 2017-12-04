@@ -5,6 +5,7 @@ node_modules
 server/test_pages/
 server/public
 server/*Test.js
+server/mongoTest.js
 dist/
 npm-debug.log*
 yarn-debug.log*

@@ -52,7 +52,7 @@ async function arrayFieldTest(){
     {
         group = new model.operatorGroup({name:"ArrayTest", serviceRecordStart:Date.now()});
         await group.save();
-        group.sessionCounts.push(0);
+        group.sessionCounts = group.sessionCounts.concat([0]);
         await group.save();
     }
     process.exit(0);
