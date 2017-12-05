@@ -1,7 +1,31 @@
 var express = require('express');
 var app = express();
-var server = require('http').Server(app);
+var server = require('http').createServer(app);
+//配置body解析
 const bodyParser = require('body-parser');
+app['use'](bodyParser.urlencoded());
+app.use(bodyParser.json());
+//配置会话存储
+var session = require('express-session');
+var store = new session.MemoryStore();  //暂时使用内存型会话存储
+const sessionSecret = 'secret';
+const sessionName = 'connect.sid';
+app.use(session({
+    secret: sessionSecret,
+    resave: false,
+    name: sessionName,
+    saveUninitialized:false,
+    store: store}));
+//配置认证机制
+const auth = require('./auth');
+auth.configApp(app);
+//配置路由
+const router = require('./api/router');
+router.setRoute(app);
+//启动
+server.listen(8080);
+module.exports = server;
+/*
 var io = require('socket.io')(server);
 
 const {URL} = require('url');
@@ -15,20 +39,7 @@ operator.customerListener = customer.event;
 var port  = 8080;
 
 //设置静态文件传输
-server.listen(port, function(){
-    console.log('listening at port ' + port);
-});
-app['use'](bodyParser.urlencoded());
-app.use(bodyParser.json());
-app.get('/route', function(req, res, next){
-    
-});
-app.post('/post_test', function(req, res){
-    res.status(404);
-    res.send('error');
-});
 //app.use(express.static(__dirname + '/test_pages/dist'));
-/*
 io.on('connection', socket=>{
     var path = new URL(socket.handshake.headers.referer);
     if(path.pathname === "/customer.html"){
@@ -37,5 +48,8 @@ io.on('connection', socket=>{
     else{
         operator.newSocket(socket);
     }
+});
+
+server.listen(port, function(){
+    console.log('listening at port ' + port);
 });*/
-module.exports = server;

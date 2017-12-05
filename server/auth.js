@@ -59,4 +59,7 @@ module.exports.Hash = function(str){
 module.exports.Compare = function(str, hash){
     return bcrypt.compareSync(str, hash);
 };
-module.exports.passport = passport;
+module.exports.configApp = function(app){
+    app.use(passport.initialize());
+    app.use(passport.session());
+};
