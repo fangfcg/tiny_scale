@@ -20,9 +20,8 @@ server.listen(port, function(){
 });
 app['use'](bodyParser.urlencoded());
 app.use(bodyParser.json());
-app.get('/route', function(req, res){
-    res.status(404);
-    res.send('page not found');
+app.get('/route', function(req, res, next){
+    
 });
 app.post('/post_test', function(req, res){
     res.status(404);

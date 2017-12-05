@@ -44,7 +44,7 @@ async function foreignKeyTest()
 }
 foreignKeyTest();
 */
-
+/*
 //数组元素测试
 async function arrayFieldTest(){
     var group = await model.operatorGroup.findOne({name:"ArrayTest"});
@@ -57,4 +57,15 @@ async function arrayFieldTest(){
     }
     process.exit(0);
 }
-arrayFieldTest();
+arrayFieldTest();*/
+
+async function objfy(){
+    var a = new model.operator({name:'hello', pass:'123'});
+    await a.save();
+    var b = await model.operator.findOne({name:'hello'});
+    var c = b.toObject();
+    console.log(Object.keys(c).filter(attr=>{
+        return !attr.startsWith('_');
+    }));
+}
+objfy();
