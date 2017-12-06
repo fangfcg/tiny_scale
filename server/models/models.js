@@ -27,3 +27,6 @@ module.exports.dropDatabase = async function(){
     await mongoose.connection.dropDatabase();
   }
 };
+module.exports.disconnect = async function(){
+  await mongoose.disconnect();
+};

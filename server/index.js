@@ -8,6 +8,11 @@ app.use(bodyParser.json());
 //配置会话存储
 var session = require('express-session');
 var store = new session.MemoryStore();  //暂时使用内存型会话存储
+//对store进行promisify
+const blueBird = require('bluebird');
+store = blueBird.promisifyAll(store);
+server = blueBird.promisifyAll(server);
+
 const sessionSecret = 'secret';
 const sessionName = 'connect.sid';
 app.use(session({
@@ -24,7 +29,15 @@ const router = require('./api/router');
 router.setRoute(app);
 //启动
 server.listen(8080);
-module.exports = server;
+//供测试时使用
+module.exports.clearServerState = async function(){
+    if(process.env.IS_TEST){
+        await store.clearAsync();
+    }
+};
+module.exports.stopServer = async function(){
+    await server.closeAsync();
+};
 /*
 var io = require('socket.io')(server);
 

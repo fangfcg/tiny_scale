@@ -4,7 +4,8 @@
   "description": "online service system",
   "main": "index.js",
   "scripts": {
-    "test-back": "./node_modules/mocha/bin/mocha server/test/mocha_test"
+    "test-back": "./node_modules/mocha/bin/mocha ./test/mocha_test",
+    "test-func":"./node_modules/mocha/bin/mocha ./test/functionTestEntry"
   },
   "repository": {
     "type": "git",
