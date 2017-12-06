@@ -21,9 +21,9 @@ file_list.forEach(file =>{
     var model = require(path.join(__dirname, file))(Schema, mongoose);
     db[model.modelName] = model;
   });
-db.dropDatabase = async function(){
+module.exports.models = db;
+module.exports.dropDatabase = async function(){
   if(process.env.IS_TEST){
     await mongoose.connection.dropDatabase();
   }
 };
-module.exports = db;

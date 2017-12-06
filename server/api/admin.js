@@ -1,4 +1,4 @@
-var model = require('../models/models');
+var model = require('../models/models').models;
 var util = require('../utils');
 //restful格式{code, data, msg}, code 为0表示成功，非0表示失败
 async function getGroupInfo(req, res){

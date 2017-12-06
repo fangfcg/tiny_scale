@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const model = require('./models/models');
+const model = require('./models/models').models;
 var salt = bcrypt.genSaltSync(10);
 //配置认证机制
 var passport = require('passport');

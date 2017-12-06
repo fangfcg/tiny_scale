@@ -1,4 +1,4 @@
-const model = require('./models');
+const model = require('./models').models;
 
 /*
 //创建示例

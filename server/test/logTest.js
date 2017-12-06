@@ -9,20 +9,20 @@ describe('db test',function(){
 });
 
 async function dbInit(){
-    var operator = new model.operator({name:'hello', pass:'12345'});
+    var operator = new model.models.operator({name:'hello', pass:'12345'});
     await operator.save();
 }
 
 async function dbTear(){
     await model.dropDatabase();
-    var operator = new model.operator({name:'hello', pass:'12345'});
+    var operator = new model.models.operator({name:'hello', pass:'12345'});
     await operator.save();
     process.exit(0);
 }
 
 async function dbTest(){
     try {
-        var operator = await model.operator.findOne({name:"hello"});
+        var operator = await model.models.operator.findOne({name:"hello"});
     }
     catch(e){
         throw(e);
