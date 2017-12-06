@@ -4,7 +4,7 @@ function operatorControler(){
     const event = require('events');
     this.event = new event();
     this.customerListener = null;
-    this.operatorAllocator = require('./operatorAllocator');
+    this.operatorAllocator = new (require('./operatorAllocator'))();
 
     //设置event处理函数
     this.event.on('allocate_operator', this._allocateOperator.bind(this));

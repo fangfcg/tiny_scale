@@ -27,6 +27,23 @@ auth.configApp(app);
 //配置路由
 const router = require('./api/router');
 router.setRoute(app);
+//设置socket连接
+var io = require('socket.io')(server);
+
+const {URL} = require('url');
+
+var customer = new (require('./socket/controlers/customer/customerController'))();
+var operator = new (require('./socket/controlers/operator/operatorController'))();
+io.on('connection', socket=>{
+    var path = new URL(socket.handshake.headers.referer);
+    if(path.pathname === "/customer.html"){
+        customer.newSocket(socket);
+    }
+    else{
+        operator.newSocket(socket);
+    }
+});
+
 //启动
 server.listen(8080);
 //供测试时使用
