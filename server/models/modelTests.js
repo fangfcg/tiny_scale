@@ -46,6 +46,7 @@ foreignKeyTest();
 */
 
 //数组元素测试
+
 async function arrayFieldTest(){
     var group = await model.operatorGroup.findOne({name:"ArrayTest"});
     if(!group)
@@ -55,6 +56,7 @@ async function arrayFieldTest(){
         group.sessionCounts = group.sessionCounts.concat([0]);
         await group.save();
     }
+    console.log(group.id);
     process.exit(0);
 }
 arrayFieldTest();
