@@ -7,9 +7,16 @@ async function getGroupInfo(req, res){
         messageCount:'msgCounts'};
     req.body = req.query;
     if(!util.bodyContains(req, 'id')){res.json({code:1});return;}
-    try{var admin = await model.admin.findById(req.body.id);}
-    catch(err){res.json({code:1, msg:err});return;}
-    if(!admin){res.json({code:1}); return;}
+    try{
+        var admin = await model.admin.findById(req.body.id);
+    }
+    catch(err){
+        res.json({code:1, msg:err});return;
+    }
+    if(!admin){
+        res.json({code:1}); 
+        return;
+    }
     var group = await model.operatorGroup.findById(admin.operatorGroupId);
     //根据dataType确定返回的数据类型
     if(!util.bodyContains(req, 'dataType')){
