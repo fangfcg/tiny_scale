@@ -20,3 +20,12 @@ module.exports.doc2Object = function(document){
     });
     return customObj;
 };
+/**
+ * 
+ * @param {Date} startDate 
+ * @param {Array} dataArray 
+ */
+module.exports.wrapArrayData = function(startDate, dataArray){
+    var endDate =  new Date(startDate.setDate(startDate.getDate() + dataArray.length));
+    return {startDate: startDate, data:dataArray, endDate:endDate};
+};

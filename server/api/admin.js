@@ -24,7 +24,8 @@ async function getGroupInfo(req, res){
     }
     else{
         //返回服务数据
-        res.json(group[map[req.body.dataType]]);
+        var list = group[map[req.body.dataType]] || [];
+        res.json(util.wrapArrayData(group.serviceRecordStart, list));
     }
 }
 
