@@ -66,5 +66,5 @@ OperatorAllocator.prototype.rotationDistribution = function(){
 };
 
 
-var allocator = new OperatorAllocator();
-module.exports = allocator;
+
+module.exports = OperatorAllocator;

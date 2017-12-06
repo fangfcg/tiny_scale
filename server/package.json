@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test-back": "./node_modules/mocha/bin/mocha ./test/mocha_test",
-    "test-func":"./node_modules/mocha/bin/mocha ./test/functionTestEntry"
+    "test-func": "./node_modules/mocha/bin/mocha ./test/functionTestEntry",
+    "test-unit":"./node_modules/mocha/bin/mocha ./test/operatorAllocatorTest"
   },
   "repository": {
     "type": "git",
