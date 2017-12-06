@@ -6,7 +6,7 @@ async function getGroupInfo(req, res){
         manualRate:'manualServiceRates', 
         messageCount:'msgCounts'};
     req.body = req.query;
-    if(!util.bodyContains(req, 'id')){res.json({code:1});return;}
+    req.body.id = req.user.id;
     try{
         var admin = await model.admin.findById(req.body.id);
     }
