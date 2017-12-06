@@ -4,8 +4,9 @@ var salt = bcrypt.genSaltSync(10);
 //配置认证机制
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
-passport.use(new Strategy({passReqToCallback:true}, function(req ,username, pass, done){
-    if(req.path.endsWith('admin')){adminAuth(req, username, pass, done);}
+
+passport.use(new Strategy({passReqToCallback:true},async function(req ,username, pass, done){
+    if(req.body.type == 'admin'){adminAuth(req, username, pass, done);}
     else{operatorAuth(req, username, pass, done);}  
 }));
 //匹配规则设定
@@ -17,7 +18,7 @@ async function adminAuth(req, username, pass, done){
         return done(e);
     }
     //未找到用户或者密码不匹配
-    if(!admin || !bcrypt.compareSync(username, admin.pass)){return done(null, false);}
+    if(!admin || !bcrypt.compareSync(pass, admin.pass)){return done(null, false);}
     admin.userType = 'admin';
     return done(null, admin);
 }
@@ -62,4 +63,8 @@ module.exports.Compare = function(str, hash){
 module.exports.configApp = function(app){
     app.use(passport.initialize());
     app.use(passport.session());
+    //临时验证接口
+    app.post('/login', passport.authenticate('local'), function(req, res){
+        res.status(200).send('login ok');
+    });
 };

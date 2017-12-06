@@ -1,0 +1,45 @@
+{
+  "name": "tiny_scale",
+  "version": "1.0.0",
+  "description": "online service system",
+  "main": "index.js",
+  "scripts": {
+    "test-back": "./node_modules/mocha/bin/mocha server/test/mocha_test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.thsecourse.com:Lygepology/TinyScale.git"
+  },
+  "keywords": [
+    "online_service",
+    "javascirpt",
+    "node",
+    "websocket"
+  ],
+  "author": "Tiny Scale Group",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.2",
+    "chai": "^4.1.2",
+    "connect-redis": "^3.3.2",
+    "cookie-parser": "^1.4.3",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "express-socket.io-session": "^1.3.2",
+    "linked-list": "^1.0.3",
+    "mocha": "^4.0.1",
+    "mongoose": "^4.13.4",
+    "passport": "^0.4.0",
+    "passport-local": "^1.0.0",
+    "proxyquire": "^1.8.0",
+    "redis": "^2.8.0",
+    "request": "^2.83.0",
+    "request-promise": "^4.2.2",
+    "sinon": "^4.1.2",
+    "socket.io": "^2.0.4",
+    "socketio": "^1.0.0",
+    "style-loader": "^0.19.0"
+  }
+}

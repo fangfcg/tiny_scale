@@ -3,7 +3,7 @@ var app = express();
 var server = require('http').createServer(app);
 //配置body解析
 const bodyParser = require('body-parser');
-app['use'](bodyParser.urlencoded());
+app['use'](bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
 //配置会话存储
 var session = require('express-session');
