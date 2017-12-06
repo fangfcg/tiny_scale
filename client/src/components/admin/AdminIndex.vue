@@ -5,20 +5,13 @@
         <el-row type="flex" :gutter="10">
           <el-col :span="4">
             <!--<router-link to="/CustomMenu"> -->
-              <img class="logo" width="167" height="50" src="../../assets/logoall.jpg" alt="nopic" />
+              <img class="logo" width="167" height="50" src="assets/logoall.jpg" alt="nopic" />
             <!--</router-link> -->
           </el-col>
           <el-col :offset="2">
-            <el-menu class="el-menu-demo" mode="horizontal" :router=true>
+            <el-menu class="el-menu-demo" mode="horizontal" :router="true">
                 <el-menu-item class="menuitem" index="/Main">管理员首页</el-menu-item>
-                <el-submenu index="/Data">
-                    <template slot="title">
-                        查看信息
-                    </template>
-                    <el-menu-item v-for="data in this.DataList" :key="data.id" @click="changeData(data.id)" index="/Data">
-                        {{data.data}}
-                    </el-menu-item>
-                </el-submenu>
+                <el-menu-item class="menuitem" index="/Data">数据信息</el-menu-item>
                 <el-menu-item class="menuitem" index="/Settings">设置</el-menu-item>
             </el-menu>
           </el-col>
@@ -36,7 +29,6 @@
 <script>
 export default {
   created () {
-    this.$store.commit('setRandomData')
   },
   data () {
     return {
@@ -44,10 +36,6 @@ export default {
     }
   },
   methods: {
-    changeData (id) {
-      console.log('thisis' + id)
-      this.$store.commit('changeDisplayingType', id)
-    }
   }
 }
 </script>

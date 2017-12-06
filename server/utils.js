@@ -26,6 +26,8 @@ module.exports.doc2Object = function(document){
  * @param {Array} dataArray 
  */
 module.exports.wrapArrayData = function(startDate, dataArray){
-    var endDate =  new Date(startDate.setDate(startDate.getDate() + dataArray.length));
+    dataArray = Array.from(dataArray);
+    var endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + dataArray.length);
     return {startDate: startDate, data:dataArray, endDate:endDate};
 };

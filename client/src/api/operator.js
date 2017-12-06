@@ -16,7 +16,7 @@ var Chat = {
   currentNum: 0,
   finishNum: 0,
   operatorStatus: 0,
-  userList: [{ userid: 1, msgList: [] }],
+  userList: [],
   socket: null,
   createMsg: function () {
     msgId++
@@ -111,10 +111,12 @@ var Chat = {
     }
   },
   getNext: function () {
-    console.log(123)
     this.socket.emit('get_next')
   },
   sendMsg: function (msg) {
+    if (this.currentUser === null) {
+      return
+    }
     var newMsg = this.createMsg()
     newMsg.msg = msg
     newMsg.type = 0

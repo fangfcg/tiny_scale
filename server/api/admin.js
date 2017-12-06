@@ -22,11 +22,12 @@ async function getGroupInfo(req, res){
     else{
         //返回服务数据
         var list = group[map[req.body.dataType]] || [];
-        res.json(util.wrapArrayData(group.serviceRecordStart, list));
+        var result = util.wrapArrayData(group.serviceRecordStart, list);
+        res.json(result);
     }
 }
 
-async function operatorInfo(req, res){
+async function getOperatorInfo(req, res){
     req.body = req.query;
     var map = {sessionCount:'sessionCounts', messageCount:'msgCounts'};
     if(!util.bodyContains(req, 'id')){
@@ -39,16 +40,18 @@ async function operatorInfo(req, res){
         return;
     }
     //防止不同组的管理员获取客服的信息
-    if(operator.operatorGroupId != req.user.operatorGroupId){
+    if(operator.operatorGroupId.toString() != req.user.operatorGroupId.toString()){
         res.json({code:1, msg:'not belong to same group'});
         return;
     }
     if(req.body.dataType){
         var list = operator[map[req.body.dataType]] || [];
-        res.json(util.wrapArrayData(operator.serviceRecordStart, list));
+        var result = util.wrapArrayData(operator.serviceRecordStart, list);
+        res.json(result);
     }
 }
 
 module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true},
+    {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true},
 ];

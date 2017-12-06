@@ -1,28 +1,28 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import Admin from './api/admin'
+import admin from './api/admin'
 
 Vue.use(Vuex)
 
 const state = {
-  admin: Admin
+  admin: admin
 }
 
 const mutations = {
-  changeDisplayingType (state, id) {
-    state.admin.changeDisplayingType(id)
+  getGroupList (state) {
+    state.admin.getGroupList()
   },
-  changeDisplayingCustom (state, id) {
-    state.admin.changeDisplayingCustom(id)
+  getGroupInfo () {
+    state.admin.getGroupInfo()
   },
-  getRawData (state) {
-    return state.admin.getRawData()
+  getOperatorInfo () {
+    state.admin.getOperatorInfo()
   },
-  setRandomData (state) {
-    state.admin.setRandomData()
+  getOperatorChatTotal () {
+    state.admin.getOperatorChatTotal()
   },
-  getCurrType (state) {
-    return state.admin.getCurrType()
+  getOperatorChatLog () {
+    state.admin.getOperatorChatLog()
   }
 }
 

@@ -5,23 +5,26 @@
         <el-row type="flex" :gutter="10">
           <el-col :span="4">
             <!--<router-link to="/CustomMenu"> -->
-              <img class="logo" width="167" height="50" src="../../assets/logoall.jpg" alt="nopic" />
+              <img class="logo" width="167" height="50" src="assets/logoall.jpg" alt="nopic" />
             <!--</router-link> -->
           </el-col>
-          <el-col :span="4" :offset="2">
+          <el-col :span="6" :offset="2">
             <el-menu class="el-menu-demo" :router=true mode="horizontal" default-active="/CustomMenu" >
                 <el-menu-item class="menuitem" index="/CustomMenu">客服界面</el-menu-item>
                 <el-menu-item class="menuitem" index="/CustomTalk">会话界面</el-menu-item>
             </el-menu>
           </el-col>
-          <el-col :span="2" :offset="10" class="dropdown">
+          <el-col :span="2" :offset="7" class="top-button">
+            <span id="getGuestButton" @click="getGuest">接入客户</span>
+          </el-col>
+          <el-col :span="2"  class="top-button">
             <el-dropdown @command="statusChange">
               <span class="el-dropdown-link">
-                {{statusList[nowStatus].statu}}<i class="el-icon-arrow-down el-icon--right"></i>
+                {{statusList[listenStatus].statu}}<i class="el-icon-arrow-down el-icon--right"></i>
               </span>
               <el-dropdown-menu slot="dropdown">
                 <template v-for="item in statusList">
-                  <el-dropdown-item v-if="item.num === nowStatus" :key="item.num" :command="item.statu" disabled>
+                  <el-dropdown-item v-if="item.num === listenStatus" :key="item.num" :command="item.statu" disabled>
                     {{item.statu}}
                   </el-dropdown-item>
                   <el-dropdown-item v-else :key="item.num" :command="item.statu">
@@ -33,8 +36,6 @@
           </el-col>
         </el-row>
       </el-header>
-      <el-aside>
-      </el-aside>
       <el-main>
         <router-view></router-view>
       </el-main>
@@ -49,8 +50,27 @@ export default {
   },
   data () {
     return {
-      statusList: [{num: 0, statu: '在线'}, {num: 1, statu: '离线'}],
-      nowStatus: this.$store.state.chat.operatorStatus
+      statusList: [{num: 0, statu: '在线'}, {num: 1, statu: '休息'}]
+    }
+  },
+  computed: {
+    listenWaitingNum () {
+      return this.$store.state.chat.waitingNum
+    },
+    listenStatus () {
+      return this.$store.state.chat.operatorStatus
+    }
+  },
+  watch: {
+    listenWaitingNum: function (val, oldval) {
+      if (val === oldval - 1) {
+        this.$notify({
+          title: '接入成功',
+          message: '接入新用户' + this.$store.state.chat.currentUser.toString(),
+          position: 'bottom-right',
+          type: 'success'
+        })
+      }
     }
   },
   methods: {
@@ -58,7 +78,6 @@ export default {
       for (let item of this.statusList) {
         if (item.statu === command) {
           this.$store.state.chat.operatorStatus = item.num
-          this.nowStatus = item.num
           const h = this.$createElement
           this.$message({
             message: h('p', null, [
@@ -69,6 +88,17 @@ export default {
           break
         }
       }
+    },
+    getGuest () {
+      if (this.$store.state.chat.waitingNum <= 0) {
+        this.$notify.error({
+          title: '接入失败',
+          message: '队列中没有等待的客户',
+          position: 'bottom-right'
+        })
+        return
+      }
+      this.$store.commit('getNext')
     }
   }
 }
@@ -90,12 +120,18 @@ export default {
 .logo {
   margin-top:10px;
 }
-.dropdown {
+.top-button {
   margin-top:20px;
 }
 .el-dropdown-link {
   cursor: pointer;
   color: #006ddd;
+  font-size: 15px;
+}
+#getGuestButton {
+  cursor: pointer;
+  color: #006ddd;
+  font-size: 16px;
 }
 
 </style>

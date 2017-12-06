@@ -18,7 +18,7 @@ async function adminAuth(req, username, pass, done){
         return done(e);
     }
     //未找到用户或者密码不匹配
-    if(!admin || !bcrypt.compareSync(pass, admin.pass)){return done(null, false);}
+    if(!admin || pass != admin.pass){return done(null, false);}
     admin.userType = 'admin';
     return done(null, admin);
 }

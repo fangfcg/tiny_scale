@@ -32,20 +32,27 @@ var io = require('socket.io')(server);
 
 const {URL} = require('url');
 
-var customer = new (require('./socket/controlers/customer/customerController'))();
-var operator = new (require('./socket/controlers/operator/operatorController'))();
+var customer = new (require('./socket/customer/customerController'))();
+var operator = new (require('./socket/operator/operatorController'))();
+customer.operatorListener = operator.event;
+operator.customerListener = customer.event;
 io.on('connection', socket=>{
     var path = new URL(socket.handshake.headers.referer);
-    if(path.pathname === "/customer.html"){
+    if(path.pathname === "/client.html"){
         customer.newSocket(socket);
     }
     else{
         operator.newSocket(socket);
     }
 });
+const path = require('path');
+//设置静态文件夹
+app.use(express.static(path.join(__dirname, '../client/dist')));
 
 //启动
-server.listen(8080);
+server.listen(8080, function(){
+    console.log('server started');
+});
 //供测试时使用
 module.exports.clearServerState = async function(){
     if(process.env.IS_TEST){
