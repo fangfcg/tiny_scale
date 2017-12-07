@@ -17,67 +17,14 @@ var adminobj = {
   data: [],
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
-    axios.post(httpUrl.postUrl, {
-      username: 'fcg',
-      password: '123456',
-      type: 'admin'
-    }).then(function () {
-      axios.get(httpUrl.groupInfoUrl, {
-        params: {
-          id: adminobj.adminId,
-          dataType: null
-        }
-      })
-      .then(function (response) {
-        adminobj.operatorList = response.data
-      })
-    })
   },
   getGroupInfo () {
-    axios.get(httpUrl.groupInfoUrl, {
-      params: {
-        id: adminobj.adminId,
-        dataType: dataTypeList[adminobj.choosenDataType]
-      }
-    })
-    .then(function (response) {
-      adminobj.data = response.data.data
-      adminobj.startDate = new Date(response.data.startDate)
-      adminobj.endDate = new Date(response.data.endDate)
-    })
   },
   getOperatorInfo () {
-    axios.get(httpUrl.operatorInfoUrl, {
-      params: {
-        id: adminobj.choosenOperator.id,
-        dataType: dataTypeList[adminobj.choosenDataType]
-      }
-    })
-    .then(function (response) {
-      adminobj.data = response.data.data
-      adminobj.startDate = new Date(response.data.startDate)
-      adminobj.endDate = new Date(response.data.endDate)
-    })
   },
   getOperatorChatTotal () {
-    axios.get(httpUrl.operatorChatTotalUrl, {
-      params: {
-        id: adminobj.choosenOperator.id
-      }
-    })
-    .then(function (response) {
-      adminobj.data = response.data
-    })
   },
   getOperatorChatLog () {
-    axios.get(httpUrl.operatorChatTotalUrl, {
-      params: {
-        id: adminobj.choosenOperator.id
-      }
-    })
-    .then(function (response) {
-      adminobj.data = response.data
-    })
   }
 }
 
