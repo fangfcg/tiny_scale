@@ -29,28 +29,19 @@ var Chat = {
     }
   },
   changeCard: function (userid) {
-    console.log('operator')
-    console.log(userid)
-
     for (var j = 0; j < this.currentNum; j++) {
       if (this.userList[j].userid === userid) {
         this.currentUser = userid
         this.currentIndex = j
       }
     }
-    console.log('index')
-    console.log(this.currentIndex)
   },
   initSock: function () {
     this.socket = io(serverAddress)
     this.socket.on('new_customer', function () {
-      console.log(1231232132131231)
       this.waitingNum ++
     }.bind(Chat))
     this.socket.on('get_next', function (userid) {
-      console.log('aaaa')
-      console.log(userid)
-      console.log('bbbb')
       var newUser = user()
       newUser.userid = userid
       this.currentUser = userid
