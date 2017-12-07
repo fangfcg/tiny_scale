@@ -17,6 +17,21 @@ var adminobj = {
   data: [],
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
+    axios.post(httpUrl.postUrl, {
+      username: 'fcg',
+      password: '123456',
+      type: 'admin'
+    }).then(function () {
+      axios.get(httpUrl.groupInfoUrl, {
+        params: {
+          id: adminobj.adminId,
+          dataType: null
+        }
+      })
+      .then(function (response) {
+        adminobj.operatorList = response.data
+      })
+    })
   },
   getGroupInfo () {
   },
