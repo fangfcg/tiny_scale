@@ -34,6 +34,17 @@ var adminobj = {
     })
   },
   getGroupInfo () {
+    axios.get(httpUrl.groupInfoUrl, {
+      params: {
+        id: adminobj.adminId,
+        dataType: dataTypeList[adminobj.choosenDataType]
+      }
+    })
+    .then(function (response) {
+      adminobj.data = response.data.data
+      adminobj.startDate = new Date(response.data.startDate)
+      adminobj.endDate = new Date(response.data.endDate)
+    })
   },
   getOperatorInfo () {
   },
