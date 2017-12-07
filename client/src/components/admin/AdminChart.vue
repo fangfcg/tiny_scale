@@ -3,7 +3,47 @@
     <el-container>
       <el-main>
         <el-container>
+        <div class="search-type">
+          <el-dropdown trigger="click" @command="dataTypeChange">
+            <span class="el-dropdown-link">
+              {{choosenDataType === null ? '数据类型' : DataList[choosenDataType].data}}<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <template v-for="item in DataList">
+                <el-dropdown-item v-if="item.id === choosenDataType" :key="item.num" :command="item.id" disabled>
+                  {{item.data}}
+                </el-dropdown-item>
+                <el-dropdown-item v-else :key="item.id" :command="item.id">
+                  {{item.data}}
+                </el-dropdown-item>
+              </template>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
         
+        <div class="search-type">
+          <el-dropdown trigger="click" @command="operatorChange">
+            <span class="el-dropdown-link">
+              {{choosenOperator.id === null ? '总量' : choosenOperator.name}}<i class="el-icon-arrow-down el-icon--right"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item  v-if="choosenOperator.id===null" :key="0" :command="{id:null, name:null}" disabled>
+                  总量
+              </el-dropdown-item>
+              <el-dropdown-item v-else :key="0" :command="{id:null, name:null}">
+                  总量
+              </el-dropdown-item>
+              <template v-for="item in operatorList">
+                <el-dropdown-item v-if="item.id === choosenOperator.id" :key="item.id" :command="item" disabled>
+                  {{item.name}}
+                </el-dropdown-item>
+                <el-dropdown-item v-else :key="item.id" :command="item" >
+                  {{item.name}}
+                </el-dropdown-item>
+              </template>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </div>
 
         </el-container>
         <div class="block">
