@@ -47,6 +47,17 @@ var adminobj = {
     })
   },
   getOperatorInfo () {
+    axios.get(httpUrl.operatorInfoUrl, {
+      params: {
+        id: adminobj.choosenOperator.id,
+        dataType: dataTypeList[adminobj.choosenDataType]
+      }
+    })
+    .then(function (response) {
+      adminobj.data = response.data.data
+      adminobj.startDate = new Date(response.data.startDate)
+      adminobj.endDate = new Date(response.data.endDate)
+    })
   },
   getOperatorChatTotal () {
   },
