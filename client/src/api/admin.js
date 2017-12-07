@@ -42,12 +42,8 @@ var adminobj = {
     })
     .then(function (response) {
       adminobj.data = response.data.data
-      console.log('the data get: ')
-      console.log(adminobj.data)
       adminobj.startDate = new Date(response.data.startDate)
       adminobj.endDate = new Date(response.data.endDate)
-      console.log('startDate:')
-      console.log(adminobj.startDate)
     })
   },
   getOperatorInfo () {
@@ -58,8 +54,6 @@ var adminobj = {
       }
     })
     .then(function (response) {
-      console.log('data for operator get:')
-      console.log(response.data)
       adminobj.data = response.data.data
       adminobj.startDate = new Date(response.data.startDate)
       adminobj.endDate = new Date(response.data.endDate)
