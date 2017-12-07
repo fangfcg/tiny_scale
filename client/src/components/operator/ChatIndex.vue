@@ -12,26 +12,6 @@
                 <el-menu-item class="menuitem" index="/CustomTalk">会话界面</el-menu-item>
             </el-menu>
           </el-col>
-          <el-col :span="2" :offset="7" class="top-button">
-            <span id="getGuestButton" @click="getGuest">接入客户</span>
-          </el-col>
-          <el-col :span="2"  class="top-button">
-            <el-dropdown @command="statusChange">
-              <span class="el-dropdown-link">
-                {{statusList[listenStatus].statu}}<i class="el-icon-arrow-down el-icon--right"></i>
-              </span>
-              <el-dropdown-menu slot="dropdown">
-                <template v-for="item in statusList">
-                  <el-dropdown-item v-if="item.num === listenStatus" :key="item.num" :command="item.statu" disabled>
-                    {{item.statu}}
-                  </el-dropdown-item>
-                  <el-dropdown-item v-else :key="item.num" :command="item.statu">
-                    {{item.statu}}
-                  </el-dropdown-item>
-                </template>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </el-col>
         </el-row>
       </el-header>
       <el-main>
