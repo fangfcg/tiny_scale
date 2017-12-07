@@ -1,6 +1,9 @@
 const bcrypt = require('bcryptjs');
 const model = require('./models/models').models;
-var salt = bcrypt.genSaltSync(10);
+const fs = require('fs');
+const path = require('path');
+var salt = fs.readFileSync(path.join(__dirname,'salt.log')).toString();
+
 //配置认证机制
 var passport = require('passport');
 var Strategy = require('passport-local').Strategy;
@@ -18,7 +21,7 @@ async function adminAuth(req, username, pass, done){
         return done(e);
     }
     //未找到用户或者密码不匹配
-    if(!admin || pass != admin.pass){return done(null, false);}
+    if(!admin || !bcrypt.compareSync(pass, admin.pass)){return done(null, false);}
     admin.userType = 'admin';
     return done(null, admin);
 }
@@ -30,7 +33,7 @@ async function operatorAuth(req, username, pass, done){
         return done(e);
     }
      //未找到用户或者密码不匹配 
-    if(!operator){return done(null, false);}
+    if(!operator || !bcrypt.compareSync(pass, operator.pass)){return done(null, false);}
     operator.userType = 'operator';
     return done(null, operator);
 }
