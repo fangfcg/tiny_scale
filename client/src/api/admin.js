@@ -70,6 +70,14 @@ var adminobj = {
     })
   },
   getOperatorChatLog () {
+    axios.get(httpUrl.operatorChatTotalUrl, {
+      params: {
+        id: adminobj.choosenOperator.id
+      }
+    })
+    .then(function (response) {
+      adminobj.data = response.data
+    })
   }
 }
 
