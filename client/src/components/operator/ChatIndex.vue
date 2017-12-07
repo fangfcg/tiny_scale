@@ -4,9 +4,7 @@
       <el-header>
         <el-row type="flex" :gutter="10">
           <el-col :span="4">
-            <!--<router-link to="/CustomMenu"> -->
               <img class="logo" width="167" height="50" src="assets/logoall.jpg" alt="nopic" />
-            <!--</router-link> -->
           </el-col>
           <el-col :span="6" :offset="2">
             <el-menu class="el-menu-demo" :router=true mode="horizontal" default-active="/CustomMenu" >

@@ -9,7 +9,7 @@
     </el-menu>
   </el-aside>
   <el-main>
-    <template> <!-- v-if="this.$store.state.chat.currentNum > 0"-->
+    <template>
       <div class="chatall">
         <chat-component></chat-component>
       </div>
@@ -34,8 +34,6 @@ export default {
   },
   methods: {
     changeCard (useridNew) {
-      console.log('CustomTalk')
-      console.log(useridNew)
       this.$store.commit('changeCard', useridNew)
     }
   },

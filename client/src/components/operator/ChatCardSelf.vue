@@ -24,28 +24,11 @@ export default {
 </script>
 <style lang='less'>
 .self-wrap{
-  /*background-color: #666;*/
   padding: 5px 5px 15px 5px;
   position: relative;
   overflow: hidden;
-  /*
-  .-header{
-  	position: relative;
-  	left: ~'calc(100% - 50px)';
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #905;
-    height:50px;
-    width: 50px;
-    border-radius: 50%;
-    font-weight: bolder;
-  }
-  */
   .-header{
     position: absolute;
-    //margin-right:-550px; 
-    //left: 400px;
     right: 15px;
     border-radius: 3px;
     height:35px;
@@ -60,7 +43,6 @@ export default {
     left: -60px;
     top: 0px;
     border-radius: 6px;
-    //max-width: ~'calc(100% - 180px)';
     font-size: 13px;
     width: fit-content;
     width:-webkit-fit-content;

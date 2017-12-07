@@ -9,7 +9,6 @@
 </template>
 
 <script>
-// import Chat from '../api/client'
 export default {
   data () {
     return {
