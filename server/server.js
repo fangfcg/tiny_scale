@@ -5,22 +5,15 @@ var server = require('http').createServer(app);
 const bodyParser = require('body-parser');
 app['use'](bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
-//配置会话存储
-var session = require('express-session');
-var store = new session.MemoryStore();  //暂时使用内存型会话存储
-//对store进行promisify
+
+//对server进行promisify
 const blueBird = require('bluebird');
-store = blueBird.promisifyAll(store);
 server = blueBird.promisifyAll(server);
 
-const sessionSecret = 'secret';
-const sessionName = 'connect.sid';
-app.use(session({
-    secret: sessionSecret,
-    resave: false,
-    name: sessionName,
-    saveUninitialized:false,
-    store: store}));
+//配置会话
+const session = require('./session');
+session.configApp(app);
+
 //配置认证机制
 const auth = require('./auth');
 auth.configApp(app);
@@ -52,7 +45,7 @@ app.use(express.static(path.join(__dirname, '../client/dist')));
 //供测试时使用
 module.exports.clearServerState = async function(){
     if(process.env.IS_TEST){
-        await store.clearAsync();
+        await session.clearStore();
     }
 };
 module.exports.stopServer = async function(){
