@@ -49,8 +49,6 @@ body {
 
 .chatbox{
   width: 100%;
-  //display: flex;
-  //flex-direction: column;
   height: 100%;
   justify-content: space-between;
   border:1px;

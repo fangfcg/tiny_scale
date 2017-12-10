@@ -24,7 +24,6 @@ export default {
 
 <style lang='less'>
 .other-wrap{
-  /*background-color: #666;*/
   margin-left:15px;
   padding: 5px 5px 0 5px;
   position: relative;
@@ -35,7 +34,6 @@ export default {
     width: 35px;
   }
   .-name{
-    /*background-color: #fff;*/
     position: absolute;
     font-size: 14px;
     padding: 2px;
@@ -43,14 +41,12 @@ export default {
     color: #999;
   }
   .-msg{
-    /*display: inline-flex;*/
     background-color: #fff;
     padding: 10px;
     position: relative;
     left: 40px;
     top: -40px;
     border-radius: 6px;
-    //max-width: ~'calc(100% - 180px)';
     font-size: 13px;
     width: fit-content;
     width:-webkit-fit-content;

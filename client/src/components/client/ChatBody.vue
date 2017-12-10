@@ -9,7 +9,6 @@
         <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :color="msgObj.color" :key="msgObj.msgId"></chat-card-self>
       </template>
     </template>
-    <!-- <other-msg></other-msg> -->
   </div>
 
 </template>
@@ -18,7 +17,6 @@
 import ChatCardSelf from './ChatCardSelf'
 import ChatCardSystem from './ChatCardSystem'
 import ChatCardOther from './ChatCardOther'
-// import Chat from '../api/client'
 export default {
   data () {
     return {

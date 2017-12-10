@@ -20,6 +20,7 @@
             </el-dropdown-menu>
           </el-dropdown>
         </div>
+        
         <div class="search-type">
           <el-dropdown trigger="click" @command="operatorChange">
             <span class="el-dropdown-link">

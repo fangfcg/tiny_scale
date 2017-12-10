@@ -19,7 +19,6 @@ export default {
 </script>
 <style lang='less'>
 	.sys-wrap{
-		/*background-color: #fff;*/
 		padding: 3px;
 		display: flex;
 		justify-content: center;

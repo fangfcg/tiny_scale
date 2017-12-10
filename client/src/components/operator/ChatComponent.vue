@@ -4,7 +4,6 @@
     <chat-body class="chatbody"></chat-body>
     <chat-input class="chatinput"></chat-input>
   </div>
-  <!-- <group-info></group-info> -->
 </template>
 
 <script>
@@ -47,8 +46,6 @@ body {
 }
 .chatbox{
   width: 100%;
-  //display: flex;
-  //flex-direction: column;
   height: 100%;
   justify-content: space-between;
   border:1px;

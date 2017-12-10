@@ -20,7 +20,6 @@
 import ChatCardSelf from './ChatCardSelf'
 import ChatCardSystem from './ChatCardSystem'
 import ChatCardOther from './ChatCardOther'
-// import Chat from '../api/client'
 export default {
   data () {
     return {
