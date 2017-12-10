@@ -21,23 +21,9 @@ auth.configApp(app);
 const router = require('./api/router');
 router.setRoute(app);
 //设置socket连接
-var io = require('socket.io')(server);
+const socket = require('./socket/socket');
+socket.configSocket(server);
 
-const {URL} = require('url');
-
-var customer = new (require('./socket/customer/customerController'))();
-var operator = new (require('./socket/operator/operatorController'))();
-customer.operatorListener = operator.event;
-operator.customerListener = customer.event;
-io.on('connection', socket=>{
-    var path = new URL(socket.handshake.headers.referer);
-    if(path.pathname === "/client.html"){
-        customer.newSocket(socket);
-    }
-    else{
-        operator.newSocket(socket);
-    }
-});
 const path = require('path');
 //设置静态文件夹
 app.use(express.static(path.join(__dirname, '../client/dist')));
