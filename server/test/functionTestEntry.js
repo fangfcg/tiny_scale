@@ -9,6 +9,7 @@ const model = require('../models/models');
 const server = require('../server');
 describe('function test', function(){
     before(async function(){
+        await model.connect();
         await server.startServer();
     });
     //在每一个suit结束时清空测试数据库以及服务器会话存储

@@ -27,7 +27,7 @@ socket.configSocket(server);
 const path = require('path');
 //设置静态文件夹
 app.use(express.static(path.join(__dirname, '../client/dist')));
-
+const config = require('./serverConfig.json');
 //供测试时使用
 module.exports.clearServerState = async function(){
     if(process.env.IS_TEST){
@@ -39,8 +39,7 @@ module.exports.stopServer = async function(){
 };
 //server的启动放在模块之外
 module.exports.startServer = async function(){
-    var port = 8080;
-    await server.listenAsync(port);
+    await server.listenAsync(config.server.port);
 };
 /*
 var io = require('socket.io')(server);

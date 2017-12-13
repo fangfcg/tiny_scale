@@ -2,7 +2,7 @@ const expect = require('chai').expect;
 const model = require('../models/models');
 const auth = require('../auth');
 
-const baseUrl = 'http://localhost:8080'
+const baseUrl = 'http://localhost:8080';
 
 describe('Login test', function(){
     before(dbInit);

@@ -6,7 +6,7 @@ const session = require('../session');
  * @param {function} next 
  */
 async function auth(socket, next){
-    let token = socket.handshake.query;
+    let token = socket.handshake.query.token;
     var ses = await session.getSession(token);
     ses = ses || {};
     if(!ses.user){

@@ -2,13 +2,12 @@ const fs = require('fs');
 const path = require('path');
 const basename = path.basename(__filename);
 var mongoose = require('mongoose');
-var config = require('./dbconfig.json');
+var config = require('../serverConfig.json');
 
 mongoose.Promise = require('bluebird');
 var Schema = mongoose.Schema;
 //注意，由于存在operation buffering, 在连接后直接使用models不会报错，这样保证了只会连接一次
-const url = process.env.IS_TEST ? config.testUrl : config.productUrl;
-mongoose.connect(url, {useMongoClient:true});
+const url = process.env.IS_TEST ? config.db.testUrl : config.db.productUrl;
 var db = {};
 var file_list = fs.readdirSync(__dirname)
   .filter(file => {
@@ -29,4 +28,7 @@ module.exports.dropDatabase = async function(){
 };
 module.exports.disconnect = async function(){
   await mongoose.disconnect();
+};
+module.exports.connect = async function(){
+  await mongoose.connect(url, {useMongoClient:true});
 };

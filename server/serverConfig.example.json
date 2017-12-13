@@ -1,0 +1,9 @@
+{
+    "server":{
+        "port":80
+    },
+    "db":{
+        "productUrl": "mongodb://localhost/product",
+        "testUrl":"mongodb://localhost/test"
+    }
+}
