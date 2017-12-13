@@ -9,7 +9,6 @@ var operator = new (require('./operator/operatorController'))();
 customer.operatorListener = operator.event;
 operator.customerListener = customer.event;
 io.on('connection', socket=>{
-    socket.emit('auth');
     if(socket.handshake.query.type === "customer"){
         customer.newSocket(socket);
     }

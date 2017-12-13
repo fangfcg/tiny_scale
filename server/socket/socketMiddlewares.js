@@ -15,6 +15,8 @@ async function auth(socket, next){
         return; 
     }
     else{
+        socket.emit('auth');
+        socket.session = ses;
         return next();
     }
 }
