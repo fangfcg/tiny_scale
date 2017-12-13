@@ -28,8 +28,9 @@ module.exports.clearStore = async function(){
 
 //传入的sessionId应该是加密的
 module.exports.getSession = async function(sessionId){
+    sessionId = `${sessionName}=${sessionId}`;
     var req = {headers:{cookie:sessionId}};
-    await secretCookieParser(req);
+    await secretCookieParser(req, {});
     //加密的cookie应在signedCookies中
     var s = await store.getAsync(req.signedCookies[sessionName]);
     return s;
@@ -37,6 +38,6 @@ module.exports.getSession = async function(sessionId){
 
 module.exports.getSessionId = async function(req){
     var req_tmp = {headers:{cookie:req.headers.cookie}};
-    await bareCookieParser(req_tmp);
+    await bareCookieParser(req_tmp, {});
     return req_tmp.cookies[sessionName];
 };

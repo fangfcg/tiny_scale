@@ -18,10 +18,11 @@ async function adminAuth(req, username, pass, done){
         var admin = await model.admin.findOne({name:username});
     }
     catch(e){
-        return done(e);
     }
     //未找到用户或者密码不匹配
-    if(!admin || !bcrypt.compareSync(pass, admin.pass)){return done(null, false);}
+    if(!admin || !bcrypt.compareSync(pass, admin.pass)){
+        return done(null, false);
+    }
     admin.userType = 'admin';
     return done(null, admin);
 }

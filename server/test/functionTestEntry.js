@@ -14,11 +14,10 @@ describe('function test', function(){
     });
     //在每一个suit结束时清空测试数据库以及服务器会话存储
     afterEach(async function(){
-        await model.dropDatabase();
-        await server.clearServerState(); 
     });
     //在全部功能测试结束后清空数据库并结束进程
     after(async function(){
+        console.log('finished');
         await model.disconnect();
         await server.stopServer();
     });

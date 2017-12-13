@@ -9,8 +9,8 @@ var operator = new (require('./operator/operatorController'))();
 customer.operatorListener = operator.event;
 operator.customerListener = customer.event;
 io.on('connection', socket=>{
-    var path = new URL(socket.handshake.headers.referer);
-    if(path.pathname === "/client.html"){
+    socket.emit('auth');
+    if(socket.handshake.query.type === "customer"){
         customer.newSocket(socket);
     }
     else{

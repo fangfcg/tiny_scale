@@ -8,11 +8,15 @@ const session = require('../session');
 async function auth(socket, next){
     let token = socket.handshake.query.token;
     var ses = await session.getSession(token);
-    ses = ses || {};
-    if(!ses.user){
-        return next(new Error('auth failed'));
+    ses = ses || {passport:{}};
+    ses.passport = ses.passport || {};
+    if(!ses.passport.user){
+        socket.disconnect(true);   
+        return; 
     }
-    return next();
+    else{
+        return next();
+    }
 }
 
 module.exports.auth = auth;
