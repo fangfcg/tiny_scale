@@ -3,7 +3,6 @@ const io = require('socket.io')();
 const middlewares = require('./socketMiddlewares');
 io.use(middlewares.auth);
 //接入socket之后的控制处理
-const {URL} = require('url');
 var customer = new (require('./customer/customerController'))();
 var operator = new (require('./operator/operatorController'))();
 customer.operatorListener = operator.event;

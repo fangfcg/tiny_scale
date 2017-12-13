@@ -8,15 +8,17 @@ const session = require('../session');
 async function auth(socket, next){
     let token = socket.handshake.query.token;
     var ses = await session.getSession(token);
-    ses = ses || {passport:{}};
-    ses.passport = ses.passport || {};
-    if(!ses.passport.user){
+    ses.data = ses.data || {};
+    ses.data.passport = ses.data.passport || {};
+    if(!ses.data.passport.user){
         socket.disconnect(true);   
         return; 
     }
     else{
         socket.emit('auth');
         socket.session = ses;
+        socket.session.data.hello = 'hi';
+        await ses.save();
         return next();
     }
 }
