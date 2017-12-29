@@ -8,6 +8,15 @@ var operator = new (require('./operator/operatorController'))();
 customer.operatorListener = operator.event;
 operator.customerListener = customer.event;
 io.on('connection', socket=>{
+    /*
+    console.log("socket arrived");
+    console.log(socket.handshake.address);
+    if(socket.handshake.headers.referer.endsWith("client.html")){
+        customer.newSocket(socket);
+    }
+    else{
+        operator.newSocket(socket);
+    }*/
     if(socket.handshake.query.type === "customer"){
         customer.newSocket(socket);
     }
