@@ -11,6 +11,7 @@
             <el-menu class="el-menu-demo" :router=true mode="horizontal" default-active="/CustomMenu" >
                 <el-menu-item class="menuitem" index="/CustomMenu">客服界面</el-menu-item>
                 <el-menu-item class="menuitem" index="/CustomTalk">会话界面</el-menu-item>
+                <el-menu-item class="menuitem" index="/CustomSetting">设置</el-menu-item>
             </el-menu>
           </el-col>
           

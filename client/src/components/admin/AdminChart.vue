@@ -176,9 +176,11 @@ export default {
     changeData (obj) {
       var min = obj[0]
       var max = obj[1]
+      var newDateArr
+      var newArr
       if (min === null) {
-        var newDateArr = []
-        var newArr = []
+        newDateArr = []
+        newArr = []
       } else {
         var d = getDateBetween(changeDateFormat(min), changeDateFormat(max))
         var startPos = getDateBetween(this.$store.state.admin.startDate, changeDateFormat(min))
@@ -218,12 +220,6 @@ export default {
       if ((this.startDate === null) || (this.endDate === null)) {
         return
       }
-      /*
-      let m = this.startDate.getMonth() + 1
-      let date1 = this.startDate.getFullYear() + '-' + m + '-' + this.startDate.getDate()
-      m = this.endDate.getMonth() + 1
-      let date2 = this.endDate.getFullYear() + '-' + m + '-' + this.endDate.getDate()
-      */
       this.changeData([null, null])
     },
     operatorChange (command) {
@@ -239,12 +235,6 @@ export default {
       if ((this.startDate === null) || (this.endDate === null)) {
         return
       }
-      /*
-      let m = this.startDate.getMonth() + 1
-      let date1 = this.startDate.getFullYear() + '-' + m + '-' + this.startDate.getDate()
-      m = this.endDate.getMonth() + 1
-      let date2 = this.endDate.getFullYear() + '-' + m + '-' + this.endDate.getDate()
-      */
       this.changeData([null, null])
     }
   }

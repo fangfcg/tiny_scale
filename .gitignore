@@ -23,4 +23,5 @@ logo.png
 package-lock.json
 dbconfig.json
 *.log
+test/
 serverConfig.json
