@@ -4,9 +4,9 @@
   "description": "online service system",
   "main": "index.js",
   "scripts": {
-    "test-back": "./node_modules/mocha/bin/mocha ./test/mocha_test",
+    "test-back": "./node_modules/mocha/bin/mocha ./test/mochaTest",
     "test-func": "./node_modules/mocha/bin/mocha ./test/functionTestEntry",
-    "test-unit":"./node_modules/mocha/bin/mocha ./test/operatorAllocatorTest"
+    "test-unit": "./node_modules/mocha/bin/mocha ./test/operatorAllocatorTest"
   },
   "repository": {
     "type": "git",
@@ -41,6 +41,7 @@
     "request-promise": "^4.2.2",
     "sinon": "^4.1.2",
     "socket.io": "^2.0.4",
+    "socket.io-client": "^2.0.4",
     "socketio": "^1.0.0",
     "style-loader": "^0.19.0"
   }

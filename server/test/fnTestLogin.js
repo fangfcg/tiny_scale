@@ -1,15 +1,23 @@
 const expect = require('chai').expect;
 const model = require('../models/models');
+const server = require('../server');
 const auth = require('../auth');
 
-const baseUrl = 'http://localhost:8080'
+const config = require('../serverConfig.json');
+var baseUrl = `http://localhost:${config.server.port}`;
 
 describe('Login test', function(){
     before(dbInit);
     it('should first return 404 and then not',logTest);
+    after(clear);
 });
 
 var adminId;
+
+async function clear(){
+    await model.dropDatabase();
+    await server.clearServerState();
+}
 
 async function dbInit(){
     var operatorGroup = new model.models.operatorGroup({
@@ -55,6 +63,5 @@ async function logTest(){
             dataType:'sessionCount',
         }
         });
-    console.log(res.body);
     expect(res.body.data).to.be.a('array', 'should return array in value\'s data field');
 }

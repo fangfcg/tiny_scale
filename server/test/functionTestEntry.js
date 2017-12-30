@@ -6,15 +6,18 @@ const path = require('path');
 const basename = path.basename(__filename);
 
 const model = require('../models/models');
-const server = require('../index');
+const server = require('../server');
 describe('function test', function(){
+    before(async function(){
+        await model.connect();
+        await server.startServer();
+    });
     //在每一个suit结束时清空测试数据库以及服务器会话存储
     afterEach(async function(){
-        await model.dropDatabase();
-        await server.clearServerState(); 
     });
     //在全部功能测试结束后清空数据库并结束进程
     after(async function(){
+        console.log('finished');
         await model.disconnect();
         await server.stopServer();
     });
