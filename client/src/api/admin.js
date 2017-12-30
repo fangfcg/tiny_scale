@@ -1,4 +1,5 @@
-// import {urlOperator} from '../../configs'
+// import {urlAdmin, serverIp} from '../../configs'
+import {serverIp} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
   postUrl: '/login',
@@ -14,6 +15,7 @@ var adminobj = {
   choosenDataType: null,
   startDate: null,
   endDate: null,
+  serverIp: serverIp,
   data: [],
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {

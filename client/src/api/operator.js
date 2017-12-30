@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import {urlOperator} from '../../configs'
+import {urlOperator, serverIp} from '../../configs'
 var msgId = 0
 // below are some msg content for test.
 var serverAddress = urlOperator
@@ -18,6 +18,9 @@ var Chat = {
   operatorStatus: 0,
   userList: [],
   socket: null,
+  serverIp: serverIp,
+  name: '小明',
+  email: '123@123.com',
   createMsg: function () {
     msgId++
     return {

@@ -3,7 +3,7 @@
   <el-container>
   <el-aside width="200px">
     <el-menu class="el-menu-vertical-demo">
-      <el-menu-item v-for="cus in this.$store.state.chat.userList":key="cus.id":index="cus.userid.toString()" @click="changeCard(cus.userid)" >
+      <el-menu-item v-for="cus in this.$store.state.chat.userList" :key="cus.id" :index="cus.userid.toString()" @click="changeCard(cus.userid)" >
         用户{{cus.userid}}
       </el-menu-item>
     </el-menu>
