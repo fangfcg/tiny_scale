@@ -7,6 +7,7 @@ const basename = path.basename(__filename);
 
 const model = require('../models/models');
 const server = require('../server');
+const cache = require('../utils').cli;
 describe('function test', function(){
     before(async function(){
         await model.connect();
@@ -20,6 +21,8 @@ describe('function test', function(){
         console.log('finished');
         await model.disconnect();
         await server.stopServer();
+        await cache.flushdbAsync();
+        await cache.quitAsync();
     });
     fs.readdirSync(__dirname)
         .filter(file=>{

@@ -1,5 +1,7 @@
 var model = require('../models/models').models;
 var util = require('../utils');
+var cache = require('../utils').cli;
+
 //restful格式{code, data, msg}, code 为0表示成功，非0表示失败
 async function getGroupInfo(req, res){
     var map = {sessionCount:'sessionCounts',
@@ -48,6 +50,13 @@ async function getOperatorInfo(req, res){
         var list = operator[map[req.body.dataType]] || [];
         var result = util.wrapArrayData(operator.serviceRecordStart, list);
         res.json(result);
+    }
+}
+//res的body中包含email选项
+async function getCertificate(req, res){
+    if(!util.bodyContains(req,'email')){
+        res.json({success:false});
+        return;
     }
 }
 
