@@ -3,14 +3,13 @@ const redis = require('redis');
 const bluebird = require('bluebird');
 bluebird.promisifyAll(redis.RedisClient.prototype);
 bluebird.promisifyAll(redis.Multi.prototype);
-//暂时采用默认配置
-const client = redis.createClient();
-module.exports.cli = client;
+const client = redis.createClient();    //暂时采用默认配置
+module.exports.cache = client;
 
 //邮件服务对象配置
 const nodemailer = require('nodemailer');
 const mailConfig = require('./serverConfig.json').mail;
-const transporter = nodemailer.createTransport(mailConfig.smtpConfig);
+const transporter = nodemailer.createTransport(mailConfig.smtpConfig,mailConfig.default);
 module.exports.mailTransporter = transporter;
 
 module.exports.bodyContains =  function bodyContains(req){
