@@ -2,7 +2,7 @@
 // (runtime-only or standalone) has been set in webpack.base.conf with an alias.
 import Vue from 'vue'
 import App from './operator.vue'
-import router from '../../router'
+import router from '../../router/operatorRouter.js'
 import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import store from '../../operatorStore.js'
