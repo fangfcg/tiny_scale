@@ -55,12 +55,14 @@ async function getOperatorInfo(req, res){
     }
 }
 /**
+ * get方法
  * 前端传入邮箱，后端自动生成随机的验证码并发送邮件，如果发送成功则
  * 在缓存中保存该验证码和邮箱同时向前端返回success为true,否则false
  * @param {Express.Request} req 
  * @param {Express.Response} res 
  */
 async function getCertificate(req, res){
+    req.body = req.query;
     if(!util.bodyContains(req,'email')){
         res.json({success:false});
         return;
@@ -82,6 +84,7 @@ async function getCertificate(req, res){
     res.json({success:true});
 }
 /**
+ * post方法
  * 前端传入一个验证码，后端检查验证码是否存在，如果存在则在会话信息中保留email作为
  * 已经输入验证码的凭证
  * 读出验证码之后应该立刻清除
@@ -108,6 +111,7 @@ async function certificate(req, res){
     req.session.save();
 }
 /**
+ * post方法
  * 前端传入创建管理员和客服组所需要的信息
  * name, pass, companyName,
  * 后端检查是否已经输入验证码,如果已经输入，
@@ -145,19 +149,18 @@ async function createAdmin(req, res){
     req.session.save();
 }
 /**
- * 传入参数为{count:}
+ * post方法
+ * 传入参数为{count:},返回包含生成验证码个数的json数组
  * @param {Express.Request} req 
  * @param {Express.Response} res 
  */
 const MAX_CERTIFICATE_COUNT = 50;
-const PREFIX_CERTIFICATE_COUNT = "certificate_gen_count";
 async function getOperatorCertificate(req, res){
     if(!util.bodyContains(req, "count") || !Number.isInteger(req.body.count)){
         res.json({success:false});
         return;
     }
-    const prefix = PREFIX_CERTIFICATE_COUNT;
-    var cerGened = await util.cache.getAsync(`${prefix}:${req.user.id}`);
+    var cerGened = await util.cache.getAsync(`${util.PREFIX_CERTIFICATE_COUNT}:${req.user.id}`);
     cerGened = cerGened || 0;
     cerGened = Number(cerGened);
     if(cerGened + req.body.count > MAX_CERTIFICATE_COUNT){
@@ -167,16 +170,16 @@ async function getOperatorCertificate(req, res){
     }
     //修改当日生成的验证码个数
     req.body.count = Number(req.body.count);
-    await util.cache.incrby(`${prefix}:${req.user.id}`, req.body.count);
+    await util.cache.incrbyAsync(`${util.PREFIX_CERTIFICATE_COUNT}:${req.user.id}`, req.body.count);
     var cerList = [];
-    const opCerPrefix = "operator_certificate";
     //生成验证码，每个验证码中保留了OperatorGroup的Id,同时为验证码设置ttl,暂定为1天
     for(var i = 0; i < req.body.count; ++i){
         var cerTmp = stringGenerator.generate(certificateConfigure);
-        var key = `${opCerPrefix}:${cerTmp}`;
-        await util.cache.hset(key, "opGroup", req.user.id);
-        await util.cache.expire(key, 86400);
-        cerList.push(cerTmp);}
+        var key = `${util.PREFIX_OPERATOR_CERTIFICATE}:${cerTmp}`;
+        await util.cache.hsetAsync(key, "opGroup", req.user.operatorGroupId);
+        await util.cache.expireAsync(key, 86400);
+        cerList.push(cerTmp);
+    }
     
     res.json(cerList);
 }
@@ -196,7 +199,7 @@ module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true},
     {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true},
     {url:'/api/admin/signup/get_certificate', callBack:getCertificate},
-    {url:'/api/admin/signup/certificate', callBack:certificate},
-    {url:'/api/admin/signup/create_admin', callBack:createAdmin},
-    {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, auth:true}
+    {url:'/api/admin/signup/certificate', callBack:certificate, method:'post'},
+    {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post'},
+    {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true}
 ];
