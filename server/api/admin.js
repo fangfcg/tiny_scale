@@ -2,6 +2,8 @@ var model = require('../models/models').models;
 var util = require('../utils');
 var stringGenerator = require('randomstring');
 var auth = require("../auth");
+
+const certificateConfigure = {length:50};
 //restful格式{code, data, msg}, code 为0表示成功，非0表示失败
 async function getGroupInfo(req, res){
     var map = {sessionCount:'sessionCounts',
@@ -63,7 +65,7 @@ async function getCertificate(req, res){
         res.json({success:false});
         return;
     }
-    var certificate = stringGenerator.generate({length:50});
+    var certificate = stringGenerator.generate(certificateConfigure);
     try {
         await util.mailTransporter.sendMail({
             to:res.body.email,
@@ -142,6 +144,53 @@ async function createAdmin(req, res){
     req.session.email = null;
     req.session.save();
 }
+/**
+ * 传入参数为{count:}
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
+const MAX_CERTIFICATE_COUNT = 50;
+const PREFIX_CERTIFICATE_COUNT = "certificate_gen_count";
+async function getOperatorCertificate(req, res){
+    if(!util.bodyContains(req, "count") || !Number.isInteger(req.body.count)){
+        res.json({success:false});
+        return;
+    }
+    const prefix = PREFIX_CERTIFICATE_COUNT;
+    var cerGened = await util.cache.getAsync(`${prefix}:${req.user.id}`);
+    cerGened = cerGened || 0;
+    cerGened = Number(cerGened);
+    if(cerGened + req.body.count > MAX_CERTIFICATE_COUNT){
+        res.json({success:false,
+            err:"too much certificate generated currently"});
+        return;
+    }
+    //修改当日生成的验证码个数
+    req.body.count = Number(req.body.count);
+    await util.cache.incrby(`${prefix}:${req.user.id}`, req.body.count);
+    var cerList = [];
+    const opCerPrefix = "operator_certificate";
+    //生成验证码，每个验证码中保留了OperatorGroup的Id,同时为验证码设置ttl,暂定为1天
+    for(var i = 0; i < req.body.count; ++i){
+        var cerTmp = stringGenerator.generate(certificateConfigure);
+        var key = `${opCerPrefix}:${cerTmp}`;
+        await util.cache.hset(key, "opGroup", req.user.id);
+        await util.cache.expire(key, 86400);
+        cerList.push(cerTmp);}
+    
+    res.json(cerList);
+}
+
+
+/**
+ * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
+ */
+async function clearCertificate(){
+    var cerCounts = await util.cache.keysAsync(`${PREFIX_CERTIFICATE_COUNT}:*`);
+    await util.cache.delAsync(cerCounts);
+}
+
+module.exports.clearCertificateCount = clearCertificate;
 
 module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true},
@@ -149,4 +198,5 @@ module.exports.apiInterfaces = [
     {url:'/api/admin/signup/get_certificate', callBack:getCertificate},
     {url:'/api/admin/signup/certificate', callBack:certificate},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin},
+    {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, auth:true}
 ];
