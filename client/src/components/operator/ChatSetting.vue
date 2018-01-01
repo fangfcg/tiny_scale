@@ -253,10 +253,6 @@ export default {
     addHandleClose () {
       this.addDialogVisible = false
     },
-    addDefault () {
-      this.$store.state.selfData.push('这是一个测试' + this.$store.state.selfData.length)
-      console.log(this.$store.state.selfData + ':' + this.$store.state.selfData.length)
-    },
     delReply (id) {
       this.selfData.splice(id, 1)
     },
