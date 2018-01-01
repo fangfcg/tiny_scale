@@ -4,6 +4,7 @@ module.exports = (schema, mongoose) => {
         sessionCounts:[Number],
         msgCounts:[Number],
         serviceRecordStart:Date,
+        companySocketToken:String,
     });
     return mongoose.model('operatorGroup', operatorGroupSchema);
 };

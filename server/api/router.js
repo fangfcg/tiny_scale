@@ -14,9 +14,9 @@ fs.readdirSync(__dirname)
         interfaces = interfaces.concat(require(path.join(__dirname, file)).apiInterfaces);
     });
 //对验证行为进行封装
-function authWrap(func){
+function authWrap(func, type){
     return (function (req, res, next){
-        if(!req.isAuthenticated()){
+        if(!req.isAuthenticated() || req.user.userType !== type){
             //未进行验证时的返回信息
             res.status(404);
             res.send('page not found');
@@ -33,9 +33,10 @@ module.exports.setRoute = function(app){
         }
         //默认采用get方法
         option.method = option.method || 'get';
+        option.type = option.type || 'operator';
         //如果需要验证才能接入则需要进行封装
         if(option.auth){
-            option.callBack = authWrap(option.callBack);
+            option.callBack = authWrap(option.callBack, option.type);
         }
         app[option.method](option.url, option.callBack);
     });

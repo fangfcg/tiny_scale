@@ -29,6 +29,10 @@ module.exports.configApp = function(app){
         name: sessionName,
         saveUninitialized:false,
         store: store}));
+    app.use(function(req, res, next){
+        blueBird.promisifyAll(req.session);
+        next();
+    });
 };
 
 module.exports.clearStore = async function(){
