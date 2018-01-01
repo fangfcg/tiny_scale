@@ -17,6 +17,8 @@ var adminobj = {
   endDate: null,
   serverIp: serverIp,
   data: [],
+  name: '小明',
+  email: '123@123.com',
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
     axios.post(httpUrl.postUrl, {
