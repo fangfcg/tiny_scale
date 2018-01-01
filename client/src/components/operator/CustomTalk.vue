@@ -16,9 +16,6 @@
       <div class="chatadd">
         <chat-common></chat-common>
       </div>
-      <div class="chatadd">
-        testdata
-      </div>
     </template>
   </el-main>
   </el-container>
