@@ -31,7 +31,32 @@ async function emailCheck(req,res){
     }
     res.json({duplicated:true});
 }
+
+/**
+ * 传入参数为{type: 用户类型，name:待检查用户名}
+ * 检查该用户名是否已经被使用
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
+async function nameCheck(req, res){
+    if(!util.bodyContains(req, "type", "name")){
+        res.json({success:false});
+        return;
+    }
+    if(req.body.type === "admin"){
+        //从admin的collection中进行查找
+        var admin = await model.admin.findOne({name:req.body.name});
+        res.json({duplicated: admin ? true: false});
+    }
+    else{
+        //在operator中查找
+        var operator = await model.operator.findOne({name:req.body.name});
+        res.json({duplicated:operator ? true: false});
+    }
+}
+
 module.exports.apiInterfaces = [
     {url:'/api/get_socket_token', callBack:getSocketToken, auth:true},
-    {url:'/api/common/is_email_used',callBack:emailCheck},
+    {url:'/api/common/get_token',callBack:nameCheck},
+    {url:'/api/common/is_email_used', callBack:emailCheck}
 ];
