@@ -79,7 +79,7 @@ function getCutterCache(question){
         var wordBag = new Set();
         for(var i = 0; i < descriptions.size; ++i){
             cutter.cut(descriptions[i]).forEach(word => {
-                if(word.size !== 1){
+                if(word.size > 1){
                     wordBag.add(word);
                 }
             });
@@ -87,10 +87,67 @@ function getCutterCache(question){
         //将分词结果保留在question中
         question.cutterCache = Array.from(wordBag);
 }
+/**
+ * post 方法，用于设置机器人的特殊问答
+ * 当前支持问候，回答不出来时的反应
+ * 输入参数{type:设置特殊回答的名称，content}
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function setSpecialAnswer(req, res){
+    if(!util.bodyContains(req, "type")){
+        res.json({success:false});
+        return;
+    }
+    var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
+    opGroup.sepcialRobotAnswer[req.body.type] = req.body.content;
+    await opGroup.save();
+    res.json({success:true});
+    return;
+}
+
+/**
+ * 输入问题和客服组id，返回客服组管理员定义问题中距离question最近的一个问题的答案
+ * 使用问题中的cutterCache
+ * 设置一个阈值，当距离均低于此阈值时则返回operatorGroup中的unknown选项
+ * @param {*} question 
+ * @param {*} groupId 
+ */
+const PICCARD_THRESHOLD = 0.5;
+async function getAutoAnswer(question, groupId){
+    var questionLst = await model.question.find({operatorGroupId:groupId});
+    var group = await model.operatorGroup.findById(groupId);
+    //对传入的question进行分词
+    var qSet = new Set();
+    cutter.cut(question).forEach(val=>{
+        if(val.size > 1)
+            qSet.add(val);
+    });
+    //计算最大Piccard距离
+    var dMax = 0, result, intersect = 0;
+    for(let i = 0; i < questionLst.size; ++i){
+        questionLst[i].cutterCache.forEach(val =>{
+            if(qSet.has(val))
+                ++intersect;
+        });
+        var distance = intersect / (qSet.size + questionLst[i].hcutterCache.size - intersect);
+        if(distance > PICCARD_THRESHOLD && distance > dMax){
+            dMax = distance;
+            result = questionLst[i].answer;
+        }
+    }
+    if(!dMax){
+        //没有高于阈值的相似性答案
+        result = group.sepcialRobotAnswer.unknown;
+    }
+    return result;
+}
 
 module.exports.apiInterfaces = [
     {url:'/api/robot/add', callBack:addQuestion, method:'post', auth:true, type:'admin'},
     {url:'api/robot/del', callBack:delQuestion, method:'post', auth:true, type:'admin'},
     {url:'/api/robot/get_question_list', callBack:getQuestions, auth:true, type:'admin'},
-    {url:'/api/robot/modify', callBack:modifyQuestion, method:'post', auth:true, type:'admin'}
+    {url:'/api/robot/modify', callBack:modifyQuestion, method:'post', auth:true, type:'admin'},
+    {url:'/api/robot/set_special', callBack:setSpecialAnswer, method:'post', auth:true, type:'admin'},
 ];
+module.exports.getAutoAnswer = getAutoAnswer;
