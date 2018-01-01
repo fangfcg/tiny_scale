@@ -10,7 +10,8 @@
             <el-menu class="el-menu-demo" mode="horizontal" :router="true">
                 <el-menu-item class="menuitem" index="/Main">管理员首页</el-menu-item>
                 <el-menu-item class="menuitem" index="/Data">数据信息</el-menu-item>
-                <el-menu-item class="menuitem" index="/Settings">设置</el-menu-item>
+                <el-menu-item class="menuitem" index="/Robot">机器人设置</el-menu-item>
+                <el-menu-item class="menuitem" index="/Settings">其它设置</el-menu-item>
             </el-menu>
           </el-col>
         </el-row>
@@ -30,7 +31,6 @@ export default {
   },
   data () {
     return {
-      DataList: [{id: 0, data: '会话量'}, {id: 1, data: '人工接入率'}, {id: 2, data: '消息数'}, {id: 3, data: '满意度'}, {id: 4, data: '参评率'}, {id: 5, data: '问答比'}, {id: 6, data: '平均响应时间'}]
     }
   },
   methods: {
