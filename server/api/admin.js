@@ -60,7 +60,7 @@ async function getOperatorInfo(req, res){
  */
 async function getCertificate(req, res){
     if(!util.bodyContains(req,'email')){
-        res.json({success:false});
+        res.json({success:false, err:"parameter email loss"});
         return;
     }
     var certificate = stringGenerator.generate({length:50});
