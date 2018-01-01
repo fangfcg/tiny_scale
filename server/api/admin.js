@@ -183,23 +183,52 @@ async function getOperatorCertificate(req, res){
     
     res.json(cerList);
 }
-
+/**
+ * post方法,临时的设置用户接入时判断客服组的token用api
+ * 传入参数为{token}
+ * 设置成功返回{success:true}
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
+async function setSocketToken(req, res){
+    if(!util.bodyContains(req, "token")){
+        res.json({success:false});
+        return;
+    }
+    //在operatorGroup中记录相应的键值
+    var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var oldToken = opGroup.companySocketToken;
+    opGroup.companySocketToken = req.body.token;
+    if(oldToken){
+        await util.cache.delAsync(`${util.PREFIX_SOCKET_CLIENT}:${oldToken}`);
+    }
+    //检查该键是否已经被使用
+    var key = `${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`;
+    var val = await util.cache.getAsync(key);
+    if(val){
+        res.json({success:false, err:'duplicated token'});
+        return;
+    }
+    await util.cache.setAsync(`${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`, opGroup.id);
+    res.json({success:true});
+}
 
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
  */
 async function clearCertificate(){
-    var cerCounts = await util.cache.keysAsync(`${PREFIX_CERTIFICATE_COUNT}:*`);
+    var cerCounts = await util.cache.keysAsync(`${util.PREFIX_CERTIFICATE_COUNT}:*`);
     await util.cache.delAsync(cerCounts);
 }
 
 module.exports.clearCertificateCount = clearCertificate;
 
 module.exports.apiInterfaces = [
-    {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true},
-    {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true},
-    {url:'/api/admin/signup/get_certificate', callBack:getCertificate},
-    {url:'/api/admin/signup/certificate', callBack:certificate, method:'post'},
-    {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post'},
-    {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true}
+    {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
+    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin'},
+    {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
+    {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
+    {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
+    {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
 ];
