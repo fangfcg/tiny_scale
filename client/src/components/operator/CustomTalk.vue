@@ -13,6 +13,9 @@
       <div class="chatall">
         <chat-component></chat-component>
       </div>
+      <div class="chatadd">
+        <chat-common></chat-common>
+      </div>
     </template>
   </el-main>
   </el-container>
@@ -24,6 +27,7 @@
 
 <script>
 import ChatComponent from './ChatComponent'
+import ChatCommon from './ChatCommon'
 
 export default {
   name: 'CustomTalk',
@@ -38,7 +42,8 @@ export default {
     }
   },
   components: {
-    ChatComponent
+    ChatComponent,
+    ChatCommon
   }
 }
 </script>
@@ -50,5 +55,12 @@ export default {
   justify-content: space-between;
   width: 600px;
   height: 800px;
+  float: left;
+}
+.chatadd{
+  float: left;
+  width: 240px;
+  height: 600px;
+  margin-left: 20px;
 }
 </style>

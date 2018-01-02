@@ -33,7 +33,80 @@
     </el-input>
     <el-button @click="emailModify">修改</el-button>
     <el-button :disabled="emailButtonFlag" @click="emailSubmit" :loading="emailLoading">提交</el-button>
+    <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
+    <span class="main-text">自定义快捷回复设置 <el-button style="margin-left:100px" @click="selfDialogVisible = true">设置</el-button></span><br>
+    <el-dialog
+        title="快捷回复设置"
+        :visible.sync="selfDialogVisible"
+        width="70%"
+        :before-close="selfHandleClose">
+        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog(selfData.length)">新建回复</el-button> </div>
 
+            <el-dialog
+            title=""
+            :visible.sync="addDialogVisible"
+            width="50%"
+            :before-close="addHandleClose"
+            append-to-body>
+              <span class="small-title">{{addTitle}}</span>
+              <textarea class="big-textarea" v-model="rawText" placeholder="" maxlength="150"> </textarea>
+
+              <span slot="footer" class="dialog-footer">
+                  <el-button type="primary" @click="addDialogClose()">确 定</el-button>
+              </span>
+            </el-dialog>
+
+        <el-table
+          :data="selfData"
+          style="width: 100%">
+          <el-table-column
+            label="序号"
+            min-width="20">
+            <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ scope.$index + 1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="自定义信息">    
+            <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ scope.row.text }}</span>
+            </template>                
+          </el-table-column>
+          <el-table-column
+            label="操作"
+            min-width="80">
+            <template slot-scope="scope">
+              <el-button class="small-elbutton" @click="openAddDialog(scope.$index)">修改</el-button>
+                <el-button class="small-elbutton" type="danger" @click="delReply(scope.$index)">删除</el-button>
+                <el-button class="small-elbutton" v-if="scope.$index != 0" @click="upReply(scope.$index)">上移</el-button>
+                <el-button class="small-elbutton" v-if="scope.$index != selfData.length-1" @click="downReply(scope.$index)">下移</el-button>
+              
+            </template>
+          </el-table-column>
+        </el-table>
+
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="selfDialogVisible = false">确 定</el-button>
+        </span>
+    </el-dialog>
+
+   
+
+    <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
+    <span class="main-text">公司预设快捷回复查看 <el-button style="margin-left:90px" @click="comDialogVisible = true">查看</el-button></span><br>
+     <el-dialog
+        title="快捷回复查看"
+        :visible.sync="comDialogVisible"
+        width="40%"
+        :before-close="comHandleClose">
+        <span class="small-title">快捷回复列表如下</span>
+        <div v-for="(sentence, index) in compData" :key=index>
+            <span>{{index+1}}、{{sentence.text}}</span>
+        </div>
+        <span slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="comDialogVisible = false">确 定</el-button>
+        </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -49,7 +122,13 @@ export default {
       nameButtonFlag: true,
       emailButtonFlag: true,
       nameLoading: false,
-      emailLoading: false
+      emailLoading: false,
+      selfDialogVisible: false,
+      comDialogVisible: false,
+      addDialogVisible: false,
+      replyID: -1,
+      rawText: '',
+      addTitle: ''
     }
   },
   computed: {
@@ -61,6 +140,12 @@ export default {
     },
     uploadEmailUrl () {
       return this.$store.state.chat.serverIp
+    },
+    selfData () {
+      return this.$store.state.selfData
+    },
+    compData () {
+      return this.$store.state.compData
     }
   },
   methods: {
@@ -157,6 +242,52 @@ export default {
           this.emailLoading = false
         }
       })
+    },
+    selfHandleClose () {
+      this.selfDialogVisible = false
+    },
+    comHandleClose () {
+      this.comDialogVisible = false
+    },
+    addHandleClose () {
+      this.addDialogVisible = false
+    },
+    delReply (id) {
+      this.selfData.splice(id, 1)
+    },
+    upReply (id) {
+      let strFormerUp = this.$store.state.selfData[id - 1].text
+      let strNewUp = this.$store.state.selfData[id].text
+      this.$store.state.selfData[id].text = strFormerUp
+      this.$store.state.selfData[id - 1].text = strNewUp
+    },
+    downReply (id) {
+      let strFormerDown = this.$store.state.selfData[id + 1].text
+      let strNewDown = this.$store.state.selfData[id].text
+      this.$store.state.selfData[id].text = strFormerDown
+      this.$store.state.selfData[id + 1].text = strNewDown
+    },
+    updateReply (id, newMsg) {
+      this.$store.state.selfData[id].text = newMsg
+    },
+    addDialogClose () {
+      this.addDialogVisible = false
+      if (this.replyID === this.$store.state.selfData.length) {
+        this.$store.state.selfData.push({text: this.rawText})
+      } else {
+        this.$store.state.selfData[this.replyID].text = this.rawText
+      }
+    },
+    openAddDialog (id) {
+      this.replyID = id
+      this.addDialogVisible = true
+      if (id === this.$store.state.selfData.length) {
+        this.rawText = ''
+        this.addTitle = '新建回复（最大长度为150字）'
+      } else {
+        this.rawText = this.selfData[id].text
+        this.addTitle = '修改第' + (id + 1) + '号回复（最大长度为150字）'
+      }
     }
   }
 }
@@ -206,5 +337,27 @@ export default {
     margin-top:20px;
     margin-right:40px;
   }
-
+  .small-title {
+    font-size:20px;
+    color:#ff0000;
+    display: block;
+    text-align: center;
+  }
+  .sentencesText {
+    width: 70%
+  }
+  .buttonsArea {
+    width: 30%
+  }
+  .big-textarea {
+    height: 120px;
+    margin-left: 10%;
+    margin-top: 20px;
+    width: 80%;
+    font-size: 16px;
+  }
+  .small-elbutton {
+    margin: 5px 10px;
+    padding: 8px 16px;
+  }
 </style>

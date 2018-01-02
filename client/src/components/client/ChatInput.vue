@@ -26,6 +26,7 @@
       </div>
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="callService()">人工客服</span>
+      <span class="message-sub" @click="leaveMessage(msg)">留言</span>
     </div>
   </div>
 </template>
@@ -66,6 +67,23 @@ export default {
     selectEmoji (code) {
       this.msg += code
       this.showEmoji = false
+    },
+    leaveMessage (msg) {
+      for (var i = 0; i < this.msg.length; i++) {
+        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+          break
+        }
+      }
+      if (i === this.msg.length) {
+        var newMsg = this.$store.state.chat.createMsg()
+        newMsg.msg = '请勿发送空白消息'
+        newMsg.type = 2
+        this.$store.state.chat.msgList.push(newMsg)
+        this.msg = ''
+        return
+      }
+      this.$store.commit('leaveMsg', msg)
+      this.msg = ''
     }
   },
   components: {
@@ -161,7 +179,11 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
+<<<<<<< HEAD
       margin-left: 420px;
+=======
+      margin-left: 380px;
+>>>>>>> d87477302ee07f3e1bc8da1d3655c7ab356ee4ba
     }
     .operator-sub{
       position: relative;
@@ -175,7 +197,19 @@ ul{
       outline: none;
       margin-left: 5px;
     }
-    .operator-sub, .chat-sub:hover{
+    .message-sub{
+      position: relative;
+      display: flex;
+      background-color: rgba(0,0,0,0.1);
+      justify-content: center;
+      align-items: center;
+      height: 30px;
+      width: 50px;
+      font-size: 13px;
+      outline: none;
+      margin-left: 5px;
+    }
+    .operator-sub, .chat-sub, .message-sub:hover{
       cursor: pointer;
     }
     .primary{

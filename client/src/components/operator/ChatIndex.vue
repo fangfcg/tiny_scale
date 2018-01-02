@@ -7,11 +7,12 @@
           <el-col :span="4">
               <img class="logo" width="167" height="50" src="../../../static/logoall.jpg" alt="nopic" />
           </el-col>
-          <el-col :span="6" :offset="2">
+          <el-col :span="8" :offset="2">
             <el-menu class="el-menu-demo" :router=true mode="horizontal" default-active="/CustomMenu" >
                 <el-menu-item class="menuitem" index="/CustomMenu">客服界面</el-menu-item>
                 <el-menu-item class="menuitem" index="/CustomTalk">会话界面</el-menu-item>
                 <el-menu-item class="menuitem" index="/CustomSetting">设置</el-menu-item>
+                <el-menu-item class="menuitem" index="/CustomReply">回复广场</el-menu-item>
             </el-menu>
           </el-col>
           
