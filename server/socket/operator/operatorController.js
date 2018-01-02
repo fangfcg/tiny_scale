@@ -1,4 +1,5 @@
 const allocator = require('./operatorAllocator');
+const chatLogger = require('../chatLogger');
 class operatorControler {
     constructor() {
         this.socketPool = {};   //socket池中以客服的id作为索引
@@ -9,6 +10,7 @@ class operatorControler {
     customerEventHandler(customerEvent) {
         customerEvent.on('allocate_operator', this._allocateOperator.bind(this));
         customerEvent.on('msg', this._customerMsg.bind(this));
+        customerEvent.on("crash", this._crash.bind(this));
     }
     newSocket(socket) {
         //对于整个group中第一个上线的operator则新建一个allocator
@@ -19,9 +21,10 @@ class operatorControler {
         //socket放入池中
         this.socketPool[socket.user.id] = socket;
         socket.waitingList = [];
+        socket.chattingSet = {};
         socket.on('get_next', this._getNext.bind(this, socket.user.id));
-        socket.on('msg', this._operatorMsg.bind(this));
-        socket.on('end_service', this._endService.bind(this));
+        socket.on('msg', this._operatorMsg.bind(this, socket.user.id));
+        socket.on('end_service', this._endService.bind(this,socket.user.id));
     }
     //传入一个客户的socket，为该客户分配客服
     _allocateOperator(socket) {
@@ -52,53 +55,72 @@ class operatorControler {
         this.event.emit('operator_allocated', socket.user.id, allocated, opId);
     }
     _getNext(operatorId) {
-        var opSock = this.socketPool[operatorId];
-        var nextId = opSock.waitingList.shift();
+        var socket = this.socketPool[operatorId];
+        var nextId = socket.waitingList.shift();
         if(nextId){
-            opSock.emit('get_next', nextId);
-            this.event.emit('operator_connected', nextId);
+            //在socket的正在聊天的集合中添加对象
+            var chatId = chatLogger.createChat(nextId, socket.user.id);
+            socket.chattingSet[nextId] = chatId;
+            socket.emit('get_next', {success:true, id:nextId});
+            this.event.emit('operator_connected', nextId, chatId);
         }
-        /*
-        var operator = this.operators[operatorId];
-        var nextId = operator.waitingList.shift();
-        if (nextId) {
-            operator.socket.emit('get_next', nextId);
-            operator.chatting.add(nextId);
-            this.customerListener.emit('operator_connected', nextId);
-        }*/
+        else{
+            //前端误认为队列中还有人
+            socket.emit('get_next', {success:false});
+        }
     }
     _customerMsg(operatorId, customerId, msg) {
-        if(this.socketPool[operatorId]){
-            this.socketPool[operatorId].emit('msg', customerId, msg);
+        var socket = this.socketPool[operatorId];
+        if(socket){
+            socket.emit('msg', customerId, msg);
         }
     }
-    _operatorMsg(customerId, msg) {
+    _operatorMsg(operatorId,customerId, msg) {
+        var socket = this.socketPool[customerId];
+        chatLogger.newMsg(socket.chattingSet[customerId], msg, "operator");
         this.event.emit('msg', customerId, msg);
     }
-    _endService(customerId) {
+    _endService(operatorId,customerId) {
+        var socket = this.socketPool[operatorId];
+        socket.chattingSet[customerId] = null;
         this.event.emit('end_service', customerId);
     }
 
-
-
     //TODO:增加对于operator的状态检查，客服可能处于休息状态
-    _disconnect(operatorId) {
-        var operator = this.operators[operatorId];
-        var listener = this.customerListener;
-        operator.waitingList.forEach(() => {
-            listener.emit('crashed');
-        });
-        operator.chatting.forEach(() => {
-            listener.emit('crashed');
-        });
-        this.operators[operatorId] = null;
-        this.operatorAllocator.deleteOperator(operatorId);
+    async _disconnect(operatorId) {
+        var socket = this.socketPool[operatorId];
+        //结束会话
+        var chattingCustomers =  Object.keys(socket.chattingSet);
+        for(let i = 0; i < chattingCustomers.length; ++i){
+            await chatLogger.finishChat(socket.chattingSet[chattingCustomers[i]]);
+        }
+        //通知所有用户客服socket意外关闭
+        this.event.emit('crash', chattingCustomers.concat(socket.waitingList));
     }
-    _crash(operatorId, customerId) {
-        this.operators[operatorId].socket.emit('crash', customerId);
+    /**
+     * 客户的socket意外关闭时的处理函数
+     */
+    _crash(type, operatorId, customerId) {
+        var socket = this.socketPool[operatorId];
+        switch(type){
+            case "waiting":
+                socket.waitingList = deQue(socket.waitingList, customerId);
+                break;
+            case "connecting":
+                socket.chattingSet[customerId] = null;
+                break;
+        }
     }
 }
-
+function deQue(array, ele){
+    for(var i = 0; i < array.length; ++i){
+        if(array[i] === ele){
+            array = array.slice(0, i).concat(array.slice(i + 1, array.size));
+            break;
+        }
+    }
+    return array;
+}
 //外部使用时应当设置customerListener
 
 module.exports = operatorControler;
