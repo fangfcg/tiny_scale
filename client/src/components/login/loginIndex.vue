@@ -2,7 +2,7 @@
   <div id="chatindex">
     <el-container>
     <el-header>
-      <img class="logo" width="167" height="50" src="../../assets/logoall.jpg" alt="nopic" />
+      <img class="logo" width="167" height="50" src="../../../static/logoall.jpg" alt="nopic" />
     </el-header>
     <el-main>
       <router-view></router-view>

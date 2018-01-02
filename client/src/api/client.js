@@ -74,6 +74,7 @@ var Chat = {
     }
   },
   sendMsg (newMsg) {
+    console.log(111)
     var msgObj = Chat.createMsg()
     msgObj.name = Chat.userName
     msgObj.msg = newMsg

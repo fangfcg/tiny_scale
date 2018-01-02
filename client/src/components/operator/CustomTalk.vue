@@ -49,6 +49,6 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 600px;
-  height: 600px;
+  height: 800px;
 }
 </style>

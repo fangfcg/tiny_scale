@@ -32,21 +32,13 @@ export default {
   margin: 0;
   padding: 0;
 }
-html {
-  height: 100%;
-}
-
-body {
-  height: 100%;
-}
-
 .chattop{
   height: 60px;
   background-color: #2e3238;
 }
 .chatbox{
   width: 100%;
-  height: 100%;
+  height: 600px;
   justify-content: space-between;
   border:1px;
   border-color: #2e3238;

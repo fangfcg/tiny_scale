@@ -7,10 +7,12 @@ import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import store from '../../operatorStore.js'
 import axios from 'axios'
+import { emoji } from '../../api/emoji.js'
 
 Vue.use(Element)
 Vue.config.productionTip = false
 Vue.prototype.$http = axios
+Vue.prototype.emoji = emoji
 
 /* eslint-disable no-new */
 new Vue({
