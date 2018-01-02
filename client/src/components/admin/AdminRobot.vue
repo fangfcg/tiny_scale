@@ -110,7 +110,21 @@
 </template>
 
 <script>
-export default {
+var Robot = {
+  created () {
+    this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_question_list').then(function (response) {
+      for (let ques of response) {
+        let data = {}
+        data.name = ques.name
+        data.mainQues = ques.content
+        data.similarQues1 = ques.similarities.length > 0 ? ques.similarities[0] : ''
+        data.similarQues2 = ques.similarities.length > 1 ? ques.similarities[1] : ''
+        data.answer = ques.answer
+        data.questionId = ques.questionId
+        this.formQues.push(data)
+      }
+    })
+  },
   data () {
     return {
       greetingFlag: true,
@@ -122,6 +136,7 @@ export default {
       currentIndex: 0,
       formLabelWidth: '120px',
       formQues: {
+        questionId: '',
         name: '',
         mainQues: '',
         similarQues1: '',
@@ -129,30 +144,18 @@ export default {
         answer: ''
       },
       tableData: [{
-        name: '12987122',
-        mainQues: '好滋好味鸡蛋仔',
-        similarQues1: '江浙小吃、小吃零食',
-        similarQues2: '荷兰优质淡奶，奶香浓而不腻',
-        answer: '王小虎夫妻店'
-      }, {
-        name: '12987122',
-        mainQues: '好滋好味鸡蛋仔',
-        similarQues1: '江浙小吃、小吃零食',
-        similarQues2: '荷兰优质淡奶，奶香浓而不腻',
-        answer: '王小虎夫妻店'
-      }, {
-        name: '12987122',
-        mainQues: '好滋好味鸡蛋仔',
-        similarQues1: '江浙小吃、小吃零食',
-        similarQues2: '荷兰优质淡奶，奶香浓而不腻',
-        answer: '王小虎夫妻店'
-      }, {
+        questionId: '',
         name: '12987122',
         mainQues: '好滋好味鸡蛋仔',
         similarQues1: '江浙小吃、小吃零食',
         similarQues2: '荷兰优质淡奶，奶香浓而不腻',
         answer: '王小虎夫妻店'
       }]
+    }
+  },
+  computed: {
+    serverIp () {
+      return this.$store.state.admin.serverIp
     }
   },
   methods: {
@@ -173,6 +176,7 @@ export default {
       this.formQues.similarQues1 = prop.similarQues1
       this.formQues.similarQues2 = prop.similarQues2
       this.formQues.answer = prop.answer
+      this.formQues.questionId = prop.questionId
       this.dialogFormVisible = true
     },
     handleDelete (index, prop) {
@@ -181,10 +185,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.tableData.splice(index, 1)
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+        this.$http.post(this.serverIp + '/api/robot/del', {
+          questionId: this.tableData[index].questionId
+        }).then(function (response) {
+          if (response.success === true) {
+            Robot.tableData.splice(index, 1)
+          }
         })
       }).catch(() => {
         this.$message({
@@ -200,6 +206,7 @@ export default {
       this.formQues.similarQues1 = ''
       this.formQues.similarQues2 = ''
       this.formQues.answer = ''
+      this.formQues.questionId = '-1'
       this.dialogFormVisible = true
     },
     dialogEdit () {
@@ -217,10 +224,25 @@ export default {
         tmpQues.similarQues1 = this.formQues.similarQues1
         tmpQues.similarQues2 = this.formQues.similarQues2
         tmpQues.answer = this.formQues.answer
-        console.log(this.tableData)
+        let postObj = {}
+        postObj.similarities = []
+        postObj.name = tmpQues.name
+        postObj.content = tmpQues.mainQues
+        if (tmpQues.similarQues1 !== '') {
+          postObj.similarities.push(tmpQues.similarQues1)
+        }
+        if (tmpQues.similarQues2 !== '') {
+          postObj.similarities.push(tmpQues.similarQues2)
+        }
+        postObj.answer = tmpQues.answer
         this.tableData.push(tmpQues)
-        console.log(this.tableData)
-        this.dialogFormVisible = false
+        this.$http.post(this.serverIp + '/api/robot/add', postObj).then(function (response) {
+          if (response.success === true) {
+            Robot.tableData[Robot.tableData.length - 1].questionId = response.questionId
+          } else {
+            Robot.tableData.splice(Robot.tableData.length - 1, 1)
+          }
+        })
       } else {
         tmpQues = this.tableData[this.currentIndex]
         tmpQues.name = this.formQues.name
@@ -228,11 +250,27 @@ export default {
         tmpQues.similarQues1 = this.formQues.similarQues1
         tmpQues.similarQues2 = this.formQues.similarQues2
         tmpQues.answer = this.formQues.answer
-        this.dialogFormVisible = false
+        let postObj = {}
+        postObj.similarities = []
+        postObj.name = tmpQues.name
+        postObj.content = tmpQues.mainQues
+        if (tmpQues.similarQues1 !== '') {
+          postObj.similarities.push(tmpQues.similarQues1)
+        }
+        if (tmpQues.similarQues2 !== '') {
+          postObj.similarities.push(tmpQues.similarQues2)
+        }
+        postObj.answer = tmpQues.answer
+        postObj.questionId = tmpQues.questionId
+        this.$http.post(this.serverIp + '/api/robot/modify', postObj).then(function (response) {
+          // don't mind response
+        })
       }
+      this.dialogFormVisible = false
     }
   }
 }
+export default Robot
 </script>
 
 <style lang='less'>
