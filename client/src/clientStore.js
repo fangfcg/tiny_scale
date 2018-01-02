@@ -18,6 +18,9 @@ const mutations = {
   },
   sendMsg (state, msg) {
     state.chat.sendMsg(msg)
+  },
+  leaveMsg (state, msg) {
+    state.chat.leaveMsg(msg)
   }
 }
 
