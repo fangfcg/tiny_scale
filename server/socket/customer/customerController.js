@@ -18,9 +18,8 @@ class customerController {
 
         //前端发送msg信息是传送的对象的格式{msg:}
         socket.on('msg', this._customerMsg.bind(this, id));
-
+        socket.on('service_request', this._serviceRequest.bind(this, id));
         //socket.on('dissconnect', this._disconnect.bind(this, id));
-        //socket.on('service_request', this._serviceRequest.bind(this, id));
     }
     _serviceRequest(customerId) {
         this.event.emit('allocate_operator', customerId);

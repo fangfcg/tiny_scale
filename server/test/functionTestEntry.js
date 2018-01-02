@@ -8,12 +8,14 @@ const basename = path.basename(__filename);
 const model = require('../models/models');
 const server = require('../server');
 const cache = require('../utils').cache;
+const session = require('../session');
 describe('function test', function(){
     before(async function(){
+        await session.client.selectAsync(1);
+        await cache.selectAsync(1);
         await model.connect();
         await server.startServer();
         //选择3号数据库作为缓存
-        await cache.selectAsync(3);
     });
     //在每一个suit结束时清空测试数据库以及服务器会话存储
     afterEach(async function(){
@@ -25,6 +27,8 @@ describe('function test', function(){
         await server.stopServer();
         await cache.flushdbAsync();
         await cache.quitAsync();
+        await session.client.flushdbAsync();
+        await session.client.quitAsync();
     });
     fs.readdirSync(__dirname)
         .filter(file=>{

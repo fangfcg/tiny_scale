@@ -69,13 +69,15 @@ async function authedCase(){
     });
     expect(res.statusCode).to.be.eq(200, "login failed");
     res = await request({
-        url:baseUrl + '/api/get_socket_token',
+        url:baseUrl + '/api/get_session_id',
         method:'GET',
     });
+    expect(res.statusCode).to.be.eq(200, "get token failed");
+    console.log(res.body.token);
     //结果存在res.body.token中
     var socket = require('socket.io-client')(baseUrl, 
         {reconnection:false,
-        query:{token:res.body.token,
+        query:{session:res.body.token,
         type:'admin'}});
     var authed = await new Promise((resolve)=>{
         var timeObj = setTimeout(()=>{

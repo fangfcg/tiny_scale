@@ -1,15 +1,16 @@
 //配置会话存储
 var session = require('express-session');
-var store = new session.MemoryStore();  //暂时使用内存型会话存储
-/*
+//var store = new session.MemoryStore();  //暂时使用内存型会话存储
+const blueBird = require('bluebird');
 var redis   = require("redis");
+blueBird.promisifyAll(redis.RedisClient.prototype);
+blueBird.promisifyAll(redis.Multi.prototype);
 var client  = redis.createClient();
 var redisStore = require('connect-redis')(session);
 var store = new redisStore({
         host:'localhost', 
         port:6379,
         client:client,});
-*/
 const sessionSecret = 'secret';
 const sessionName = 'connect.sid';
 
@@ -17,12 +18,12 @@ const sessionName = 'connect.sid';
 var secretCookieParser = require('cookie-parser')(sessionSecret);
 var bareCookieParser = require('cookie-parser')();
 //对store进行promisify
-const blueBird = require('bluebird');
 store = blueBird.promisifyAll(store);
 secretCookieParser = blueBird.promisify(secretCookieParser);
 bareCookieParser = blueBird.promisify(bareCookieParser);
 
-module.exports.configApp = function(app){
+module.exports.configApp = async function(app){
+    //正常情况下选择0号数据库，测试时选择1号
     app.use(session({
         secret: sessionSecret,
         resave: false,
@@ -35,13 +36,12 @@ module.exports.configApp = function(app){
     });
 };
 
+module.exports.client = client;
+
 module.exports.clearStore = async function(){
-     await new Promise((res, rej)=>{
-         store.clear((err)=>{
-            if(err){rej(err);return;}
-            res();
-         });
-     });
+   //采用临时的方法删除redis中的会话数据，注意session均是以sess:开头的
+   var sessKeys = await client.keysAsync("sess:*");
+   await client.delAsync(sessKeys);
 };
 //传入的sessionId应该是加密的
 module.exports.getSession = async function(sessionId){

@@ -1,9 +1,9 @@
+const allocator = require('./operatorAllocator');
 class operatorControler {
     constructor() {
         this.operators = {};
         this.operatorAccepted = 0;
         this.event = new (require('events'))();
-        this.operatorAllocator = new (require('./operatorAllocator'))();
         /*
         //设置event处理函数
         this.customerListener = null;
@@ -28,7 +28,9 @@ class operatorControler {
     }
     //customerSession中应当保存上一次分配的客服的id,应当在这个函数中完成
     //传来的customerId应该用来找到这个customer
-    _allocateOperator(customerId) {
+    _allocateOperator(socketId, operatorGroupId, session) {
+        
+        /*
         //TODO:添加熟人优先分配算法
         var res = this.operatorAllocator.allocateOperator();
         if (res) {
@@ -37,6 +39,7 @@ class operatorControler {
             this.operators[res].waitingList.push(customerId);
         }
         this.customerListener.emit('operator_allocated', customerId, res);
+        */
     }
     _getNext(operatorId) {
         var operator = this.operators[operatorId];

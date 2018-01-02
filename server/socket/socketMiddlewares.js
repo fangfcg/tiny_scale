@@ -2,22 +2,23 @@ const session = require('../session');
 const util = require('../utils');
 
 /**
- * 对socket进行接入验证，在socket.session中保留session对象
- * 浏览器端支持通过如下的方式获取session, 但是暂时未找到在测试中通过socket-client
- * 对request进行操作的方法
- * 要求在socket.request中必须已经包含了session的Id
+ * 接入socket时query的参数：
+ * {token:如果类型为customer则需要token进行接入公司的验证, 
+ *        同时明确该socket要接入的socketGroup是哪个公司
+ * session:该用户的sessionId，在接入socket之前通过get方法获取,
+ * type:接入的socket的类型}
  * @param {SocketIO.Socket} socket 
  * @param {function} next 
  */
 async function auth(socket, next){
     let token = socket.handshake.query.token;
+    let sid = socket.handshake.query.session;
     //session通过socket中的request来获取
-    var sesId = await session.getSessionId(socket.request);
-    if(!sesId){
+    var ses = await session.getSession(sid);
+    if(!ses){
         socket.disconnect(true);
         return;
     }
-    var ses = await session.getSession(sesId);
     var authed = true;
     //对客服或者管理员的socket进行认证
     if(socket.handshake.query.type !== "customer"){
