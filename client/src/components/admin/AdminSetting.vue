@@ -95,7 +95,7 @@
 </template>
 
 <script>
-export default {
+var setting = {
   data () {
     return {
       imageUrl: '',
@@ -169,20 +169,20 @@ export default {
         name: this.inputName
       }).then(function (response) {
         if (response.state === 'success') {
-          this.$message({
+          setting.$message({
             message: '昵称修改成功',
             type: 'success'
           })
-          this.nameLoading = false
-          this.nameButtonFlag = true
-          this.nameInputFlag = true
-          this.$store.state.admin.name = this.inputName
+          setting.nameLoading = false
+          setting.nameButtonFlag = true
+          setting.nameInputFlag = true
+          setting.$store.state.admin.name = setting.inputName
         } else {
-          this.$message({
+          setting.$message({
             message: '昵称修改失败，请重试',
             type: 'fail'
           })
-          this.nameLoading = false
+          setting.nameLoading = false
         }
       })
     },
@@ -207,20 +207,20 @@ export default {
         email: this.inputEmail
       }).then(function (response) {
         if (response.state === 'success') {
-          this.$message({
+          setting.$message({
             message: '邮箱修改成功',
             type: 'success'
           })
-          this.emailLoading = false
-          this.emailButtonFlag = true
-          this.emailInputFlag = true
-          this.$store.state.admin.email = this.inputEmail
+          setting.emailLoading = false
+          setting.emailButtonFlag = true
+          setting.emailInputFlag = true
+          setting.$store.state.admin.email = this.inputEmail
         } else {
-          this.$message({
+          setting.$message({
             message: '邮箱修改失败，请重试',
             type: 'fail'
           })
-          this.emailLoading = false
+          setting.emailLoading = false
         }
       })
     },
@@ -269,6 +269,8 @@ export default {
     }
   }
 }
+
+export default setting
 </script>
 
 <style lang='less'>

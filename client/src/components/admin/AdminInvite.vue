@@ -35,11 +35,8 @@
   </div>
 </template>
 
-  </div>
-</template>
-
 <script>
-export default {
+var Invite = {
   created () {
   },
   data () {
@@ -47,10 +44,14 @@ export default {
       inputNum: '',
       options: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20],
       choosenNum: 0,
-      codeArray: []
+      codeArray: [],
+      getSuccess: false
     }
   },
   computed: {
+    uploadPostUrl () {
+      return this.$store.state.admin.serverIp + '/api/admin/get_signup_certificate'
+    }
   },
   methods: {
     getInviteCode () {
@@ -58,14 +59,37 @@ export default {
         return
       }
       this.codeArray = []
-      for (var j = 0; j < this.choosenNum; j++) {
-        this.codeArray.push({ index: j, code: j * 100 })
+      this.$http.post(this.uploadPostUrl, {
+        count: this.choosenNum
+      }).then(function (response) {
+        if (response.success === true) {
+          for (var j = 0; j < Invite.choosenNum; j++) {
+            Invite.codeArray.push({ index: j, code: j * 100 })
+          }
+          Invite.getSuccess = 'success'
+        } else {
+          Invite.getSuccess = 'fail'
+        }
+      }).catch(function (error) {
+        console.log(error)
+        Invite.getSuccess = 'error'
+      })
+      if (this.getSuccess === 'success') {
+        this.$message({
+          message: '获取邀请码成功',
+          type: 'success'
+        })
+      } else if (this.getSuccess === 'fail') {
+        this.$message.error('获取邀请码失败，可能是获取次数已经超过了今日上限')
+      } else {
+        this.$message.error('因网络问题，获取邀请码失败')
       }
-      console.log(this.choosenNum)
       this.choosenNum = 0
     }
   }
 }
+
+export default Invite
 </script>
 
 <style lang='less'>
