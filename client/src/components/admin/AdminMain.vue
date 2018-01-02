@@ -35,6 +35,22 @@
           <el-table-column label="满意度" prop="score"></el-table-column>
         </el-table>
       </template>
+      
+      <div class="main-text">
+        <span>回复查看</span>
+      </div>
+      <template>
+         <el-table
+          :data="tableWorkRecord"
+          :stripe="true"
+          style="width: 90%">
+          <el-table-column label="工单类型" prop="type"> </el-table-column>
+          <el-table-column label="处理客服" prop="operatorName"> </el-table-column>
+          <el-table-column label="处理完成时间" prop="finishTime"> </el-table-column>
+          <el-table-column label="满意度" prop="score"></el-table-column>
+        </el-table>
+      </template>
+
     </div>
   </div>
 </template>
