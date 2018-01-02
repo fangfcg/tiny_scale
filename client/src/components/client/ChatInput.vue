@@ -179,11 +179,7 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
-<<<<<<< HEAD
-      margin-left: 420px;
-=======
       margin-left: 380px;
->>>>>>> d87477302ee07f3e1bc8da1d3655c7ab356ee4ba
     }
     .operator-sub{
       position: relative;
