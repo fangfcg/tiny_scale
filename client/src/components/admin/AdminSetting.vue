@@ -124,6 +124,9 @@ export default {
     },
     uploadEmailUrl () {
       return this.$store.state.admin.serverIp
+    },
+    compData () {
+      return this.$store.state.compData
     }
   },
   methods: {
@@ -260,6 +263,9 @@ export default {
         this.rawText = this.compData[id].text
         this.addTitle = '修改第' + (id + 1) + '号回复（最大长度为150字）'
       }
+    },
+    selfHandleClose () {
+      this.selfDialogVisible = false
     }
   }
 }
