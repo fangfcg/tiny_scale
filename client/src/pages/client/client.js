@@ -3,8 +3,13 @@
 import Vue from 'vue'
 import client from './client.vue'
 import store from '../../clientStore.js'
+import { emoji } from '../../api/emoji.js'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.config.productionTip = false
+Vue.prototype.emoji = emoji
+Vue.use(ElementUI)
 
 /* eslint-disable no-new */
 new Vue({

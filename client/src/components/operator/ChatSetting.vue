@@ -111,7 +111,7 @@
 </template>
 
 <script>
-export default {
+var setting = {
   data () {
     return {
       imageUrl: '',
@@ -135,10 +135,7 @@ export default {
     uploadImageUrl () {
       return this.$store.state.chat.serverIp + '/files'
     },
-    uploadNameUrl () {
-      return this.$store.state.chat.serverIp
-    },
-    uploadEmailUrl () {
+    serverIp () {
       return this.$store.state.chat.serverIp
     },
     selfData () {
@@ -184,26 +181,30 @@ export default {
         return
       }
       this.nameLoading = true
-      this.$http.post(this.uploadNameUrl, {
+      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+        type: 'operator',
         name: this.inputName
       }).then(function (response) {
-        if (response.state === 'success') {
-          this.$message({
-            message: '昵称修改成功',
-            type: 'success'
-          })
-          this.nameLoading = false
-          this.nameButtonFlag = true
-          this.nameInputFlag = true
-          this.$store.state.chat.name = this.inputName
+        if (response.success === true) {
+          setting.nameLoading = false
+          setting.nameButtonFlag = true
+          setting.nameInputFlag = true
         } else {
-          this.$message({
-            message: '昵称修改失败，请重试',
-            type: 'fail'
-          })
-          this.nameLoading = false
+          setting.nameLoading = false
         }
       })
+      if (this.nameButtonFlag === true) {
+        this.$store.state.chat.name = this.inputName
+        this.$message({
+          message: '昵称修改成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '昵称修改失败，请重试',
+          type: 'fail'
+        })
+      }
     },
     emailModify () {
       if (this.emailButtonFlag === false) {
@@ -222,26 +223,30 @@ export default {
         return
       }
       this.emailLoading = true
-      this.$http.post(this.uploadEmailUrl, {
+      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+        type: 'operator',
         email: this.inputEmail
       }).then(function (response) {
-        if (response.state === 'success') {
-          this.$message({
-            message: '邮箱修改成功',
-            type: 'success'
-          })
-          this.emailLoading = false
-          this.emailButtonFlag = true
-          this.emailInputFlag = true
-          this.$store.state.chat.email = this.inputEmail
+        if (response.success === true) {
+          setting.emailLoading = false
+          setting.emailButtonFlag = true
+          setting.emailInputFlag = true
         } else {
-          this.$message({
-            message: '邮箱修改失败，请重试',
-            type: 'fail'
-          })
-          this.emailLoading = false
+          setting.emailLoading = false
         }
       })
+      if (this.emailButtonFlag === true) {
+        this.$store.state.chat.email = this.inputEmail
+        this.$message({
+          message: '邮箱修改成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '邮箱修改失败，请重试',
+          type: 'fail'
+        })
+      }
     },
     selfHandleClose () {
       this.selfDialogVisible = false
@@ -291,6 +296,7 @@ export default {
     }
   }
 }
+export default setting
 </script>
 
 <style lang='less'>

@@ -2,6 +2,28 @@
   <div class="foot-wrapper">
     <textarea placeholder="按 Enter 发送" name="" @keyup.enter="send(msg)" v-model="msg"></textarea>
     <div class="button-area">
+      <el-button 
+        class="pop-close" 
+        type="text" 
+        @click="showEmoji = !showEmoji"
+        icon="el-icon-circle-plus-outline">
+      </el-button>
+      <div class="icon clearfix">
+        <transition name="fade" mode="">
+          <div class="emoji-box" v-if="showEmoji" >
+            <el-button 
+              class="pop-close" 
+              type="text" 
+              @click="showEmoji = false"
+              icon="el-icon-close">
+            </el-button>
+            <vue-emoji class="vue-emoji-class"
+              @select="selectEmoji">
+            </vue-emoji>
+            <span class="pop-arrow arrow"></span>
+          </div>
+        </transition>
+      </div>
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="finishService()">结束服务</span>
     </div>
@@ -9,10 +31,12 @@
 </template>
 
 <script>
+import vueEmoji from '../tools/emoji.vue'
 export default {
   data () {
     return {
-      msg: ''
+      msg: '',
+      showEmoji: false
     }
   },
   ready () {
@@ -37,7 +61,14 @@ export default {
     },
     finishService () {
       this.$store.commit('endService')
+    },
+    selectEmoji (code) {
+      this.msg += code
+      this.showEmoji = false
     }
+  },
+  components: {
+    vueEmoji
   }
 }
 </script>
@@ -65,6 +96,48 @@ export default {
   }
   .button-area{
     display: flex;
+    .icon {
+      position: relative;
+      margin-top: 20px;
+    }
+    .emoji-box {
+      position: absolute;
+      z-index: 10;
+      left: -35px;
+      top: 24px;
+      box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.2);
+      background: white;
+      .el-button {
+        position: absolute;
+        border: none;
+        color: #FF4949;
+        right: 12px;
+        top: 12px;
+        z-index: 10;
+      }
+      .arrow {
+        left: 10px;
+      }
+    }
+    .clearfix {
+      &:after {
+        content: '';
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+      }
+    }
+
+    .vue-emoji-class {
+      margin-right: 10px;
+      margin-top: 10px;
+    }
+
+    .fade-enter-active, .fade-leave-active { transition: opacity .5s; }
+    .fade-enter, .fade-leave-active { opacity: 0; }
+    .fade-move { transition: transform .4s; }
+
     .chat-sub{
       position: relative;
       display: flex;
