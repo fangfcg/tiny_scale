@@ -5,6 +5,7 @@ module.exports = (schema, mongoose) => {
         msgCounts:[Number],
         serviceRecordStart:Date,
         companySocketToken:String,
+        specialRobotAnswer:schema.Types.Mixed,  //包含greet和unknown两个键
     });
     return mongoose.model('operatorGroup', operatorGroupSchema);
 };

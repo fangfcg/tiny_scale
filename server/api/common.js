@@ -1,6 +1,8 @@
 var session = require('../session');
 const model = require('../models/models').models;
+const auth = require('../auth');
 var util = require('../utils');
+var stringGenerator = require('randomstring');
 /**
  * @param {Express.Request} req
  * @param {Express.Response} res
@@ -23,9 +25,9 @@ async function emailCheck(req,res){
         res.json({code:1});
         return;
     }
-    var email1 = await model.operator.findOne(req.body.email);
-    var email2 = await model.customer.findOne(req.body.email);
-    if(!(email1 || email2)){
+    var operator = await model.operator.findOne({email:req.body.email});
+    var customer = await model.customer.findOne({email:req.body.email});
+    if(!(operator || customer)){
         res.json({duplicated:false});
         return;
     }
@@ -55,8 +57,119 @@ async function nameCheck(req, res){
     }
 }
 
+/**
+ * post 方法， 只修改name, pass,email，头像修改需要另设接口
+ * @param {*} req 
+ * @param {*} res
+ */
+async function profileUpdate(req,res){
+    if(!util.bodyContains(req, 'name', 'pass', 'email')){
+        res.json({success:false});
+        return;
+    }
+    req.user.name = req.body.name;
+    req.user.pass = req.body.pass;
+    req.user.email = req.body.email;
+    await req.user.save();
+    res.json({success:true});
+}
+/**
+ * 前端传入邮箱和用户类型，参数格式{email: userType:}
+ * 后端自动生成随机的验证码并发送邮件，如果发送成功则
+ * 在缓存中以验证码为键保存用户类型和相应的id
+ * @param {*} req 
+ * @param {*} res
+ */
+const PREFIX_FIND_PASS = 'find_pass_certificate';
+
+async function getCertificateFindPass(req, res){
+    if(!util.bodyContains(req,'email', 'userType')){
+        res.json({success:false, err:"parameter email loss"});
+        return;
+    }
+    if(req.body.userType === 'admin'){
+        var user = await model.admin.findOne({email:req.body.email});
+    }
+    if(req.body.userType === 'operator'){
+        var user = await model.operator.findOne({email:req.body.email});
+    }
+    if(!user){
+        req.json({success:false, err:"user doesn't exists"});
+        return;
+    }
+    var certificate = stringGenerator.generate({length:50});
+    try {
+        await util.mailTransporter.sendMail({
+            to:res.body.email,
+            subject: "小天秤在线客服用户找回密码",
+            text: certificate
+        });
+    }
+    catch(err){
+        res.json({success:false});
+        return;
+    }
+    //寄件成功，将验证码和userType和id保存在缓存中
+    await util.cache.hsetAsync(`${PREFIX_FIND_PASS}:${certificate}`, 'type',req.body.userType,'id',user.id);
+    res.json({success:true});
+}
+/**
+ * 前端传入一个验证码，参数类型{certificate}
+ * 后端检查验证码是否存在，如果存在则在会话信息中保留userType和userId作为
+ * 已经输入验证码的凭证
+ * 读出验证码之后应该立刻清除
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function certificateFindPass(req,res){
+    if(!util.bodyContains(req, "certificate")){
+        res.json({success:false});
+        return;
+    }
+    var key = `${PREFIX_FIND_PASS}:${req.body.certificate}`;
+    var type = await util.cache.hgetAsync(key, "type");
+    var id = await util.cache.hgetAsync(key,"id");
+    //无效的key的处理
+    if(!type || !id){
+        res.json({success:false, err:"invalid certificate"});
+        return;
+    }
+    //删除cache中的验证码
+    await util.cache.delAsync(key);
+    //保存会话信息
+    var findPass = {type:type, id:id};
+    req.session.findPass = findPass;
+    res.json({success:true});
+    req.session.save();
+}
+/**
+ * 前端向后端发送新密码，参数格式{certificate:}
+ * 后端修改成功后返回{success:true}
+ */
+async function newPass(req,res){
+    req.session.findPass = req.session.findPass || {};
+    if(!util.bodyContains(req ,"pass") || !req.session.findPass.type || !req.session.findPass.id){
+        res.json({success:false});
+        return;
+    }
+
+    if(req.session.findPass.tpye === 'admin'){
+        var user = await model.admin.findById(req.session.findPass.id);
+    }
+    if(req.session.findPass.type === 'operator'){
+        var user = await model.operator.findById(req.session.findPass.id);
+    }
+    user.pass = auth.Hash(req.body.pass);    //未认证的用户的处理
+    await user.save();
+    res.json({success:true});
+    return;
+}
 module.exports.apiInterfaces = [
     {url:'/api/get_socket_token', callBack:getSocketToken, auth:true},
-    {url:'/api/common/get_token',callBack:nameCheck},
-    {url:'/api/common/is_email_used', callBack:emailCheck}
+    {url:'/api/common/is_email_used',callBack:emailCheck},
+    {url:'/api/common/is_name_used',callBack:nameCheck},
+    {url:'api/common/settings/profile',callBack:profileUpdate,auth:true, method:'post'},
+    {url:'api/find_pass/get_certificate',callBack:getCertificateFindPass,method:'post'},
+    {url:'api/find_pass/certificate',callBack:certificateFindPass,method:'post'},
+    {url:'api/find_pass/new_pass',callBack:newPass,method:'post'},
 ];
