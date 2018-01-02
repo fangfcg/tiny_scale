@@ -63,7 +63,6 @@
             label="序号"
             min-width="20">
             <template slot-scope="scope">
-              <i class="el-icon-time"></i>
               <span style="margin-left: 10px">{{ scope.$index + 1 }}</span>
             </template>
           </el-table-column>
