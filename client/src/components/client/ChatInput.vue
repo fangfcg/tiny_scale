@@ -4,6 +4,7 @@
     <div class="button-area">
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="callService()">人工客服</span>
+      <span class="message-sub" @click="leaveMessage(msg)">留言</span>
     </div>
   </div>
 </template>
@@ -38,6 +39,23 @@ export default {
     },
     callService () {
       this.$store.commit('callService')
+    },
+    leaveMessage (msg) {
+      for (var i = 0; i < this.msg.length; i++) {
+        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+          break
+        }
+      }
+      if (i === this.msg.length) {
+        var newMsg = this.$store.state.chat.createMsg()
+        newMsg.msg = '请勿发送空白消息'
+        newMsg.type = 2
+        this.$store.state.chat.msgList.push(newMsg)
+        this.msg = ''
+        return
+      }
+      this.$store.commit('leaveMsg', msg)
+      this.msg = ''
     }
   }
 }
@@ -83,7 +101,7 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 440px;
+      margin-left: 380px;
     }
     .operator-sub{
       position: relative;
@@ -97,7 +115,19 @@ export default {
       outline: none;
       margin-left: 5px;
     }
-    .operator-sub, .chat-sub:hover{
+    .message-sub{
+      position: relative;
+      display: flex;
+      background-color: rgba(0,0,0,0.1);
+      justify-content: center;
+      align-items: center;
+      height: 30px;
+      width: 50px;
+      font-size: 13px;
+      outline: none;
+      margin-left: 5px;
+    }
+    .operator-sub, .chat-sub, .message-sub:hover{
       cursor: pointer;
     }
     .primary{
