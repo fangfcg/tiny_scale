@@ -1,11 +1,11 @@
 import io from 'socket.io-client'
 import {urlClient} from '../../configs'
-var msgId = 0
-var serverAddress = urlClient
-var Chat = {
+let msgId = 0
+let serverAddress = urlClient
+let Chat = {
   msgList: [],
   socket: null,
-  status: 0, // 0: not call. 1: calling, 2: serving
+  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage
   createMsg: function () {
     msgId++
     return {
@@ -19,44 +19,44 @@ var Chat = {
   initSock () {
     this.socket = io(serverAddress)
     this.socket.on('service_response', function (data) {
-      var sysmsg = Chat.createMsg()
+      let sysmsg = Chat.createMsg()
       sysmsg.type = 2
       if (data === false) {
-        Chat.status = 0
-        sysmsg.msg = '请求客服失败，请重试'
+        Chat.status = 3
+        sysmsg.msg = '请求客服失败，如需重试，请刷新；您现在可以留言，直接在下方编辑点击留言发送即可'
         Chat.msgList.push(sysmsg)
       }
     })
     this.socket.on('operator_connected', function () {
       Chat.status = 2
-      var sysmsg = Chat.createMsg()
+      let sysmsg = Chat.createMsg()
       sysmsg.msg = '已接入客服，正在为您服务'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
     this.socket.on('msg', function (inputMsgObj) {
-      var operatorMsg = Chat.createMsg()
+      let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
       Chat.msgList.push(operatorMsg)
     })
     this.socket.on('operator_disconnected', function () {
       Chat.status = 0
-      var sysmsg = Chat.createMsg()
+      let sysmsg = Chat.createMsg()
       sysmsg.msg = '客服已断开连接'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
     this.socket.on('crash', function () {
       Chat.status = 0
-      var sysmsg = Chat.createMsg()
+      let sysmsg = Chat.createMsg()
       sysmsg.msg = '因为一些意外的错误，客服断开了连接，请稍等'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
   },
   callService () {
-    var msgObj = this.createMsg()
+    let msgObj = this.createMsg()
     if (this.status === 0) {
       this.socket.emit('service_request')
       this.status = 1
@@ -67,20 +67,50 @@ var Chat = {
       msgObj.msg = '正在为您分配客服，请稍候'
       msgObj.type = 2
       this.msgList.push(msgObj)
-    } else {
+    } else if (this.status === 2) {
       msgObj.msg = '客服正在为您服务'
+      msgObj.type = 2
+      this.msgList.push(msgObj)
+    } else if (this.status === 3) {
+      msgObj.msg = '您正在留言，请留言完毕之后再申请客服'
       msgObj.type = 2
       this.msgList.push(msgObj)
     }
   },
   sendMsg (newMsg) {
-    var msgObj = Chat.createMsg()
-    msgObj.name = Chat.userName
-    msgObj.msg = newMsg
-    msgObj.type = 0
-    this.msgList.push(msgObj)
-    if (this.status === 2) {
-      this.socket.emit('msg', {msg: newMsg})
+    if (this.status === 3) {
+      let msgObj = Chat.createMsg()
+      msgObj.msg = '您正在留言，请留言完毕之后再发送信息'
+      msgObj.type = 2
+      this.msgList.push(msgObj)
+    } else {
+      let msgObj = Chat.createMsg()
+      msgObj.name = Chat.userName
+      msgObj.msg = newMsg
+      msgObj.type = 0
+      this.msgList.push(msgObj)
+      if (this.status === 2) {
+        this.socket.emit('msg', {msg: newMsg})
+      }
+    }
+  },
+  leaveMsg (newMsg) {
+    let sysObj = this.createMsg()
+    if (this.status === 3) {
+      sysObj.type = 2
+      sysObj.msg = '留言成功,返回正常状态'
+      this.msgList.push(sysObj)
+      let msgObj = Chat.createMsg()
+      msgObj.name = Chat.userName
+      msgObj.msg = newMsg
+      msgObj.type = 0
+      this.msgList.push(msgObj)
+      this.socket.emit('leaveMsg', {leaveMessage: newMsg})
+      this.status = 0 // set the status to the regular status
+    } else {
+      sysObj.type = 2
+      sysObj.msg = '您现在不能进行留言'
+      this.msgList.push(sysObj)
     }
   }
 }
