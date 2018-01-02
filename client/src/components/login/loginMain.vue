@@ -14,8 +14,8 @@
         </el-input>
       </div>
       <template>
-        <el-radio v-model="usertype" label="1">客服</el-radio>
-        <el-radio v-model="usertype" label="2">管理员</el-radio>
+        <el-radio v-model="usertype" label="operator">客服</el-radio>
+        <el-radio v-model="usertype" label="admin">管理员</el-radio>
       </template><br>
       <el-button type="primary" class="login-button" :disabled="loginFlag" @click="login">登录</el-button><br>
       <router-link to="/signin">
@@ -29,24 +29,41 @@
 
 <script>
 
-export default {
+var Login = {
   data () {
     return {
       username: '',
       password: '',
-      usertype: '1'
+      usertype: 'operator'  // 1: operator  2:admin
     }
   },
   computed: {
     loginFlag () {
       return this.username === '' || this.password === ''
+    },
+    loginUrl () {
+      return this.$store.state.serverIp + '/api/login'
+    },
+    serverIp () {
+      return this.$store.state.serverIp
     }
   },
   methods: {
     login () {
+      this.$http.post(this.loginUrl, {
+        type: this.usertype,
+        username: this.username,
+        password: this.password
+      }).then(function (response) {
+        if (response.success === true) {
+          window.location.href = Login.serverIp + '/' + Login.usertype + '.html'
+        }
+      })
     }
   }
 }
+
+export default Login
 </script>
 
 <style>
