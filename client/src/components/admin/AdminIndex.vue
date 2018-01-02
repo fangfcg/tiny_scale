@@ -12,6 +12,7 @@
                 <el-menu-item class="menuitem" index="/Data">数据信息</el-menu-item>
                 <el-menu-item class="menuitem" index="/Robot">机器人设置</el-menu-item>
                 <el-menu-item class="menuitem" index="/Settings">其它设置</el-menu-item>
+                <el-menu-item class="menuitem" index="/Invite">客服邀请</el-menu-item>
             </el-menu>
           </el-col>
         </el-row>
