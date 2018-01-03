@@ -11,6 +11,8 @@ let Chat = {
   msgList: [],
   socket: null,
   imgUrl: null,
+  robotUrl: null,
+  operatorName: null,
   status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
   createMsg: function () {
     msgId++
@@ -19,7 +21,8 @@ let Chat = {
       msg: null,
       name: null,
       key: msgId,
-      time: Date.now()
+      time: Date.now(),
+      imgUrl: null
     }
   },
   initSock () {
@@ -37,16 +40,19 @@ let Chat = {
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
-      if (data === false) {
+      if (!data.allocated) {
         Chat.status = 3
         sysmsg.msg = '请求客服失败，如需重试，请刷新；您现在可以留言，直接在下方编辑点击留言发送即可'
         Chat.msgList.push(sysmsg)
+      } else {
+        Chat.imgUrl = data.portrait
+        Chat.operatorName = data.name
       }
     })
     this.socket.on('operator_connected', function () {
       Chat.status = 2
       let sysmsg = Chat.createMsg()
-      sysmsg.msg = '已接入客服，正在为您服务'
+      sysmsg.msg = '客服' + Chat.operatorName + '正在为您服务'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
@@ -54,6 +60,11 @@ let Chat = {
       let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
+      if (Chat.status === 2) {
+        operatorMsg.imgUrl = Chat.imgUrl
+      } else {
+        operatorMsg.imgUrl = Chat.robotUrl
+      }
       Chat.msgList.push(operatorMsg)
     })
     this.socket.on('operator_disconnected', function () {
@@ -119,9 +130,7 @@ let Chat = {
       msgObj.msg = newMsg
       msgObj.type = 0
       this.msgList.push(msgObj)
-      if (this.status === 2) {
-        this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
-      }
+      this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
     }
   },
   leaveMsg (newMsg) {

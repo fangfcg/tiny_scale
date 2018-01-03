@@ -257,6 +257,13 @@ var Chat = {
         return false
       }
     })
+  },
+  initData () {
+    axios.get('/api/get_profile').then(function (response) {
+      Chat.name = response.name
+      Chat.email = response.email
+      Chat.imgUrl = response.portrait
+    })
   }
 }
 

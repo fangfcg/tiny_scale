@@ -50,6 +50,9 @@ const mutations = {
   },
   setSelfReply (state, data) {
     state.chat.setSelfReply(data)
+  },
+  initData (state) {
+    state.chat.initData()
   }
 }
 

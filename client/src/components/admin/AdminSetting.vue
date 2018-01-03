@@ -79,9 +79,9 @@
             min-width="80">
             <template slot-scope="scope">
               <el-button class="small-elbutton" @click="openAddDialog(scope.$index)">修改</el-button>
-                <el-button class="small-elbutton" type="danger" @click="delReply(scope.$index)">删除</el-button>
-                <el-button class="small-elbutton" v-if="scope.$index != 0" @click="upReply(scope.$index)">上移</el-button>
-                <el-button class="small-elbutton" v-if="scope.$index != compData.length-1" @click="downReply(scope.$index)">下移</el-button>
+              <el-button class="small-elbutton" type="danger" @click="delReply(scope.$index)">删除</el-button>
+              <el-button class="small-elbutton" v-if="scope.$index != 0" @click="upReply(scope.$index)">上移</el-button>
+              <el-button class="small-elbutton" v-if="scope.$index != compData.length-1" @click="downReply(scope.$index)">下移</el-button>
               
             </template>
           </el-table-column>
@@ -98,7 +98,7 @@
 var setting = {
   data () {
     return {
-      imageUrl: '',
+      imageUrl: this.$store.state.admin.imgUrl,
       inputName: this.$store.state.admin.name,
       inputEmail: this.$store.state.admin.email,
       nameInputFlag: true,
@@ -126,9 +126,8 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      console.log('success')
-      console.log(file)
       this.imageUrl = this.$store.state.admin.serverIp + res
+      this.$store.state.admin.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
       const isJPG = (file.type === 'image/jpeg')
@@ -151,7 +150,7 @@ var setting = {
       this.nameButtonFlag = !this.nameButtonFlag
       this.nameInputFlag = !this.nameInputFlag
     },
-    nameSubmit () {
+    async nameSubmit () {
       if (this.inputName === '') {
         this.$message({
           message: '昵称不能为空',
@@ -160,18 +159,18 @@ var setting = {
         return
       }
       this.nameLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
         name: this.inputName
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.nameLoading = false
-          setting.nameButtonFlag = true
-          setting.nameInputFlag = true
-        } else {
-          setting.nameLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.nameLoading = false
+        this.nameButtonFlag = true
+        this.nameInputFlag = true
+      } else {
+        this.nameLoading = false
+      }
       if (this.nameButtonFlag === true) {
         this.$store.state.chat.name = this.inputName
         this.$message({
@@ -192,7 +191,7 @@ var setting = {
       this.emailButtonFlag = !this.emailButtonFlag
       this.emailInputFlag = !this.emailInputFlag
     },
-    emailSubmit () {
+    async emailSubmit () {
       if (this.inputEmail === '') {
         this.$message({
           message: '邮箱不能为空',
@@ -201,18 +200,18 @@ var setting = {
         return
       }
       this.emailLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
         email: this.inputEmail
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.emailLoading = false
-          setting.emailButtonFlag = true
-          setting.emailInputFlag = true
-        } else {
-          setting.emailLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailLoading = false
+        this.emailButtonFlag = true
+        this.emailInputFlag = true
+      } else {
+        this.emailLoading = false
+      }
       if (this.emailButtonFlag === true) {
         this.$store.state.chat.email = this.inputEmail
         this.$message({
@@ -270,31 +269,31 @@ var setting = {
     selfHandleClose () {
       this.selfDialogVisible = false
     },
-    getAdminReply () {
-      this.$http.get(this.serverIp + '/api/common/settings/adminReply').then(function (response) {
-        if (response.success === true) {
-          this.compData = response.data
-          this.selfDialogVisible = true
-        } else {
-          this.$message.error('打开失败，请重试！')
-        }
-      })
+    async getAdminReply () {
+      let res = await this.$http.get(this.serverIp + '/api/common/settings/adminReply')
+      let response = res.data
+      if (response.success === true) {
+        this.compData = response.data
+        this.selfDialogVisible = true
+      } else {
+        this.$message.error('打开失败，请重试！')
+      }
     },
-    renewReply () {
-      this.$http.post(this.serverIp + '/api/common/settings/renewReply', {
+    async renewReply () {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/renewReply', {
         data: this.compData
-      }).then(function (response) {
-        if (response.success === true) {
-          this.$message({
-            message: '信息更新成功！',
-            type: 'success'
-          })
-          return true
-        } else {
-          this.$message.error('信息更新失败，请重试！')
-          return false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.$message({
+          message: '信息更新成功！',
+          type: 'success'
+        })
+        return true
+      } else {
+        this.$message.error('信息更新失败，请重试！')
+        return false
+      }
     }
   }
 }

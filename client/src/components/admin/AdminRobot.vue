@@ -111,19 +111,19 @@
 
 <script>
 var Robot = {
-  created () {
-    this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_question_list').then(function (response) {
-      for (let ques of response) {
-        let data = {}
-        data.name = ques.name
-        data.mainQues = ques.content
-        data.similarQues1 = ques.similarities.length > 0 ? ques.similarities[0] : ''
-        data.similarQues2 = ques.similarities.length > 1 ? ques.similarities[1] : ''
-        data.answer = ques.answer
-        data.questionId = ques.questionId
-        this.formQues.push(data)
-      }
-    })
+  async created () {
+    let res = await this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_question_list')
+    let response = res.data
+    for (let ques of response) {
+      let data = {}
+      data.name = ques.name
+      data.mainQues = ques.content
+      data.similarQues1 = ques.similarities.length > 0 ? ques.similarities[0] : ''
+      data.similarQues2 = ques.similarities.length > 1 ? ques.similarities[1] : ''
+      data.answer = ques.answer
+      data.questionId = ques.questionId
+      this.formQues.push(data)
+    }
   },
   data () {
     return {
@@ -209,7 +209,7 @@ var Robot = {
       this.formQues.questionId = '-1'
       this.dialogFormVisible = true
     },
-    dialogEdit () {
+    async dialogEdit () {
       var tmpQues = {}
       if (this.formQues.name === '' || this.formQues.mainQues === '' || this.formQues.answer === '') {
         this.$message({
@@ -236,13 +236,13 @@ var Robot = {
         }
         postObj.answer = tmpQues.answer
         this.tableData.push(tmpQues)
-        this.$http.post(this.serverIp + '/api/robot/add', postObj).then(function (response) {
-          if (response.success === true) {
-            Robot.tableData[Robot.tableData.length - 1].questionId = response.questionId
-          } else {
-            Robot.tableData.splice(Robot.tableData.length - 1, 1)
-          }
-        })
+        let res = await this.$http.post(this.serverIp + '/api/robot/add', postObj)
+        let response = res.data
+        if (response.success === true) {
+          this.tableData[this.tableData.length - 1].questionId = response.questionId
+        } else {
+          this.tableData.splice(this.tableData.length - 1, 1)
+        }
       } else {
         tmpQues = this.tableData[this.currentIndex]
         tmpQues.name = this.formQues.name
@@ -262,9 +262,7 @@ var Robot = {
         }
         postObj.answer = tmpQues.answer
         postObj.questionId = tmpQues.questionId
-        this.$http.post(this.serverIp + '/api/robot/modify', postObj).then(function (response) {
-          // don't mind response
-        })
+        await this.$http.post(this.serverIp + '/api/robot/modify', postObj)
       }
       this.dialogFormVisible = false
     }
