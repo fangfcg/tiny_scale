@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import {urlClient} from '../../configs'
+import {urlClient, clientToken} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
   postRateUrl: '/api/client/post_rate'
@@ -23,7 +23,17 @@ let Chat = {
     }
   },
   initSock () {
-    this.socket = io(serverAddress)
+    var session
+    axios.get(urlClient + '/api/get_session_id').then(function (response) {
+      session = response.session
+    })
+    this.socket = io(serverAddress, {
+      query: {
+        session: session,
+        token: clientToken,
+        type: 'client'
+      }
+    })
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
