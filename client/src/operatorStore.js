@@ -39,6 +39,9 @@ const mutations = {
   changeStatus (state, command) {
     state.chat.changeStatus(command)
   },
+  crossServe (state, operatorId) {
+    state.chat.crossServe(operatorId)
+  },
   getSelfReply (state) {
     state.chat.getSelfReply()
   },

@@ -26,9 +26,12 @@ var Chat = {
   currentNum: 0,
   finishNum: 0,
   operatorStatus: 0,
+  imgUrl: null,
   userList: [],
   socket: null,
   serverIp: serverIp,
+  crashFlag: false,
+  newCrossServe: false,
   name: '小明',
   email: '123@123.com',
   selfData: [],
@@ -63,8 +66,8 @@ var Chat = {
       type: 0, // 0: self 1: other 2: system
       msg: null,
       name: null,
-      color: null,
-      key: msgId
+      key: msgId,
+      time: Date.now()
     }
   },
   changeCard: function (userid) {
@@ -87,6 +90,7 @@ var Chat = {
       }
       var userid = obj.id
       var newUser = user()
+      this.newCrossServe = false
       newUser.userid = userid
       this.currentUser = userid
       this.userList.push(newUser)
@@ -109,6 +113,7 @@ var Chat = {
         this.currentNum --
         this.finishNum ++
         this.userList.splice(this.currentIndex, 1)
+        this.crashFlag = true
         if (this.currentNum === 0) {
           this.currentIndex = null
           this.currentUser = null
@@ -128,12 +133,20 @@ var Chat = {
         }
       }
     }.bind(Chat))
+    this.socket.on('cross_serve', function (userid, chatId) {
+      var newUser = user()
+      newUser.userid = userid
+      this.userList.push(newUser)
+      this.currentNum ++
+      this.newCrossServe = true
+    }.bind(Chat))
   },
   endService: function () {
     if (this.currentNum <= 0) {
       return
     }
     this.socket.emit('end_service', this.currentUser)
+    this.crashFlag = false
     this.currentNum --
     this.finishNum ++
     this.userList.splice(this.currentIndex, 1)
@@ -156,10 +169,22 @@ var Chat = {
     newMsg.msg = msg
     newMsg.type = 0
     this.userList[this.currentIndex].msgList.push(newMsg)
-    this.socket.emit('msg', this.currentUser, {msg: msg})
+    this.socket.emit('msg', this.currentUser, {msg: msg, time: newMsg.time})
   },
   changeStatus (command) {
     this.socket.emit('change_state', command)
+  },
+  crossServe (operatorId) {
+    this.socket.emit('cross_serve', this.currentUser, operatorId)
+    this.currentNum --
+    this.userList.splice(this.currentIndex, 1)
+    if (this.currentNum === 0) {
+      this.currentIndex = null
+      this.currentUser = null
+    } else {
+      this.currentIndex = 0
+      this.currentUser = this.userList[0].userid
+    }
   },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
