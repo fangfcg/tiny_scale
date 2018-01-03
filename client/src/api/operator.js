@@ -78,7 +78,16 @@ var Chat = {
     }
   },
   initSock: function () {
-    this.socket = io(serverAddress)
+    var session
+    axios.get(serverIp + '/api/get_session_id').then(function (response) {
+      session = response.session
+    })
+    this.socket = io(serverAddress, {
+      query: {
+        session: session,
+        type: 'client'
+      }
+    })
     this.socket.on('new_customer', function () {
       this.waitingNum ++
     }.bind(Chat))

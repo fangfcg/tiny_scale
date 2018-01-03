@@ -1,6 +1,6 @@
 <template>
-  <div class="chatbox">
-    <div class="chattop"></div>
+  <div class="chatbox" :style="bodystyle">
+    <div class="chattop" @mousedown="drag($event)"></div>
     <chat-body class="chatbody"></chat-body>
     <chat-input class="chatinput"></chat-input>
   </div>
@@ -15,6 +15,10 @@ import ChatInput from './ChatInput'
 export default {
   data () {
     return {
+      bodystyle: {
+        left: '300px',
+        top: '150px'
+      }
     }
   },
   components: {
@@ -22,9 +26,27 @@ export default {
     ChatInput
   },
   created () {
-    // this.$store.commit('initSock')
+    this.$store.commit('initSock')
   },
   methods: {
+    drag (event) {
+      var self = this
+      // var oDiv = event.currentTarget
+      // var oWindow = oDiv.parentNode
+      let disX = event.clientX - parseInt(self.bodystyle.left)
+      let disY = event.clientY - parseInt(self.bodystyle.top)
+      document.onmousemove = function (e) {
+        let l = e.clientX - disX
+        let t = e.clientY - disY
+        console.log(e.clientX, e.clientY)
+        self.bodystyle.left = l + 'px'
+        self.bodystyle.top = t + 'px'
+      }
+      document.onmouseup = function (e) {
+        document.onmousemove = null
+        document.onmouseup = null
+      }
+    }
   }
 }
 </script>
@@ -48,8 +70,9 @@ body {
 }
 
 .chatbox{
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  width: 600px;
+  height: 600px;
   justify-content: space-between;
   border:1px;
   border-color: #2e3238;
