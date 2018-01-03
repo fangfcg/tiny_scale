@@ -122,19 +122,19 @@ var Login = {
       this.choosenType = 1
       this.status = 2
     },
-    nextStep () {
+    async nextStep () {
       if (this.status === 2) {
         if (this.choosenType === 0) {
           if (this.certiCode === '') {
             return
           }
-          this.$http.post(this.adminCertificateUrl, {
+          let res = await this.$http.post(this.adminCertificateUrl, {
             certificate: this.certiCode
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 3
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 3
+          }
           if (this.status !== 3) {
             this.$message.error('验证码错误，请重试')
           }
@@ -142,13 +142,13 @@ var Login = {
           if (this.inviteCode === 0) {
             return
           }
-          this.$http.post(this.operatorCertificateUrl, {
+          let res = await this.$http.post(this.operatorCertificateUrl, {
             certificate: this.inviteCode
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 3
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 3
+          }
           if (this.status !== 3) {
             this.$message.error('验证码错误，请重试')
           }
@@ -164,15 +164,15 @@ var Login = {
             this.$message.error('两次密码输入不一致，请重试')
             return
           }
-          this.$http.post(this.adminCreateUrl, {
+          let res = await this.$http.post(this.adminCreateUrl, {
             companyName: this.companyName,
             name: this.username,
             pass: this.password
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 4
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 4
+          }
           if (this.status !== 4) {
             this.$message.error('注册失败，请重试')
           }
@@ -184,37 +184,35 @@ var Login = {
             this.$message.error('两次密码输入不一致，请重试')
             return
           }
-          this.$http.post(this.operatorCreateUrl, {
+          let res = await this.$http.post(this.operatorCreateUrl, {
             name: this.username,
             pass: this.password
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 4
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 4
+          }
           if (this.status !== 4) {
             this.$message.error('注册失败，请重试')
           }
         }
       }
     },
-    sendIdenCode () {
+    async sendIdenCode () {
       if (this.emailNum === '') {
         return
       }
       this.emailSendDisabled = true
-      this.$http.post(this.sendEmailUrl, {
+      let res = await this.$http.post(this.sendEmailUrl, {
         email: this.emailNum
-      }).then(function (response) {
-        if (response.success === true) {
-          Login.emailSendFlag = true
-        } else {
-          Login.emailSendFlag = false
-        }
-      }).catch(function (error) {
-        console.log(error)
-        Login.emailSendFlag = false
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailSendFlag = true
+      } else {
+        this.emailSendFlag = false
+      }
+      
       if (this.emailSendFlag === true) {
         this.$message({
           message: '发送邮件成功',

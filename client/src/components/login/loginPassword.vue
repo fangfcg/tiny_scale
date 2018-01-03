@@ -97,25 +97,22 @@ var Password = {
       this.choosenType = 1
       this.status = 2
     },
-    sendIdenCode () {
+    async sendIdenCode () {
       if (this.emailNum === '') {
         return
       }
       this.emailSendDisabled = true
       let typeUser = this.choosenType === 0 ? 'admin' : 'operator'
-      this.$http.post(this.serverIp + '/api/find_pass/get_certificate', {
+      let res = await this.$http.post(this.serverIp + '/api/find_pass/get_certificate', {
         email: this.emailNum,
         type: typeUser
-      }).then(function (response) {
-        if (response.success === true) {
-          Password.emailSendFlag = true
-        } else {
-          Password.emailSendFlag = false
-        }
-      }).catch(function (error) {
-        console.log(error)
-        Password.emailSendFlag = false
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailSendFlag = true
+      } else {
+        this.emailSendFlag = false
+      }
       if (this.emailSendFlag === true) {
         this.$message({
           message: '发送邮件成功',
@@ -126,18 +123,18 @@ var Password = {
       }
       this.emailSendDisabled = false
     },
-    nextStep () {
+    async nextStep () {
       if (this.status === 2) {
         if (this.certiCode === '') {
           return
         }
-        this.$http.post(this.serverIp + '/api/find_pass/certificate', {
+        let res = await this.$http.post(this.serverIp + '/api/find_pass/certificate', {
           certificate: this.certiCode
-        }).then(function (response) {
-          if (response.success) {
-            Password.status = 3
-          }
         })
+        let response = res.data
+        if (response.success) {
+          this.status = 3
+        }
         if (this.status !== 3) {
           this.$message.error('验证码错误，请重试')
         }
@@ -151,13 +148,13 @@ var Password = {
           this.$message.error('两次密码输入不一致，请重试')
           return
         }
-        this.$http.post(this.serverIp + '/api/find_pass/new_pass', {
+        let res = await this.$http.post(this.serverIp + '/api/find_pass/new_pass', {
           newPass: this.password
-        }).then(function (response) {
-          if (response.success === true) {
-            Password.status = 4
-          }
         })
+        let response = res.data
+        if (response.success === true) {
+          this.status = 4
+        }
         if (this.status !== 4) {
           this.$message.error('注册失败，请重试')
         }
