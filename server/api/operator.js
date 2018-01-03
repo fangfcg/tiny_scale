@@ -86,7 +86,7 @@ async function getColleagues(req, res){
 
 async function getMsgList(req, res){
     //检验该客服是否当前正在处理某条消息
-    var msgProcessing = await util.cache.getAsync(`${util.PREFIX_MESSAGE}:${req.user.id}`);
+    var msgProcessing = await util.cache.getAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
     if(msgProcessing){
         var msg = await model.message.findById(msgProcessing);
         msg = util.doc2Object(msg);
@@ -114,7 +114,7 @@ async function getMsg(req, res){
         return;
     }
     //在缓存中记录客服正在处理该消息
-    await util.cache.setAsync(`${util.PREFIX_MESSAGE}:${req.user.id}`, msg.id);
+    await util.cache.setAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`, msg.id);
     res.json({success:true});
 }
 /**
@@ -123,7 +123,7 @@ async function getMsg(req, res){
  * @param {*} res 
  */
 async function answerMsg(req, res){
-    var msgId = await util.cache.getAsync(`${util.PREFIX_MESSAGE}:${req.user.id}`);
+    var msgId = await util.cache.getAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
     if(!msgId){
         res.json({success:false});
         return;
@@ -134,7 +134,9 @@ async function answerMsg(req, res){
     msg.answerTime = Date.now();
     await msg.save();
     //该客服可以继续回复下一条留言
-    await util.cache.del(`${util.PREFIX_MESSAGE}:${req.user.id}`);
+    await util.cache.delAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
+    //在缓存中记录该留言已经被回答
+    await util.cache.setAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${msg.customerId}`);
     res.json({success:true});
 }
 
@@ -144,5 +146,5 @@ module.exports.apiInterfaces = [
     {url:'/api/operator/get_colleagues', callBack:getColleagues, auth:true},
     {url:'/api/operator/get_msg_lst', callBack:getMsgList, auth:true},
     {url:'/api/operator/get_msg',callBack:getMsg, auth:true, method:'post'},
-    {url:'/api/operator/answer_msg', callBack:answerMsg, auth:true, method:'post'}
+    {url:'/api/operator/answer_msg', callBack:answerMsg, auth:true, method:'post'},
 ];

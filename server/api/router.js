@@ -16,7 +16,7 @@ fs.readdirSync(__dirname)
 //对验证行为进行封装
 function authWrap(func, type){
     return (function (req, res, next){
-        if(!req.isAuthenticated() || req.user.userType !== type){
+        if(!req.isAuthenticated() || (type && req.user.userType !== type)){
             //未进行验证时的返回信息
             res.status(404);
             res.send('page not found');
@@ -33,7 +33,6 @@ module.exports.setRoute = function(app){
         }
         //默认采用get方法
         option.method = option.method || 'get';
-        option.type = option.type || 'operator';
         //如果需要验证才能接入则需要进行封装
         if(option.auth){
             option.callBack = authWrap(option.callBack, option.type);
