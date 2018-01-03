@@ -37,6 +37,13 @@
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="callService()">人工客服</span>
       <span class="message-sub" @click="leaveMessage(msg)">留言</span>
+      <el-upload
+        action="uploadImageUrl"
+        :on-success="uploadImgSuccess"
+        :before-upload="beforeImgUpload"
+        :show-file-list="false">
+        <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
+      </el-upload>
     </div>
   </div>
 </template>
@@ -52,6 +59,11 @@ export default {
       point: 0
     }
   },
+  computed: {
+    uploadImageUrl () {
+      return this.$store.state.chat.serverIp + '/clientimage'
+    }
+  },
   ready () {
   },
   methods: {
@@ -62,7 +74,7 @@ export default {
         }
       }
       if (i === this.msg.length) {
-        var newMsg = this.$store.state.chat.createMsg()
+        let newMsg = this.$store.state.chat.createMsg()
         newMsg.msg = '请勿发送空白消息'
         newMsg.type = 2
         this.$store.state.chat.msgList.push(newMsg)
@@ -105,6 +117,10 @@ export default {
       } else {
         this.$store.commit('sendRate', this.point)
       }
+    },
+    uploadImgSuccess (res, file) {
+      let newMsg = this.$store.state.chat.createMsg()
+      newMsg.imageUrl = URL.createObjectURL(file.raw)
     }
   },
   components: {
@@ -200,7 +216,7 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 380px;
+      margin-left: 340px;
     }
     .operator-sub{
       position: relative;
@@ -229,7 +245,7 @@ ul{
     .rate-container{
       position: absolute;
       display: flex;
-      margin-left: 125px;
+      margin-left: 85px;
       margin-top: 5px;
       width: 160px;
       background-color: white;
@@ -247,7 +263,7 @@ ul{
       width: 78px;
       font-size: 13px;
       outline: none;
-      margin-left: 290px;
+      margin-left: 250px;
     }
     .operator-sub, .chat-sub, .message-sub, .rate-sub:hover{
       cursor: pointer;

@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import {urlClient} from '../../configs'
+import {urlClient, serverIp} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
   postRateUrl: '/api/client/post_rate'
@@ -8,22 +8,38 @@ const httpUrl = {
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
+  serverIp: serverIp,
   msgList: [],
   socket: null,
   imgUrl: null,
-  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
+  status: 4, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
   createMsg: function () {
     msgId++
     return {
-      type: 0, // 0: self 1: other 2: system
+      type: 0, // 0: self 1: other 2: system 3:pictures
       msg: null,
       name: null,
       key: msgId,
+      imgUrl: null,
       time: Date.now()
     }
   },
   initSock () {
     this.socket = io(serverAddress)
+    this.socket.on('message_answered', function (data) {
+      let sysmsg = Chat.createMsg()
+      sysmsg.type = 2
+      sysmsg.msg = '您的请求已经被成功受理，下面是您的问题和客服人员对应的答案'
+      Chat.msgList.push(sysmsg)
+      let selfmsg = Chat.createMsg()
+      selfmsg.type = 0
+      selfmsg.msg = data.conent
+      Chat.msgList.push(selfmsg)
+      let othermsg = Chat.createMsg()
+      othermsg.type = 1
+      othermsg.msg = data.answer
+      Chat.msgList.push(othermsg)
+    })
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
@@ -125,7 +141,7 @@ let Chat = {
       msgObj.msg = newMsg
       msgObj.type = 0
       this.msgList.push(msgObj)
-      this.socket.emit('leaveMsg', {leaveMessage: newMsg})
+      this.socket.emit('leave_msg', newMsg)
       this.status = 0 // set the status to the regular status
     } else {
       sysObj.type = 2
