@@ -2,9 +2,12 @@ import io from 'socket.io-client'
 import {urlOperator, serverIp} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
-  leaveMsgUrl: '/api/client/leave_message', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
-  getLeaveMsgUrl: '/api/client/get_leavemsg',
-  replyMsgUrl: '/api/client/reply_msg'
+  leaveMsgUrl: '/api/operator/leave_message', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
+  getLeaveMsgUrl: '/api/operator/get_leavemsg',
+  replyMsgUrl: '/api/operator/reply_msg',
+  getSelfQuickReplyUrl: '/api/operator/get_selfreply',
+  getCompQuickReplyUrl: '/api/operator/get_compreply',
+  setQuickReplyUrl: '/api/operator/set_quickreply'
 }
 
 var msgId = 0
@@ -28,6 +31,8 @@ var Chat = {
   serverIp: serverIp,
   name: '小明',
   email: '123@123.com',
+  selfData: [],
+  compData: [],
   leaveMsgList: [{
     id: '12987122',
     time: '2017-09-11',
@@ -183,6 +188,28 @@ var Chat = {
       if (response.success === true) {
         Chat.isReplying = false
         Chat.replyingMsg = ''
+        return true
+      } else {
+        return false
+      }
+    })
+  },
+  getSelfReply () {
+    axios.get(httpUrl.getSelfQuickReplyUrl).then(function (response) {
+      Chat.selfData = response.data
+    })
+  },
+  getCompReply () {
+    axios.get(httpUrl.getCompQuickReplyUrl).then(function (response) {
+      Chat.compData = response.data
+    })
+  },
+  setSelfReply () {
+    axios.post(httpUrl.replyMsgUrl, {
+      data: Chat.selfData,
+      type: 'custom'
+    }).then(function (response) {
+      if (response.success === true) {
         return true
       } else {
         return false

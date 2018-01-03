@@ -34,7 +34,7 @@
     <el-button @click="emailModify">修改</el-button>
     <el-button :disabled="emailButtonFlag" @click="emailSubmit" :loading="emailLoading">提交</el-button>
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
-    <span class="main-text">自定义快捷回复设置 <el-button style="margin-left:100px" @click="selfDialogVisible = true">设置</el-button></span><br>
+    <span class="main-text">自定义快捷回复设置 <el-button style="margin-left:100px" @click="openSelfDialog()">设置</el-button></span><br>
     <el-dialog
         title="快捷回复设置"
         :visible.sync="selfDialogVisible"
@@ -93,7 +93,7 @@
    
 
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
-    <span class="main-text">公司预设快捷回复查看 <el-button style="margin-left:90px" @click="comDialogVisible = true">查看</el-button></span><br>
+    <span class="main-text">公司预设快捷回复查看 <el-button style="margin-left:90px" @click="openComDialog()">查看</el-button></span><br>
      <el-dialog
         title="快捷回复查看"
         :visible.sync="comDialogVisible"
@@ -139,10 +139,10 @@ var setting = {
       return this.$store.state.chat.serverIp
     },
     selfData () {
-      return this.$store.state.selfData
+      return this.$store.state.chat.selfData
     },
     compData () {
-      return this.$store.state.compData
+      return this.$store.state.chat.compData
     }
   },
   methods: {
@@ -258,41 +258,49 @@ var setting = {
       this.addDialogVisible = false
     },
     delReply (id) {
-      this.selfData.splice(id, 1)
+      this.$store.state.chat.selfData.splice(id, 1)
     },
     upReply (id) {
-      let strFormerUp = this.$store.state.selfData[id - 1].text
-      let strNewUp = this.$store.state.selfData[id].text
-      this.$store.state.selfData[id].text = strFormerUp
-      this.$store.state.selfData[id - 1].text = strNewUp
+      let strFormerUp = this.$store.state.chat.selfData[id - 1].text
+      let strNewUp = this.$store.state.chat.selfData[id].text
+      this.$store.state.chat.selfData[id].text = strFormerUp
+      this.$store.state.chat.selfData[id - 1].text = strNewUp
     },
     downReply (id) {
-      let strFormerDown = this.$store.state.selfData[id + 1].text
-      let strNewDown = this.$store.state.selfData[id].text
-      this.$store.state.selfData[id].text = strFormerDown
-      this.$store.state.selfData[id + 1].text = strNewDown
+      let strFormerDown = this.$store.state.chat.selfData[id + 1].text
+      let strNewDown = this.$store.state.chat.selfData[id].text
+      this.$store.state.chat.selfData[id].text = strFormerDown
+      this.$store.state.chat.selfData[id + 1].text = strNewDown
     },
     updateReply (id, newMsg) {
-      this.$store.state.selfData[id].text = newMsg
+      this.$store.state.chat.selfData[id].text = newMsg
     },
     addDialogClose () {
       this.addDialogVisible = false
-      if (this.replyID === this.$store.state.selfData.length) {
-        this.$store.state.selfData.push({text: this.rawText})
+      if (this.replyID === this.$store.state.chat.selfData.length) {
+        this.$store.state.chat.selfData.push({text: this.rawText})
       } else {
-        this.$store.state.selfData[this.replyID].text = this.rawText
+        this.$store.state.chat.selfData[this.replyID].text = this.rawText
       }
     },
     openAddDialog (id) {
       this.replyID = id
       this.addDialogVisible = true
-      if (id === this.$store.state.selfData.length) {
+      if (id === this.$store.state.chat.selfData.length) {
         this.rawText = ''
         this.addTitle = '新建回复（最大长度为150字）'
       } else {
-        this.rawText = this.selfData[id].text
+        this.rawText = this.$store.state.chat.selfData[id].text
         this.addTitle = '修改第' + (id + 1) + '号回复（最大长度为150字）'
       }
+    },
+    openComDialog () {
+      this.$store.commit('getCompReply')
+      this.comDialogVisible = true
+    },
+    openSelfDialog () {
+      this.$store.commit('getSelfReply')
+      this.selfDialogVisible = true
     }
   }
 }

@@ -291,7 +291,7 @@ var setting = {
           })
           return true
         } else {
-          this.$message.error('获取信息失败，请重试！')
+          this.$message.error('信息更新失败，请重试！')
           return false
         }
       })
