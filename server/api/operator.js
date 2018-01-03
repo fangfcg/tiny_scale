@@ -84,10 +84,67 @@ async function getColleagues(req, res){
     res.json({success:true, colleagues:results});
 }
 
-
+async function getMsgList(req, res){
+    //检验该客服是否当前正在处理某条消息
+    var msgProcessing = await util.cache.getAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
+    if(msgProcessing){
+        var msg = await model.message.findById(msgProcessing);
+        msg = util.doc2Object(msg);
+        res.json({success:false, msg:msg});
+        return;
+    }
+    //客服未处理任何消息
+    var msgList = model.message.find({operatorGroupId:req.user.operatorGroupId,
+    answerState:model.message.STATE_UNANSERED});
+    res.json({success:true, msgList});
+}
+/**
+ * post方法，传入参数为{id}，检查该留言是否已经被回答，如果是则返回true，否则false
+ * @param {} req 
+ * @param {*} res 
+ */
+async function getMsg(req, res){
+    if(!util.bodyContains(req, "id")){
+        res.json({success:false, err:"invalid parameter"});
+    }
+    var msg = await model.message.findOneAndUpdate({_id:req.body.id, answerState:model.message.STATE_UNANSERED},
+            {answerState:model.message.STATE_ANSWERING, answerOperatorId:req.user.id},{new:true});
+    if(!msg){
+        res.json({success:false});
+        return;
+    }
+    //在缓存中记录客服正在处理该消息
+    await util.cache.setAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`, msg.id);
+    res.json({success:true});
+}
+/**
+ * 参数格式：{id:,content:}
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function answerMsg(req, res){
+    var msgId = await util.cache.getAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
+    if(!msgId){
+        res.json({success:false});
+        return;
+    }
+    var msg = await model.message.findById(msgId);
+    msg.answer = req.body.content;
+    msg.answerState = model.message.STATE_ANSWERED;
+    msg.answerTime = Date.now();
+    await msg.save();
+    //该客服可以继续回复下一条留言
+    await util.cache.delAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
+    //在缓存中记录该留言已经被回答
+    await util.cache.setAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${msg.customerId}`);
+    res.json({success:true});
+}
 
 module.exports.apiInterfaces = [
     {url:'/api/operator/signup/certificate', callBack:certificate, method:'post'},
     {url:'/api/operator/signup/create_operator',callBack:createOperator, method:'post'},
     {url:'/api/operator/get_colleagues', callBack:getColleagues, auth:true},
+    {url:'/api/operator/get_msg_lst', callBack:getMsgList, auth:true},
+    {url:'/api/operator/get_msg',callBack:getMsg, auth:true, method:'post'},
+    {url:'/api/operator/answer_msg', callBack:answerMsg, auth:true, method:'post'},
 ];

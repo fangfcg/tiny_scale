@@ -1,5 +1,7 @@
 const robot = require('../../api/robot');
 const chatLogger = require('../chatLogger');
+const util = require('../../utils');
+const model = require('../../models/models').models;
 const SERVING_STATUS_ROBOT = 0;
 const SERVING_STATUS_WAITING = 1;
 const SERVING_STATUS_CHATTING = 2;
@@ -16,16 +18,29 @@ class customerController {
         operatorEvent.on('msg', this._operatorMsg.bind(this));
         operatorEvent.on('end_service', this._endService.bind(this));
         operatorEvent.on('crash', this._crash.bind(this));
+        operatorEvent.on('cross_served', this._crossServed.bind(this));
     }
-    newSocket(socket) {
+    async newSocket(socket) {
         this.socketPool[socket.user.id] = socket;
         socket.on('msg', this._customerMsg.bind(this, socket.user.id));
         socket.on('service_request', this._serviceRequest.bind(this,socket.user.id));
         socket.on('comment', this._comment.bind(this, socket.user.id));
+        socket.on('leave_msg', this._leaveMsg.bind(this, socket.user.id));
         //为socket设置附加属性
         socket.servingState = SERVING_STATUS_ROBOT; //一开始只与机器人对话
         socket.serviceOperatorId = null;
         socket.chatId = null;
+        //发送问候或者留言回复
+        var answerId = await util.cache.getAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${socket.user.id}`);
+        if(answerId){
+            //用户的留言已经被回答
+            var msg = await model.message.findById(answerId);
+            socket.emit('message_answered', msg.answer, msg.content);
+        }
+        else{
+            var opGroup = await model.operatorGroup.findById(socket.opGroup);
+            socket.emit('msg', {msg:opGroup.specialRobotAnswer.greet});
+        }
     }
     _serviceRequest(customerId) {
         this.event.emit('allocate_operator', customerId);
@@ -105,6 +120,26 @@ class customerController {
             socket.servingState = SERVING_STATUS_ROBOT;
         }
     }
+    async _leaveMsg(customerId, content) {
+        var socket = this.socketPool[customerId];
+        var msgId = await util.cache.getAsync(`${util.PREFIX_MESSAGE_LEFT}:${socket.user.id}`);
+        if(msgId){
+            //删除旧的留言
+            var msgOld = await model.message.findById(msgId);
+            await msgOld.remove();
+        }
+        var msg = new model.message({
+            customerId:socket.user.id,
+            content:content,
+            leftTime:Date.now(),
+            answerState:model.message.STATE_UNANSWERED,
+            operatorGroupId:socket.opGroup,
+        });
+        await msg.save();
+        await util.cache.setAsync(`${util.PREFIX_MESSAGE_LEFT}:${socket.user.id}`, msg.id);
+        socket.emit("msg_left", {success:true});
+    }
+
     async _disconnect(customerId) {
         var socket = this.socketPool[customerId];
         switch (socket.servingState) {

@@ -61,7 +61,7 @@ export default {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.chat.serverIp + '/clientimage'
+      return this.$store.state.chat.urlClient + '/clientimage'
     }
   },
   ready () {
@@ -120,7 +120,8 @@ export default {
     },
     uploadImgSuccess (res, file) {
       let newMsg = this.$store.state.chat.createMsg()
-      newMsg.imageUrl = URL.createObjectURL(file.raw)
+      newMsg.type = 3
+      newMsg.imgUrl = URL.createObjectURL(file.raw) // to be done
     }
   },
   components: {
