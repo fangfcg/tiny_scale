@@ -152,6 +152,9 @@ var Chat = {
     this.userList[this.currentIndex].msgList.push(newMsg)
     this.socket.emit('msg', this.currentUser, {msg: msg})
   },
+  changeStatus (command) {
+    this.socket.emit('change_state', command)
+  },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
       Chat.leaveMsgList = response.data.data

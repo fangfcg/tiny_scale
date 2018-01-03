@@ -82,6 +82,7 @@ export default {
       for (let item of this.statusList) {
         if (item.statu === command) {
           this.$store.state.chat.operatorStatus = item.num
+          this.$store.commit('changeStatus', command)
           const h = this.$createElement
           this.$message({
             message: h('p', null, [
