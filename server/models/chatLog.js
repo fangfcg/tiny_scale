@@ -7,6 +7,9 @@ module.exports = (schema, mongoose) => {
         contents:[{msg:{type:{type:String}, content:String, time:Date},
             sender:String}],    //sender为customer,或者operator表示相应的发送人
         comment:Number,
+        commented:Boolean,
+        crossed:Boolean,    //标识该会话是否被转交
+        crosserId:schema.Types.ObjectId,    //对话转接的客服的id
     });
     var chatLogModel = mongoose.model('chatLog', chatLogSchema);
     chatLogModel.contentType = {};

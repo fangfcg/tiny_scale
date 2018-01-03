@@ -11,7 +11,9 @@ var chatLogPool = {};
 function createChat(customerId, operatorId){
     var chat = new model.chatLog({operatorId:operatorId,
          customerId:customerId,
-        startTime:Date.now(),});
+        startTime:Date.now(),
+        commented:false,
+        crossed:false});
     chatLogPool[chat.id] = chat;
     return chat.id;
 };
@@ -32,9 +34,17 @@ function newMsg(chatId, msg, senderType){
  */
 function commentChat(chatId, comment){
     chatLogPool[chatId].comment = comment;
+    chatLogPool[chatId].commented = true;
 }
 
-async function finishChat (chatId) {
+async function finishChat (chatId, options) {
+    var chat = chatLogPool[chatId];
+    options = options || {};
+    chat.endTime = Date.now();
+    if(options.crossed){
+        chat.crossed = true;
+        chat.crosserId = options.crosserId;
+    }
     await chatLogPool[chatId].save();
 }
 

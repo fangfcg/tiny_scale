@@ -62,7 +62,6 @@ async function getOperatorInfo(req, res){
  * @param {Express.Response} res 
  */
 async function getCertificate(req, res){
-    req.body = req.query;
     if(!util.bodyContains(req,'email')){
         res.json({success:false, err:"parameter email loss"});
         return;
@@ -70,7 +69,7 @@ async function getCertificate(req, res){
     var certificate = stringGenerator.generate(certificateConfigure);
     try {
         await util.mailTransporter.sendMail({
-            to:res.body.email,
+            to:req.body.email,
             subject: "小天秤在线客服管理员注册",
             text: certificate
         });
@@ -80,7 +79,7 @@ async function getCertificate(req, res){
         return;
     }
     //寄件成功，将验证码和邮箱保存在缓存中
-    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',res.body.email);
+    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',req.body.email);
     res.json({success:true});
 }
 /**
@@ -226,7 +225,7 @@ module.exports.clearCertificateCount = clearCertificate;
 module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
     {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
-    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin'},
+    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin', method:'post'},
     {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},

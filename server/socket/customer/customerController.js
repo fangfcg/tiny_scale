@@ -50,6 +50,19 @@ class customerController {
             this.event.emit('crash', "connecting", socket.serviceOperatorId,customerId);
         }
     }
+    _crossServed(customerId, crosserId,chatId){
+        var socket = this.socketPool[customerId];
+        if(socket){
+            socket.chatId = chatId;
+            socket.serviceOperatorId = crosserId;
+            socket.emit('cross_served', crosserId);
+        }
+        else{
+            //用户已经断开连接
+            chatLogger.withDrawChat(chatId);
+            this.event.emit('crash', "connecting", socket.serviceOperatorId,customerId);
+        }
+    }
     //处理从客户方发来的消息
     _customerMsg(customerId, msg) {
         var socket = this.customers[customerId];
@@ -80,6 +93,7 @@ class customerController {
         await chatLogger.finishChat(socket.chatId);
         //评价结束之后一个完整的流程走完
         socket.servingState = SERVING_STATUS_ROBOT;
+        //只有在用户评价一个客服后用户下一次才会被分配到这个客服
     }
     /**
      * @param {Array} customerIdList 
@@ -99,6 +113,7 @@ class customerController {
                 break;
             case SERVING_STATUS_CHATTING:
                 //在聊天过程中断开连接
+                await chatLogger.finishChat(socket.chatId);
                 this.event.emit("crash", "chatting", socket.serviceOperatorId, socket.user.id);
                 break;
             case SERVING_STATUS_COMMENTING:
@@ -108,6 +123,7 @@ class customerController {
             default:
                 break;
         }
+        await this.socketPool[customerId].session.save();
         this.socketPool[customerId] = null;
     }
 }
