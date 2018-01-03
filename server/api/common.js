@@ -11,7 +11,7 @@ const config = require('../serverConfig.json');
  */
 async function getSessionId(req, res){
     var id = await session.getSessionId(req);
-    res.json({token:id});
+    res.json({session:id});
 }
 /**
  * 给定一个email,查找是否有管理员或者业务员已经注册了此邮箱
