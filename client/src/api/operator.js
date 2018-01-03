@@ -68,6 +68,7 @@ var Chat = {
       msg: null,
       name: null,
       key: msgId,
+      isPicture: false,
       time: Date.now()
     }
   },
