@@ -11,6 +11,7 @@ import axios from 'axios'
 
 Vue.use(Element)
 Vue.config.productionTip = false
+axios.defaults.withCredentials = true
 Vue.prototype.$http = axios
 
 /* eslint-disable no-new */

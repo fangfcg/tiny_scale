@@ -1,11 +1,28 @@
 import io from 'socket.io-client'
 import {urlClient, clientToken, serverIp} from '../../configs'
 const axios = require('axios')
-
+axios.defaults.withCredentials = true
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
-  msgList: [],
+  msgList: [{
+    type: 1,
+    isPicture: false,
+    msg: '123',
+    name: null,
+    key: 0,
+    imgUrl: null,
+    time: Date.now()
+  },
+  {
+    type: 0,
+    isPicture: false,
+    msg: '123',
+    name: null,
+    key: 0,
+    imgUrl: null,
+    time: Date.now()
+  }],
   socket: null,
   imgUrl: null,
   robotUrl: null,

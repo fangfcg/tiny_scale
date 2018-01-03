@@ -175,9 +175,10 @@ export default Password
 }
 .content {
   width: 500px;
-  height: 300px;
+  height: 350px;
   margin:auto;
   background-color: white;
+  border-radius:20px;
 }
 .login-title {
   font-size: 30px;

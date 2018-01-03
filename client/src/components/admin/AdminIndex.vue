@@ -4,7 +4,7 @@
       <el-header>
         <el-row type="flex" :gutter="10">
           <el-col :span="4">
-            <img class="logo" width="167" height="50" src="assets/logoall.jpg" alt="nopic" />
+            <img class="logo" width="167" height="50" src="/static/logoall.jpg" alt="nopic" />
           </el-col>
           <el-col :offset="2">
             <el-menu class="el-menu-demo" mode="horizontal" :router="true">
@@ -29,6 +29,7 @@
 <script>
 export default {
   created () {
+    // this.$store.commit('initData')
   },
   data () {
     return {

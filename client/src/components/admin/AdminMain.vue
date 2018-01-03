@@ -1,10 +1,10 @@
 <template>
   <div class="main-container">
-    <el-carousel indicator-position="outside">
+    <!--<el-carousel indicator-position="outside">
       <el-carousel-item v-for="item in 4" :key="item">
         <h3>{{ item }}</h3>
       </el-carousel-item>
-    </el-carousel>
+    </el-carousel>-->
     <div class="main-table">
       <div class="main-text">
       <span>客服状态</span>
@@ -40,21 +40,6 @@
           </el-table-column> 
         </el-table>
       </template>
-      
-      <div class="main-text">
-        <span>回复查看</span>
-      </div>
-      <template>
-         <el-table
-          :data="tableWorkRecord"
-          :stripe="true"
-          style="width: 90%">
-          <el-table-column label="工单类型" prop="type"> </el-table-column>
-          <el-table-column label="处理客服" prop="operatorName"> </el-table-column>
-          <el-table-column label="处理完成时间" prop="finishTime"> </el-table-column>
-          <el-table-column label="满意度" prop="score"></el-table-column>
-        </el-table>
-      </template>
 
       <el-dialog
         title="详情"
@@ -82,7 +67,7 @@ var adminMain = {
     for (var i of this.tableWorkRecord) {
       i.commented = i.commented ? '是' : '否'
     }
-    var res2 = await this.$http.get(this.serverIp + 'api/admin/get_operator.list')
+    var res2 = await this.$http.get(this.serverIp + '/api/admin/operator_state_list')
     var response2 = res2.data
     this.tableOperator = response2
   },

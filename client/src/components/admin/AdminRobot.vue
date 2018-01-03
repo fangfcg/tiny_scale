@@ -122,8 +122,12 @@ var Robot = {
       data.similarQues2 = ques.similarities.length > 1 ? ques.similarities[1] : ''
       data.answer = ques.answer
       data.questionId = ques.questionId
-      this.formQues.push(data)
+      this.tableData.push(data)
     }
+    res = await this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_special')
+    response = res.data
+    this.inputGreeting = response.greet
+    this.inputNoAnswer = response.unknown
   },
   data () {
     return {
@@ -143,14 +147,7 @@ var Robot = {
         similarQues2: '',
         answer: ''
       },
-      tableData: [{
-        questionId: '',
-        name: '12987122',
-        mainQues: '好滋好味鸡蛋仔',
-        similarQues1: '江浙小吃、小吃零食',
-        similarQues2: '荷兰优质淡奶，奶香浓而不腻',
-        answer: '王小虎夫妻店'
-      }]
+      tableData: []
     }
   },
   computed: {
@@ -162,12 +159,22 @@ var Robot = {
     greetingModify () {
       this.greetingFlag = !this.greetingFlag
     },
-    greetingSubmit () {
+    async greetingSubmit () {
+      await this.$http.post(this.serverIp + '/api/robot/set_special', {
+        type: 'greet',
+        content: this.inputGreeting
+      })
+      this.greetingFlag = !this.greetingFlag
     },
     noAnswerModify () {
       this.noAnswerFlag = !this.noAnswerFlag
     },
-    noAnswerSubmit () {
+    async noAnswerSubmit () {
+      await this.$http.post(this.serverIp + '/api/robot/set_special', {
+        type: 'unknown',
+        content: this.inputNoAnswer
+      })
+      this.noAnswerFlag = !this.noAnswerFlag
     },
     handleEdit (index, prop) {
       this.currentIndex = index

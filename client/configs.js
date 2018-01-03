@@ -1,4 +1,4 @@
-export const urlClient = 'http://localhost:8080'
-export const urlOperator = 'http://localhost:8080'
-export const serverIp = 'http://localhost:8080'
+export const urlClient = 'http://59.66.137.78:8080'
+export const urlOperator = 'http://59.66.137.78:8080'
+export const serverIp = 'http://59.66.137.78:8080'
 export const clientToken = 'token'

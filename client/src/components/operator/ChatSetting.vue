@@ -133,7 +133,7 @@ var setting = {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.chat.serverIp + '/files'
+      return this.$store.state.chat.serverIp + '/api/upload_portrait'
     },
     serverIp () {
       return this.$store.state.chat.serverIp
@@ -147,7 +147,7 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      this.imageUrl = this.$store.state.chat.serverIp + res
+      this.imageUrl = this.$store.state.chat.serverIp + '/' + res
       this.$store.state.chat.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {

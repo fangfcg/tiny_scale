@@ -1,6 +1,7 @@
 // import {urlAdmin, serverIp} from '../../configs'
 import {serverIp} from '../../configs'
 const axios = require('axios')
+axios.defaults.withCredentials = true
 const httpUrl = {
   postUrl: '/login',
   groupInfoUrl: '/api/admin/group_info', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
@@ -85,10 +86,10 @@ var adminobj = {
     })
   },
   initData () {
-    axios.get('/api/get_profile').then(function (response) {
+    axios.get(this.serverIp + '/api/get_profile').then(function (response) {
       adminobj.name = response.name
       adminobj.email = response.email
-      adminobj.imgUrl = response.portrait
+      adminobj.imgUrl = this.serverIp + '/' + response.imgUrl
     })
   }
 }

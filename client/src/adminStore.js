@@ -23,6 +23,9 @@ const mutations = {
   },
   getOperatorChatLog () {
     state.admin.getOperatorChatLog()
+  },
+  initData () {
+    state.admin.initData()
   }
 }
 

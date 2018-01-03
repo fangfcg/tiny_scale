@@ -52,22 +52,24 @@
             </el-input>
           </div>
           <div class="normal-input2">
-            <el-input placeholder="请输入密码" v-model="password" clearable>
+            <el-input type="password" placeholder="请输入密码" v-model="password" clearable>
               <template slot="prepend">密码</template>
             </el-input>
           </div>
           <div class="normal-input2">
-            <el-input placeholder="请再次输入密码" v-model="password2" clearable>
+            <el-input type="password" placeholder="请再次输入密码" v-model="password2" clearable>
               <template slot="prepend">确认密码</template>
             </el-input>
           </div>
           <el-button type="primary" class="next-button" :disabled="signupFlag" @click="nextStep">下一步</el-button><br>
         </div>
         <div v-else-if="status === 4">
-          <div>注册成功!</div>
-          <router-link to="/signin">
-            <el-button>返回登录界面</el-button>
-          </router-link>
+          <div class="success-text">注册成功!</div>
+          <template class="success-button">
+            <router-link to="/signin">
+              <el-button>返回登录界面</el-button>
+            </router-link>
+          </template>
         </div>
       </template>
     </div>    
@@ -84,7 +86,6 @@ var Login = {
       username: '',
       password: '',
       password2: '',
-      usertype: '1',
       companyName: '',
       emailNum: '',
       status: 1,      // 1, 2, 3, 4 represents for status respectively
@@ -212,7 +213,6 @@ var Login = {
       } else {
         this.emailSendFlag = false
       }
-      
       if (this.emailSendFlag === true) {
         this.$message({
           message: '发送邮件成功',
@@ -238,9 +238,10 @@ export default Login
 }
 .content {
   width: 500px;
-  height: 300px;
+  height: 350px;
   margin:auto;
   background-color: white;
+  border-radius:20px;
 }
 .login-title {
   font-size: 30px;
@@ -279,5 +280,12 @@ hr {
   width: 200px;
   margin-top: 25px;
   font-size:18px;
+}
+.success-text {
+  margin-top:30px;
+  font-size: 20px;
+}
+.success-button {
+  margin-top:30px;
 }
 </style>

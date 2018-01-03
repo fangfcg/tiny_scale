@@ -1,6 +1,6 @@
 <template>
 <div class="self-wrap">
-  <img class="-header" width="35" height="35" :src="imageUrl" alt="nopic"/>
+  <img class="-header" width="35" height="35" :src="imgUrl" alt="nopic"/>
   <div class="-msg"><span v-html="emoji(msg)"></span></div>
 </div>
 </template>
@@ -18,7 +18,7 @@ export default {
   mounted () {
     this.$el.scrollIntoView()
   },
-  props: ['msg', 'imageUrl']
+  props: ['msg', 'imgUrl']
 }
 </script>
 <style lang='less'>

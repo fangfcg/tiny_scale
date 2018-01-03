@@ -26,7 +26,7 @@ export default {
     ChatInput
   },
   created () {
-    this.$store.commit('initSock')
+    // this.$store.commit('initSock')
   },
   methods: {
     drag (event) {

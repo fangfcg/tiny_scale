@@ -1,6 +1,6 @@
 <template>
 <div class="other-wrap">
-  <img class="-header" width="35" height="35" :src="imageUrl" alt="nopic"/>
+  <img class="-header" width="35" height="35" :src="imgUrl" alt="nopic"/>
   <div class="-msg"><span v-html="emoji(msg)"></span></div>
 </div>
 </template>
@@ -18,7 +18,7 @@ export default {
   mounted () {
     this.$el.scrollIntoView()
   },
-  props: ['msg', 'name', 'imageUrl']
+  props: ['msg', 'name', 'imgUrl']
 }
 </script>
 
@@ -32,13 +32,6 @@ export default {
     border-radius: 3px;
     height:35px;
     width: 35px;
-  }
-  .-name{
-    position: absolute;
-    font-size: 14px;
-    padding: 2px;
-    margin: 0 10px;
-    color: #999;
   }
   .-msg{
     background-color: #fff;

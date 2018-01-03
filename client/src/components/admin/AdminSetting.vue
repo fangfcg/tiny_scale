@@ -34,8 +34,6 @@
     <el-button @click="emailModify">修改</el-button>
     <el-button :disabled="emailButtonFlag" @click="emailSubmit" :loading="emailLoading">提交</el-button>
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
-    <span class="main-text">logo设置</span><br>
-    <hr width=80% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="getAdminReply()">设置</el-button></span><br>
     <el-dialog
         title="快捷回复设置"
@@ -96,6 +94,17 @@
 
 <script>
 var setting = {
+  async created () {
+    let res = await this.$http.get(this.serverIp + '/api/get_profile')
+    let response = res.data
+    this.inputName = response.name
+    this.inputEmail = response.email
+    this.imageUrl = this.serverIp + '/' + response.imgUrl
+    console.log(response.imgUrl)
+    this.$store.state.admin.name = this.inputName
+    this.$store.state.admin.email = this.inputEmail
+    this.$store.state.admin.imgUrl = this.imageUrl
+  },
   data () {
     return {
       imageUrl: this.$store.state.admin.imgUrl,
@@ -118,7 +127,7 @@ var setting = {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.admin.serverIp + '/files'
+      return this.$store.state.admin.serverIp + '/api/upload_portrait'
     },
     serverIp () {
       return this.$store.state.admin.serverIp
@@ -126,7 +135,7 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      this.imageUrl = this.$store.state.admin.serverIp + res
+      this.imageUrl = this.$store.state.admin.serverIp + '/' + res
       this.$store.state.admin.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
@@ -161,7 +170,8 @@ var setting = {
       this.nameLoading = true
       let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
-        name: this.inputName
+        name: this.inputName,
+        email: this.inputEmail
       })
       let response = res.data
       if (response.success === true) {
@@ -202,6 +212,7 @@ var setting = {
       this.emailLoading = true
       let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
+        name: this.inputName,
         email: this.inputEmail
       })
       let response = res.data
