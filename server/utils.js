@@ -9,7 +9,7 @@ module.exports.cache = client;
 module.exports.PREFIX_CERTIFICATE_COUNT = "certificate_gen_count";
 module.exports.PREFIX_OPERATOR_CERTIFICATE ="operator_certificate"; 
 module.exports.PREFIX_SOCKET_CLIENT = "socket_client";
-
+module.exports.PREFIX_OPERATOR_STATUS = "operator_status";
 
 //邮件服务对象配置
 const nodemailer = require('nodemailer');

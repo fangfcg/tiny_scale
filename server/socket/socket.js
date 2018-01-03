@@ -2,12 +2,21 @@ const io = require('socket.io')();
 //中间件设置
 const middlewares = require('./socketMiddlewares');
 io.use(middlewares.auth);
+io.use(middlewares.createUser);
 //接入socket之后的控制处理
 var customer = new (require('./customer/customerController'))();
 var operator = new (require('./operator/operatorController'))();
-customer.operatorListener = operator.event;
-operator.customerListener = customer.event;
+//设置事件处理函数
+customer.operatorEventHandler(operator.event);
+operator.customerEventHandler(customer.event);
+
 io.on('connection', socket=>{
+    if(socket.userType === "customer"){
+        customer.newSocket(socket);
+    }
+    else{
+        operator.newSocket(socket);
+    }
     /*
     console.log("socket arrived");
     console.log(socket.handshake.address);
@@ -17,12 +26,13 @@ io.on('connection', socket=>{
     else{
         operator.newSocket(socket);
     }*/
+    /*
     if(socket.handshake.query.type === "customer"){
         customer.newSocket(socket);
     }
     else{
         operator.newSocket(socket);
-    }
+    }*/
 });
 
 function configSocket(server){

@@ -71,4 +71,6 @@ module.exports.configApp = function(app){
     app.post('/login', passport.authenticate('local'), function(req, res){
         res.status(200).send('login ok');
     });
+    //前后端对接验证接口
+    app.post('/api/login', passport.authenticate('local'));
 };
