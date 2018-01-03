@@ -38,13 +38,16 @@ export default {
       this.name = this.buttonName
       this.buttonName = tmp
       if (this.isSelfReply) {
-        this.data = this.$store.state.selfData
+        this.data = this.$store.state.chat.selfData
       } else {
-        this.data = this.$store.state.compData
+        this.data = this.$store.state.chat.compData
       }
     }
   },
   created () {
+    // 对对应数据进行一次更新
+    this.$store.commit('getSelfReply')
+    this.$store.commit('getCompReply')
   }
 }
 </script>
