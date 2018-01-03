@@ -21,8 +21,9 @@
       <router-link to="/signin">
         <span class="link-text">注册</span>
       </router-link>
-      <span class="link-text">忘记密码</span>
-      
+      <router-link to="/findpass">
+        <span class="link-text">忘记密码</span>
+      </router-link>
     </div>    
   </div>
 </template>
