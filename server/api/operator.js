@@ -34,6 +34,8 @@ async function certificate(req, res){
  * @param {Express.Request} req 
  * @param {Express.Response} res 
  */
+const path = require('path');
+const config = require('../serverConfig.json');
 async function createOperator(req, res){
     if(!util.bodyContains(req, 'name', 'pass', 'email')){
         res.json({success:false});
@@ -50,6 +52,7 @@ async function createOperator(req, res){
         operatorGroupId:req.session.signup.opGroup});
     req.session.signup = null;
     await req.session.saveAsync();
+    operator.portrait = path.join(config.static.portrait.operator, 'default.jpg');
     await operator.save();
     res.json({success:true});
     return;

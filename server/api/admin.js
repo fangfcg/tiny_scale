@@ -119,6 +119,8 @@ async function certificate(req, res){
  * @param {*} req 
  * @param {*} res 
  */
+const path = require('path');
+const config = require('../serverConfig.json');
 async function createAdmin(req, res){
     if(!util.bodyContains(req , "name", "pass", "companyName") || req.session.email){
         res.json({success:false});
@@ -132,6 +134,9 @@ async function createAdmin(req, res){
     }
     var opGroup = new model.operatorGroup({
         name:req.body.companyName,
+        specialRobotAnswer:{greet:`你好我是${req.body.companyName}智能机器人`,
+        unknown:`不好意思这触及到了我的知识盲区，您可以选择人工客服呦~`},
+        robotPortrait:config.static.portrait.robot,
     });
     await opGroup.save();
     //使用bcryptjs对密码进行加密存储
@@ -139,7 +144,8 @@ async function createAdmin(req, res){
         name:req.body.name,
         pass:auth.Hash(req.body.pass),
         email:req.session.email,
-        operatorGroupId: opGroup.id
+        operatorGroupId: opGroup.id,
+        portrait:path.join(config.static.portrait.admin, "default.jpg")
     });
     await admin.save();
     res.json({success:true});
