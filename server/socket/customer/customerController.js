@@ -35,6 +35,7 @@ class customerController {
         if(answerId){
             //用户的留言已经被回答
             var msg = await model.message.findById(answerId);
+            socket.session.serviceRecord[socket.opGroup] = msg.operatorId;
             socket.emit('message_answered', {answer:msg.answer, content:msg.content});
         }
         else{
@@ -111,6 +112,7 @@ class customerController {
         //评价结束之后一个完整的流程走完
         socket.servingState = SERVING_STATUS_ROBOT;
         //只有在用户评价一个客服后用户下一次才会被分配到这个客服
+        socket.session.serviceRecord[socket.opGroup] = socket.serviceOperatorId;
     }
     /**
      * @param {Array} customerIdList 

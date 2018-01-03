@@ -267,6 +267,17 @@ async function getChatLog(req, res){
     }
     res.json(chatLog.contents);
 }
+async function getStateList(req, res){
+    var operatorList = await model.operator.find({operatorGroupId:req.user.operatorGroupId});
+    var result = [];
+    for(var i = 0; i < operatorList.length; ++i){
+        var state = await util.cache.getAsync(`${util.PREFIX_OPERATOR_STATUS}:${operatorList.id}`);
+        var tmp = {};
+        tmp.id = operatorList[i].id;
+        tmp.state = state ? state : 'left';
+    }
+    res.json(result);
+}
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
  */
@@ -280,6 +291,7 @@ module.exports.clearCertificateCount = clearCertificate;
 module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
     {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_state_list',callBack:getStateList, auth:true, type:'admin'},
     {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin', method:'post'},
     {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
