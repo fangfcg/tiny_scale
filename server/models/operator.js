@@ -2,6 +2,7 @@ module.exports = (schema, mongoose) => {
     var operatorSchema = new schema({
         name:String,
         pass:String,
+        portrait:String,
         sessionCounts: Array,
         msgCounts: Array,
         serviceRecordStart:Date,

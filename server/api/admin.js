@@ -62,7 +62,6 @@ async function getOperatorInfo(req, res){
  * @param {Express.Response} res 
  */
 async function getCertificate(req, res){
-    req.body = req.query;
     if(!util.bodyContains(req,'email')){
         res.json({success:false, err:"parameter email loss"});
         return;
@@ -70,7 +69,7 @@ async function getCertificate(req, res){
     var certificate = stringGenerator.generate(certificateConfigure);
     try {
         await util.mailTransporter.sendMail({
-            to:res.body.email,
+            to:req.body.email,
             subject: "小天秤在线客服管理员注册",
             text: certificate
         });
@@ -80,7 +79,7 @@ async function getCertificate(req, res){
         return;
     }
     //寄件成功，将验证码和邮箱保存在缓存中
-    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',res.body.email);
+    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',req.body.email);
     res.json({success:true});
 }
 /**
@@ -120,6 +119,8 @@ async function certificate(req, res){
  * @param {*} req 
  * @param {*} res 
  */
+const path = require('path');
+const config = require('../serverConfig.json');
 async function createAdmin(req, res){
     if(!util.bodyContains(req , "name", "pass", "companyName") || req.session.email){
         res.json({success:false});
@@ -133,6 +134,9 @@ async function createAdmin(req, res){
     }
     var opGroup = new model.operatorGroup({
         name:req.body.companyName,
+        specialRobotAnswer:{greet:`你好我是${req.body.companyName}智能机器人`,
+        unknown:`不好意思这触及到了我的知识盲区，您可以选择人工客服呦~`},
+        robotPortrait:config.static.portrait.robot,
     });
     await opGroup.save();
     //使用bcryptjs对密码进行加密存储
@@ -140,7 +144,8 @@ async function createAdmin(req, res){
         name:req.body.name,
         pass:auth.Hash(req.body.pass),
         email:req.session.email,
-        operatorGroupId: opGroup.id
+        operatorGroupId: opGroup.id,
+        portrait:path.join(config.static.portrait.admin, "default.jpg")
     });
     await admin.save();
     res.json({success:true});
@@ -226,7 +231,7 @@ module.exports.clearCertificateCount = clearCertificate;
 module.exports.apiInterfaces = [
     {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
     {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
-    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin'},
+    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin', method:'post'},
     {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},

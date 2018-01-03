@@ -2,9 +2,9 @@ import io from 'socket.io-client'
 import {urlOperator, serverIp} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
-  leaveMsgUrl: '/api/operator/leave_message', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
-  getLeaveMsgUrl: '/api/operator/get_leavemsg',
-  replyMsgUrl: '/api/operator/reply_msg',
+  leaveMsgUrl: '/api/operator/get_left_msg_lst',
+  getLeaveMsgUrl: '/api/operator/get_left_msg',
+  replyMsgUrl: '/api/operator/answer_msg',
   getSelfQuickReplyUrl: '/api/operator/get_selfreply',
   getCompQuickReplyUrl: '/api/operator/get_compreply',
   setQuickReplyUrl: '/api/operator/set_quickreply'
@@ -58,6 +58,7 @@ var Chat = {
     content: '有优惠方案吗？'
   }],
   isReplying: false,
+  replyingId: 0,
   replyingMsg: '',
   createMsg: function () {
     msgId++
@@ -196,9 +197,16 @@ var Chat = {
   },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
-      Chat.leaveMsgList = response.data.data
-      Chat.isReplying = response.data.isReplying
-      Chat.replyingMsg = response.data.replyingMsg
+      if (response.success === true) {
+        Chat.leaveMsgList = response.data
+        Chat.isReplying = false
+        Chat.replyingId = -1
+        Chat.replyingMsg = ''
+      } else {
+        Chat.isReplying = true
+        Chat.replyingId = response.data.id
+        Chat.replyingMsg = response.data.msg
+      }
     })
   },
   customGetLeaveMsg (msgId) {
@@ -214,10 +222,10 @@ var Chat = {
       }
     })
   },
-  customReplyMsg (msg) {
+  customReplyMsg (msg, id) {
     axios.post(httpUrl.replyMsgUrl, {
-      msg: msg,
-      type: 'custom'
+      id: id,
+      msg: msg
     }).then(function (response) {
       if (response.success === true) {
         Chat.isReplying = false

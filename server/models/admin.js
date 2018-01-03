@@ -3,6 +3,7 @@ module.exports = (schema, mongoose) => {
         name:String,
         pass:String,
         email:String,
+        portrait:String,
         operatorGroupId:schema.Types.ObjectId,  //用作外键
     });
     return mongoose.model('admin', adminSchema);

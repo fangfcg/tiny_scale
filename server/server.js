@@ -1,10 +1,13 @@
 var express = require('express');
 var app = express();
 var server = require('http').createServer(app);
+var cors = require('cors');
 //配置body解析
 const bodyParser = require('body-parser');
 app['use'](bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+//允许跨站访问
+app.use(cors());
 
 //对server进行promisify
 const blueBird = require('bluebird');
@@ -39,7 +42,7 @@ module.exports.stopServer = async function(){
 };
 //server的启动放在模块之外
 module.exports.startServer = async function(){
-    await server.listenAsync(config.server.port);
+    await server.listenAsync(config.server.port, "0.0.0.0");
 };
 /*
 var io = require('socket.io')(server);

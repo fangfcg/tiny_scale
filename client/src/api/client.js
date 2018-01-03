@@ -1,13 +1,17 @@
 import io from 'socket.io-client'
 import {urlClient, clientToken} from '../../configs'
 const axios = require('axios')
+const httpUrl = {
+  postRateUrl: '/api/client/post_rate'
+}
+
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
   msgList: [],
   socket: null,
   imgUrl: null,
-  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage
+  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
   createMsg: function () {
     msgId++
     return {
@@ -53,9 +57,9 @@ let Chat = {
       Chat.msgList.push(operatorMsg)
     })
     this.socket.on('operator_disconnected', function () {
-      Chat.status = 0
+      Chat.status = 4
       let sysmsg = Chat.createMsg()
-      sysmsg.msg = '客服已断开连接'
+      sysmsg.msg = '客服已断开连接，现在您可以对客服的表现进行评分'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
@@ -93,12 +97,20 @@ let Chat = {
       msgObj.msg = '您正在留言，请留言完毕之后再申请客服'
       msgObj.type = 2
       this.msgList.push(msgObj)
+    } else if (this.status === 4) {
+      msgObj.msg = '您正在评分，请评分完毕之后再申请客服'
+      msgObj.type = 2
+      this.msgList.push(msgObj)
     }
   },
   sendMsg (newMsg) {
-    if (this.status === 3) {
+    if (this.status === 3 || this.status === 4) {
       let msgObj = Chat.createMsg()
-      msgObj.msg = '您正在留言，请留言完毕之后再发送信息'
+      if (this.status === 3) {
+        msgObj.msg = '您正在留言，请留言完毕之后再发送信息'
+      } else {
+        msgObj.msg = '您正在评分，请评分完毕之后再发送信息'
+      }
       msgObj.type = 2
       this.msgList.push(msgObj)
     } else {
@@ -129,6 +141,28 @@ let Chat = {
       sysObj.type = 2
       sysObj.msg = '您现在不能进行留言'
       this.msgList.push(sysObj)
+    }
+  },
+  sendRate (rate) {
+    let sysObj = this.createMsg()
+    sysObj.type = 2
+    if (this.status !== 4) {
+      sysObj.msg = '发生未知错误，现在返回至初始状态'
+      this.msgList.push(sysObj)
+      this.status = 0
+    } else {
+      axios.post(httpUrl.postRateUrl, {
+        rate: rate
+      }).then(function (response) {
+        if (response.success === true) {
+          sysObj.msg = '评分成功,评分为' + rate + '分'
+          Chat.msgList.push(sysObj)
+          Chat.status = 0
+        } else {
+          sysObj.msg = '出现连接错误，请重试'
+          Chat.msgList.push(sysObj)
+        }
+      })
     }
   }
 }

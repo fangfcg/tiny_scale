@@ -27,6 +27,7 @@ class operatorControler {
         socket.on('msg', this._operatorMsg.bind(this, socket.user.id));
         socket.on('end_service', this._endService.bind(this,socket.user.id));
         socket.on('change_status', this._changeStatus.bind(this, socket.user.id));
+        socket.on('cross_serve', this._crossServe.bind(this, socket.user.id));
         //设置缓存中客服的状态为working
         util.cache.set(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
         this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
@@ -116,6 +117,13 @@ class operatorControler {
                 break;
             case "connecting":
                 socket.chattingSet[customerId] = null;
+                socket.emit("crash", customerId);
+                break;
+            case "chatting":
+                //在会话时客户连接中断
+                socket.emit("crash", customerId);
+                break;
+            default:
                 break;
         }
     }
@@ -142,13 +150,30 @@ class operatorControler {
             this.allocators[socket.user.operatorGroupId].deleteOperator(socket.user.id);
        }
         else if(state === "working"){
-            await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "resting");
+            await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
             socket.workingState = "working";
             this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
         }
         socket.emit("change_state", {success:true});
         return;
-   }
+    }
+    async _crossServe(operatorId,customerId, crosserId){
+        var socket = this.socketPool[operatorId];
+        var socketCrosser = this.socketPool[crosserId];
+        //该客服是否可以分配
+        if(!this.socketPool[crosserId] || this.socketPool[crosserId].workingState !== "working"){
+            return;
+        }
+        //结束本次会话，记录会话为转接的会话
+        var chatIdOld = socket.chattingSet[customerId];
+        await chatLogger.finishChat(chatIdOld, {crossed:true, crosserId:crosserId});
+        socket.chattingSet[customerId] = null;
+        //会话加入转接者的chattingSet
+        var chatId = chatLogger.createChat(customerId, crosserId);
+        socketCrosser.chattingSet[customerId] = chatId;
+        socketCrosser.emit('cross_served',customerId, chatIdOld);
+        this.event.emit('cross_served', customerId, crosserId, chatId);
+    }
 }
 function deQue(array, ele){
     for(var i = 0; i < array.length; ++i){

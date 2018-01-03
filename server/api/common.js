@@ -1,8 +1,10 @@
 var session = require('../session');
 const model = require('../models/models').models;
 const auth = require('../auth');
+const bluebird = require('bluebird');
 var util = require('../utils');
 var stringGenerator = require('randomstring');
+const config = require('../serverConfig.json');
 /**
  * @param {Express.Request} req
  * @param {Express.Response} res
@@ -164,12 +166,36 @@ async function newPass(req,res){
     res.json({success:true});
     return;
 }
+//设置头像文件上传配置
+const multer = require('multer');
+const path = require('path');
+const adminPortraitDir = path.join(__dirname, '../',config.static.portrait.admin); 
+const operatorPortraitDir =  path.join(__dirname, '../',config.static.portrait.operator);
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, req.user.userType === "admin" ? adminPortraitDir : operatorPortraitDir);
+    },
+    filename:function(req, file, cb){
+        cb(null, req.user.id);
+    }
+});
+var upload = multer({storage: storage, limits:{fileSize:1000000}}).single("file");
+upload = bluebird.promisify(upload);
+async function uploadPortrait(req, res){
+    await upload(req, res);
+    var dirName = req.user.userType === "admin" ? config.static.portrait.admin : config.static.portrait.operator;
+    req.user.portrait = path.join(dirName, req.user.id);
+    await req.user.save();
+    res.json({success: true, path: req.user.portrait});
+}
+
 module.exports.apiInterfaces = [
     {url:'/api/get_session_id', callBack:getSessionId},
-    {url:'/api/common/is_email_used',callBack:emailCheck},
-    {url:'/api/common/is_name_used',callBack:nameCheck},
-    {url:'api/common/settings/profile',callBack:profileUpdate,auth:true, method:'post'},
-    {url:'api/find_pass/get_certificate',callBack:getCertificateFindPass,method:'post'},
-    {url:'api/find_pass/certificate',callBack:certificateFindPass,method:'post'},
-    {url:'api/find_pass/new_pass',callBack:newPass,method:'post'},
+    {url:'/api/common/is_email_used', callBack:emailCheck},
+    {url:'/api/common/is_name_used', callBack:nameCheck},
+    {url:'/api/common/settings/profile', callBack:profileUpdate, auth:true, method:'post'},
+    {url:'/api/find_pass/get_certificate', callBack:getCertificateFindPass, method:'post'},
+    {url:'/api/find_pass/certificate', callBack:certificateFindPass, method:'post'},
+    {url:'/api/find_pass/new_pass', callBack:newPass, method:'post'},
+    {url:'/api/upload_portrait', callBack:uploadPortrait, method:'post'},
 ];

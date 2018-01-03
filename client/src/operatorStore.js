@@ -33,8 +33,8 @@ const mutations = {
   customGetLeaveMsg (state, msgId) {
     state.chat.customGetLeaveMsg(state, msgId)
   },
-  customReplyMsg (state, msg) {
-    state.chat.customReplyMsg(state, msg)
+  customReplyMsg (state, msg, id) {
+    state.chat.customReplyMsg(state, msg, id)
   },
   changeStatus (state, command) {
     state.chat.changeStatus(command)
