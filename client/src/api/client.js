@@ -1,5 +1,6 @@
 import io from 'socket.io-client'
 import {urlClient} from '../../configs'
+
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
