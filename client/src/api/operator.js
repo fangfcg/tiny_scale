@@ -44,7 +44,12 @@ var Chat = {
     this.socket.on('new_customer', function () {
       this.waitingNum ++
     }.bind(Chat))
-    this.socket.on('get_next', function (userid) {
+    this.socket.on('get_next', function (obj) {
+      if (!obj.success) {
+        this.waitingNum = 0
+        return
+      }
+      var userid = obj.id
       var newUser = user()
       newUser.userid = userid
       this.currentUser = userid
