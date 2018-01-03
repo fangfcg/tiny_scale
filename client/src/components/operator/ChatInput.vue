@@ -25,7 +25,23 @@
         </transition>
       </div>
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
-      <span class="operator-sub" @click="finishService()">结束服务</span>
+      <span class="operator-sub" @click="finishService()">结束</span>
+      <span class="transfer-sub" @click="transferCommand">转接</span>
+      <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+        <el-table :data="gridData">
+          <el-table-column property="id" label="客服ID"></el-table-column>
+          <el-table-column property="name" label="客服昵称"></el-table-column>
+          <el-table-column property="status" label="客服状态"></el-table-column>
+          <el-table-column
+            fixed="right"
+            label="操作"
+            width="100">
+            <template slot-scope="scope">
+              <el-button @click="transferClient(scope.row.id)" type="text" size="small" :disabled="scope.row.status === 'resting'">转接</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-dialog>
     </div>
   </div>
 </template>
@@ -36,7 +52,14 @@ export default {
   data () {
     return {
       msg: '',
-      showEmoji: false
+      showEmoji: false,
+      dialogTableVisible: false,
+      gridData: []
+    }
+  },
+  computed: {
+    serverIp () {
+      return this.$store.state.chat.serverIp
     }
   },
   ready () {
@@ -65,6 +88,16 @@ export default {
     selectEmoji (code) {
       this.msg += code
       this.showEmoji = false
+    },
+    transferCommand () {
+      this.$http.get(this.serverIp + '/api/operator/get_colleagues').then(function (response) {
+        this.gridData = response
+      })
+      this.dialogTableVisible = true
+    },
+    transferClient (operatorId) {
+      this.$store.commit('crossServe', operatorId)
+      this.dialogTableVisible = false
     }
   },
   components: {
@@ -148,7 +181,7 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 440px;
+      margin-left: 400px;
     }
     .operator-sub{
       position: relative;
@@ -157,12 +190,24 @@ export default {
       justify-content: center;
       align-items: center;
       height: 30px;
-      width: 80px;
+      width: 50px;
       font-size: 13px;
       outline: none;
       margin-left: 5px;
     }
-    .operator-sub, .chat-sub:hover{
+    .transfer-sub{
+      position: relative;
+      display: flex;
+      background-color: rgba(0,0,0,0.1);
+      justify-content: center;
+      align-items: center;
+      height: 30px;
+      width: 50px;
+      font-size: 13px;
+      outline: none;
+      margin-left: 5px;
+    }
+    .operator-sub, .chat-sub, .transfer-sub:hover{
       cursor: pointer;
     }
     .primary{

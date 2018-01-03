@@ -63,19 +63,43 @@ export default {
     },
     listenStatus () {
       return this.$store.state.chat.operatorStatus
+    },
+    newCrossServeFlag () {
+      return this.$store.state.chat.newCrossServe
+    },
+    crashFlag () {
+      return this.$store.state.chat.crashFlag
+    },
+    listenCurrentNum () {
+      return this.$store.state.chat.currentNum
     }
   },
   watch: {
-    listenWaitingNum: function (val, oldval) {
-      if (val === oldval - 1) {
+    listenCurrentNum: function (val, oldval) {
+      if (val === oldval + 1 && !this.newCrossServeFlag) {
         this.$notify({
           title: '接入成功',
           message: '接入新用户' + this.$store.state.chat.currentUser.toString(),
           position: 'bottom-right',
           type: 'success'
         })
+      } else if (val === oldval + 1 && this.newCrossServeFlag) {
+        this.$notify({
+          title: '转接成功',
+          message: '转接入新用户',
+          position: 'bottom-right',
+          type: 'success'
+        })
+      }
+      if (val === oldval - 1 && this.crashFlag) {
+        this.$notify({
+          title: '用户退出',
+          message: '一个用户关闭了连接',
+          position: 'bottom-right'
+        })
       }
     }
+
   },
   methods: {
     statusChange (command) {

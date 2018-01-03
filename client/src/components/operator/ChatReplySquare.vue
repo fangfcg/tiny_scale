@@ -1,6 +1,6 @@
 <template>
   <div class="main-contain">
-    <span class="title-text">素质广场</span>
+    <span class="title-text">留言广场</span>
     <div v-if="this.$store.state.chat.isReplying === false">
       <el-pagination
         @current-change="pageChange"
@@ -88,7 +88,7 @@ export default {
     getReply: function (id) {
       //  将对应的状态修改发到后端，修改对应的ID的回答情况，并且修改对应的客服的状态
       this.$store.commit('customGetLeaveMsg', id)
-      if (this.$store.state.chat.isReplying === true) { // todo:将这一个部分改为“如果这个请求成功”
+      if (this.$store.state.chat.isReplying === true) {
         this.$message({
           message: '接取留言成功！',
           type: 'success'
@@ -100,7 +100,7 @@ export default {
     },
     replyEnd: function () {
       //  将对应的修改信息发到后端，
-      if (this.$store.commit('customReplyMsg', this.replyText) === true) {
+      if (this.$store.commit('customReplyMsg', this.replyText, this.$store.state.chat.replyingId) === true) {
         this.$message({
           message: '留言为' + this.replyText + ',回复留言成功！',
           type: 'success'

@@ -2,9 +2,12 @@ import io from 'socket.io-client'
 import {urlOperator, serverIp} from '../../configs'
 const axios = require('axios')
 const httpUrl = {
-  leaveMsgUrl: '/api/client/leave_message', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
-  getLeaveMsgUrl: '/api/client/get_leavemsg',
-  replyMsgUrl: '/api/client/reply_msg'
+  leaveMsgUrl: '/api/operator/get_left_msg_lst',
+  getLeaveMsgUrl: '/api/operator/get_left_msg',
+  replyMsgUrl: '/api/operator/answer_msg',
+  getSelfQuickReplyUrl: '/api/operator/get_selfreply',
+  getCompQuickReplyUrl: '/api/operator/get_compreply',
+  setQuickReplyUrl: '/api/operator/set_quickreply'
 }
 
 var msgId = 0
@@ -23,11 +26,16 @@ var Chat = {
   currentNum: 0,
   finishNum: 0,
   operatorStatus: 0,
+  imgUrl: null,
   userList: [],
   socket: null,
   serverIp: serverIp,
+  crashFlag: false,
+  newCrossServe: false,
   name: '小明',
   email: '123@123.com',
+  selfData: [],
+  compData: [],
   leaveMsgList: [{
     id: '12987122',
     time: '2017-09-11',
@@ -50,6 +58,7 @@ var Chat = {
     content: '有优惠方案吗？'
   }],
   isReplying: false,
+  replyingId: 0,
   replyingMsg: '',
   createMsg: function () {
     msgId++
@@ -57,8 +66,8 @@ var Chat = {
       type: 0, // 0: self 1: other 2: system
       msg: null,
       name: null,
-      color: null,
-      key: msgId
+      key: msgId,
+      time: Date.now()
     }
   },
   changeCard: function (userid) {
@@ -81,6 +90,7 @@ var Chat = {
       }
       var userid = obj.id
       var newUser = user()
+      this.newCrossServe = false
       newUser.userid = userid
       this.currentUser = userid
       this.userList.push(newUser)
@@ -103,6 +113,7 @@ var Chat = {
         this.currentNum --
         this.finishNum ++
         this.userList.splice(this.currentIndex, 1)
+        this.crashFlag = true
         if (this.currentNum === 0) {
           this.currentIndex = null
           this.currentUser = null
@@ -122,12 +133,20 @@ var Chat = {
         }
       }
     }.bind(Chat))
+    this.socket.on('cross_serve', function (userid, chatId) {
+      var newUser = user()
+      newUser.userid = userid
+      this.userList.push(newUser)
+      this.currentNum ++
+      this.newCrossServe = true
+    }.bind(Chat))
   },
   endService: function () {
     if (this.currentNum <= 0) {
       return
     }
     this.socket.emit('end_service', this.currentUser)
+    this.crashFlag = false
     this.currentNum --
     this.finishNum ++
     this.userList.splice(this.currentIndex, 1)
@@ -150,16 +169,35 @@ var Chat = {
     newMsg.msg = msg
     newMsg.type = 0
     this.userList[this.currentIndex].msgList.push(newMsg)
-    this.socket.emit('msg', this.currentUser, {msg: msg})
+    this.socket.emit('msg', this.currentUser, {msg: msg, time: newMsg.time})
   },
   changeStatus (command) {
     this.socket.emit('change_state', command)
   },
+  crossServe (operatorId) {
+    this.socket.emit('cross_serve', this.currentUser, operatorId)
+    this.currentNum --
+    this.userList.splice(this.currentIndex, 1)
+    if (this.currentNum === 0) {
+      this.currentIndex = null
+      this.currentUser = null
+    } else {
+      this.currentIndex = 0
+      this.currentUser = this.userList[0].userid
+    }
+  },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
-      Chat.leaveMsgList = response.data.data
-      Chat.isReplying = response.data.isReplying
-      Chat.replyingMsg = response.data.replyingMsg
+      if (response.success === true) {
+        Chat.leaveMsgList = response.data
+        Chat.isReplying = false
+        Chat.replyingId = -1
+        Chat.replyingMsg = ''
+      } else {
+        Chat.isReplying = true
+        Chat.replyingId = response.data.id
+        Chat.replyingMsg = response.data.msg
+      }
     })
   },
   customGetLeaveMsg (msgId) {
@@ -175,14 +213,36 @@ var Chat = {
       }
     })
   },
-  customReplyMsg (msg) {
+  customReplyMsg (msg, id) {
     axios.post(httpUrl.replyMsgUrl, {
-      msg: msg,
-      type: 'custom'
+      id: id,
+      msg: msg
     }).then(function (response) {
       if (response.success === true) {
         Chat.isReplying = false
         Chat.replyingMsg = ''
+        return true
+      } else {
+        return false
+      }
+    })
+  },
+  getSelfReply () {
+    axios.get(httpUrl.getSelfQuickReplyUrl).then(function (response) {
+      Chat.selfData = response.data
+    })
+  },
+  getCompReply () {
+    axios.get(httpUrl.getCompQuickReplyUrl).then(function (response) {
+      Chat.compData = response.data
+    })
+  },
+  setSelfReply () {
+    axios.post(httpUrl.replyMsgUrl, {
+      data: Chat.selfData,
+      type: 'custom'
+    }).then(function (response) {
+      if (response.success === true) {
         return true
       } else {
         return false
