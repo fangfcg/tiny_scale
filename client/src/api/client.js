@@ -20,7 +20,6 @@ let Chat = {
       msg: null,
       name: null,
       key: msgId,
-      imgUrl: null,
       time: Date.now()
     }
   },

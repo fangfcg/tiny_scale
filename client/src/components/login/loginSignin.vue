@@ -212,7 +212,6 @@ var Login = {
       } else {
         this.emailSendFlag = false
       }
-      
       if (this.emailSendFlag === true) {
         this.$message({
           message: '发送邮件成功',
