@@ -7,7 +7,7 @@ var stringGenerator = require('randomstring');
  * @param {Express.Request} req
  * @param {Express.Response} res
  */
-async function getSocketToken(req, res){
+async function getSessionId(req, res){
     var id = await session.getSessionId(req);
     res.json({token:id});
 }
@@ -165,7 +165,7 @@ async function newPass(req,res){
     return;
 }
 module.exports.apiInterfaces = [
-    {url:'/api/get_socket_token', callBack:getSocketToken, auth:true},
+    {url:'/api/get_session_id', callBack:getSessionId},
     {url:'/api/common/is_email_used',callBack:emailCheck},
     {url:'/api/common/is_name_used',callBack:nameCheck},
     {url:'api/common/settings/profile',callBack:profileUpdate,auth:true, method:'post'},

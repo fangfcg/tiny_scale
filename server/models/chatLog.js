@@ -1,10 +1,12 @@
 module.exports = (schema, mongoose) => {
     var chatLogSchema = new schema({
-        operator:String,
-        customer:String,
-        type:Number,
-        content:String,
-        time:{type:Date, default:Date.now},
+        operatorId:schema.Types.ObjectId,
+        customerId:schema.Types.ObjectId,
+        startTime:Date,
+        endTime:Date,
+        contents:[{msg:{type:{type:String}, content:String, time:Date},
+            sender:String}],    //sender为customer,或者operator表示相应的发送人
+        comment:Number,
     });
     var chatLogModel = mongoose.model('chatLog', chatLogSchema);
     chatLogModel.contentType = {};

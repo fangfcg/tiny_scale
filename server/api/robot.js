@@ -18,7 +18,7 @@ async function addQuestion(req, res){
     //对question的问题和相似问题进行分词
     getCutterCache(question);
     await question.save();
-    res.json({success:true});
+    res.json({success:true,questionId:question.id});
     return;
 }
 /**
@@ -27,7 +27,7 @@ async function addQuestion(req, res){
  * @param {*} res 
  */
 async function delQuestion(req, res){
-    if(!util.bodyContains(req, 'id')){
+    if(!util.bodyContains(req, 'questionId')){
         res.json({success:false});
         return;
     }

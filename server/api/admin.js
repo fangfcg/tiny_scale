@@ -181,7 +181,7 @@ async function getOperatorCertificate(req, res){
         cerList.push(cerTmp);
     }
     
-    res.json(cerList);
+    res.json({success:true, certificates:cerList});
 }
 /**
  * post方法,临时的设置用户接入时判断客服组的token用api
