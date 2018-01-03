@@ -6,6 +6,7 @@ let serverAddress = urlClient
 let Chat = {
   msgList: [],
   socket: null,
+  imgUrl: null,
   status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage
   createMsg: function () {
     msgId++
@@ -13,8 +14,8 @@ let Chat = {
       type: 0, // 0: self 1: other 2: system
       msg: null,
       name: null,
-      color: null,
-      key: msgId
+      key: msgId,
+      time: Date.now()
     }
   },
   initSock () {
@@ -45,6 +46,12 @@ let Chat = {
       Chat.status = 0
       let sysmsg = Chat.createMsg()
       sysmsg.msg = '客服已断开连接'
+      sysmsg.type = 2
+      Chat.msgList.push(sysmsg)
+    })
+    this.socket.on('cross_serve', function () {
+      let sysmsg = Chat.createMsg()
+      sysmsg.msg = '客服已转接'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
@@ -91,7 +98,7 @@ let Chat = {
       msgObj.type = 0
       this.msgList.push(msgObj)
       if (this.status === 2) {
-        this.socket.emit('msg', {msg: newMsg})
+        this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
       }
     }
   },
