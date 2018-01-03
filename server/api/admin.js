@@ -217,7 +217,20 @@ async function setSocketToken(req, res){
     await util.cache.setAsync(`${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`, opGroup.id);
     res.json({success:true});
 }
-
+/**
+ * get方法，返回该客服组下所有的留言
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
+async function getMsgList(req, res){
+    var msgList = await model.message.find({operatorGroupId:req.user.operatorGroupId});
+    var result = [];
+    msgList.forEach(val => {
+        var tmp = util.doc2Object(val);
+        result.push(tmp);
+    });
+    res.json(result);
+}
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
  */
@@ -236,4 +249,5 @@ module.exports.apiInterfaces = [
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
     {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
+    {url:'/api/admin/message_list', callBack:getMsgList, auth:true, type:'admin'},
 ];
