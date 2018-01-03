@@ -58,14 +58,14 @@ class operatorControler {
             this.socketPool[opId].waitingList.push(socket.user.id);
         }
         //opId中保留分配的客服的Id，是否分配保留在allocated中
-        this.event.emit('operator_allocated', socket.user.id, allocated, opId);
+        this.event.emit('operator_allocated', socket.user.id, allocated, opId, socket.user);
     }
     _getNext(operatorId) {
         var socket = this.socketPool[operatorId];
         var nextId = socket.waitingList.shift();
         if(nextId){
             //在socket的正在聊天的集合中添加对象
-            var chatId = chatLogger.createChat(nextId, socket.user.id);
+            var chatId = chatLogger.createChat(nextId, socket.user.id, socket.user.operatorGroupId);
             socket.chattingSet[nextId] = chatId;
             socket.emit('get_next', {success:true, id:nextId});
             this.event.emit('operator_connected', nextId, chatId);

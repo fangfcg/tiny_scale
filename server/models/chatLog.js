@@ -10,6 +10,7 @@ module.exports = (schema, mongoose) => {
         commented:Boolean,
         crossed:Boolean,    //标识该会话是否被转交
         crosserId:schema.Types.ObjectId,    //对话转接的客服的id
+        operatorGroupId:schema.Types.ObjectId,
     });
     var chatLogModel = mongoose.model('chatLog', chatLogSchema);
     chatLogModel.contentType = {};
