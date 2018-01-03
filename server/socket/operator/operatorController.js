@@ -1,5 +1,6 @@
 const allocator = require('./operatorAllocator');
 const chatLogger = require('../chatLogger');
+const util = require('../../utils');
 class operatorControler {
     constructor() {
         this.socketPool = {};   //socket池中以客服的id作为索引
@@ -17,14 +18,18 @@ class operatorControler {
         if(!this.allocators[socket.user.operatorGroupId]){
             this.allocators[socket.user.operatorGroupId] = new allocator();
         }
-        this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
         //socket放入池中
         this.socketPool[socket.user.id] = socket;
         socket.waitingList = [];
         socket.chattingSet = {};
+        socket.workingState = "working";
         socket.on('get_next', this._getNext.bind(this, socket.user.id));
         socket.on('msg', this._operatorMsg.bind(this, socket.user.id));
         socket.on('end_service', this._endService.bind(this,socket.user.id));
+        socket.on('change_status', this._changeStatus.bind(this, socket.user.id));
+        //设置缓存中客服的状态为working
+        util.cache.set(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
+        this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
     }
     //传入一个客户的socket，为该客户分配客服
     _allocateOperator(socket) {
@@ -96,6 +101,9 @@ class operatorControler {
         }
         //通知所有用户客服socket意外关闭
         this.event.emit('crash', chattingCustomers.concat(socket.waitingList));
+        //从分配器中删除该客服
+        this.allocators[socket.user.operatorGroupId].deleteOperator(socket.user.id);
+        util.cache.del(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`);
     }
     /**
      * 客户的socket意外关闭时的处理函数
@@ -111,6 +119,36 @@ class operatorControler {
                 break;
         }
     }
+    /**
+     * 客服修改自身服务状态
+     * 只有在客服队列中没有人且没有与任何人进行聊天时客服才能设置自己的状态为休息
+     * 向前端返回change_status, {success:boolean}
+     * 在缓存中设置自身的状态为休息
+     * 同时对allocators做相应的增加或者删除操作
+     */
+    async _changeStatus(operatorId, state){
+        var socket = this.socketPool[operatorId];
+        if(state === socket.workingState){
+            socket.emit("change_state", {success:true});
+            return;
+        }
+        if(state === "resting"){
+            if(Object.keys(socket.chattingSet).length || socket.waitingList){
+                socket.emit("change_state", {success:false});
+                return;
+            }
+            await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "resting");
+            socket.workingState = "resting";
+            this.allocators[socket.user.operatorGroupId].deleteOperator(socket.user.id);
+       }
+        else if(state === "working"){
+            await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "resting");
+            socket.workingState = "working";
+            this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
+        }
+        socket.emit("change_state", {success:true});
+        return;
+   }
 }
 function deQue(array, ele){
     for(var i = 0; i < array.length; ++i){
