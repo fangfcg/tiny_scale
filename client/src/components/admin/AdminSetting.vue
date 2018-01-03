@@ -36,7 +36,7 @@
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <span class="main-text">logo设置</span><br>
     <hr width=80% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
-    <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="selfDialogVisible = true">设置</el-button></span><br>
+    <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="getAdminReply()">设置</el-button></span><br>
     <el-dialog
         title="快捷回复设置"
         :visible.sync="selfDialogVisible"
@@ -112,7 +112,8 @@ var setting = {
       addDialogVisible: false,
       replyID: -1,
       rawText: '',
-      addTitle: ''
+      addTitle: '',
+      compData: [{text: '您好！'}, {text: '请您稍等，我为您转接更专业的负责人员'}, {text: '这个是我们公司的官网'}, {text: '这是我们公司的最新产品'}]
     }
   },
   computed: {
@@ -121,9 +122,6 @@ var setting = {
     },
     serverIp () {
       return this.$store.state.admin.serverIp
-    },
-    compData () {
-      return this.$store.state.compData
     }
   },
   methods: {
@@ -233,34 +231,35 @@ var setting = {
     },
     delReply (id) {
       this.compData.splice(id, 1)
+      this.renewReply()
     },
     upReply (id) {
-      let strFormerUp = this.$store.state.compData[id - 1].text
-      let strNewUp = this.$store.state.compData[id].text
-      this.$store.state.compData[id].text = strFormerUp
-      this.$store.state.compData[id - 1].text = strNewUp
+      let strFormerUp = this.compData[id - 1].text
+      let strNewUp = this.compData[id].text
+      this.compData[id].text = strFormerUp
+      this.compData[id - 1].text = strNewUp
+      this.renewReply()
     },
     downReply (id) {
-      let strFormerDown = this.$store.state.compData[id + 1].text
-      let strNewDown = this.$store.state.compData[id].text
-      this.$store.state.compData[id].text = strFormerDown
-      this.$store.state.compData[id + 1].text = strNewDown
-    },
-    updateReply (id, newMsg) {
-      this.$store.state.compData[id].text = newMsg
+      let strFormerDown = this.compData[id + 1].text
+      let strNewDown = this.compData[id].text
+      this.compData[id].text = strFormerDown
+      this.compData[id + 1].text = strNewDown
+      this.renewReply()
     },
     addDialogClose () {
       this.addDialogVisible = false
-      if (this.replyID === this.$store.state.compData.length) {
-        this.$store.state.compData.push({text: this.rawText})
+      if (this.replyID === this.compData.length) {
+        this.compData.push({text: this.rawText})
       } else {
-        this.$store.state.compData[this.replyID].text = this.rawText
+        this.compData[this.replyID].text = this.rawText
       }
+      this.renewReply()
     },
     openAddDialog (id) {
       this.replyID = id
       this.addDialogVisible = true
-      if (id === this.$store.state.compData.length) {
+      if (id === this.compData.length) {
         this.rawText = ''
         this.addTitle = '新建回复（最大长度为150字）'
       } else {
@@ -270,6 +269,32 @@ var setting = {
     },
     selfHandleClose () {
       this.selfDialogVisible = false
+    },
+    getAdminReply () {
+      this.$http.get(this.serverIp + '/api/common/settings/adminReply').then(function (response) {
+        if (response.success === true) {
+          this.compData = response.data
+          this.selfDialogVisible = true
+        } else {
+          this.$message.error('打开失败，请重试！')
+        }
+      })
+    },
+    renewReply () {
+      this.$http.post(this.serverIp + '/api/common/settings/renewReply', {
+        data: this.compData
+      }).then(function (response) {
+        if (response.success === true) {
+          this.$message({
+            message: '信息更新成功！',
+            type: 'success'
+          })
+          return true
+        } else {
+          this.$message.error('信息更新失败，请重试！')
+          return false
+        }
+      })
     }
   }
 }
