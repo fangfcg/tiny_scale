@@ -1,15 +1,9 @@
 import io from 'socket.io-client'
 import {urlClient} from '../../configs'
-const axios = require('axios')
-const httpUrl = {
-  leaveMsgUrl: '/api/client/leave_message' // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
-}
 
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
-  leaveMsgList: [],
-  isReplying: false,
   msgList: [],
   socket: null,
   status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage
@@ -119,12 +113,6 @@ let Chat = {
       sysObj.msg = '您现在不能进行留言'
       this.msgList.push(sysObj)
     }
-  },
-  getLeaveMessageList () {
-    axios.get(httpUrl.leaveMsgUrl).then(function (response) {
-      Chat.leaveMsgList = response.data.data
-      Chat.isReplying = response.data.isReplying
-    })
   }
 }
 

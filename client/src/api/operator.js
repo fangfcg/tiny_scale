@@ -1,5 +1,12 @@
 import io from 'socket.io-client'
 import {urlOperator, serverIp} from '../../configs'
+const axios = require('axios')
+const httpUrl = {
+  leaveMsgUrl: '/api/client/leave_message', // get方法，参数为1.id，即admin的id 2.dataType 为null则获取客服名称与id的列表。不为null则获取对应数据
+  getLeaveMsgUrl: '/api/client/get_leavemsg',
+  leaveMsgResultUrl: '/api/client/leavemsg_res'
+}
+
 var msgId = 0
 // below are some msg content for test.
 var serverAddress = urlOperator
@@ -21,6 +28,9 @@ var Chat = {
   serverIp: serverIp,
   name: '小明',
   email: '123@123.com',
+  leaveMsgList: [],
+  isReplying: false,
+  replyingMsg: '',
   createMsg: function () {
     msgId++
     return {
@@ -116,6 +126,40 @@ var Chat = {
     newMsg.type = 0
     this.userList[this.currentIndex].msgList.push(newMsg)
     this.socket.emit('msg', this.currentUser, {msg: msg})
+  },
+  getLeaveMessageList () {
+    axios.get(httpUrl.leaveMsgUrl).then(function (response) {
+      Chat.leaveMsgList = response.data.data
+      Chat.isReplying = response.data.isReplying
+      Chat.replyingMsg = response.data.replyingMsg
+    })
+  },
+  customGetLeaveMsg (msgId) {
+    axios.post(httpUrl.getLeaveMsgUrl, {
+      id: msgId,
+      type: 'custom'
+    }).then(function (response) {
+      if (response.success === true) {
+        Chat.isReplying = true
+        Chat.replyingMsg = response.data.replyingMsg
+      } else {
+        Chat.isReplying = false
+      }
+    })
+  },
+  customReplyMsg (msg) {
+    axios.post(httpUrl.replyMsgUrl, {
+      msg: msg,
+      type: 'custom'
+    }).then(function (response) {
+      if (response.success === true) {
+        Chat.isReplying = false
+        Chat.replyingMsg = ''
+        return true
+      } else {
+        return false
+      }
+    })
   }
 }
 

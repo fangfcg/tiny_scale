@@ -26,6 +26,15 @@ const mutations = {
   },
   changeCard (state, userid) {
     state.chat.changeCard(userid)
+  },
+  getLeaveMessageList (state) {
+    state.chat.getLeaveMessageList()
+  },
+  customGetLeaveMsg (state, msgId) {
+    state.chat.customGetLeaveMsg(state, msgId)
+  },
+  customReplyMsg (state, msg) {
+    state.chat.customReplyMsg(state, msg)
   }
 }
 
