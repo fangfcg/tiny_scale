@@ -132,7 +132,7 @@ var Login = {
             certificate: this.certiCode
           }).then(function (response) {
             if (response.success === true) {
-              this.status = 3
+              Login.status = 3
             }
           })
           if (this.status !== 3) {
@@ -146,7 +146,7 @@ var Login = {
             certificate: this.inviteCode
           }).then(function (response) {
             if (response.success === true) {
-              this.status = 3
+              Login.status = 3
             }
           })
           if (this.status !== 3) {
@@ -170,7 +170,7 @@ var Login = {
             pass: this.password
           }).then(function (response) {
             if (response.success === true) {
-              this.status = 4
+              Login.status = 4
             }
           })
           if (this.status !== 4) {
@@ -189,7 +189,7 @@ var Login = {
             pass: this.password
           }).then(function (response) {
             if (response.success === true) {
-              this.status = 4
+              Login.status = 4
             }
           })
           if (this.status !== 4) {

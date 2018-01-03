@@ -74,7 +74,12 @@ var Chat = {
     this.socket.on('new_customer', function () {
       this.waitingNum ++
     }.bind(Chat))
-    this.socket.on('get_next', function (userid) {
+    this.socket.on('get_next', function (obj) {
+      if (!obj.success) {
+        this.waitingNum = 0
+        return
+      }
+      var userid = obj.id
       var newUser = user()
       newUser.userid = userid
       this.currentUser = userid
@@ -146,6 +151,9 @@ var Chat = {
     newMsg.type = 0
     this.userList[this.currentIndex].msgList.push(newMsg)
     this.socket.emit('msg', this.currentUser, {msg: msg})
+  },
+  changeStatus (command) {
+    this.socket.emit('change_state', command)
   },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
