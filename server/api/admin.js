@@ -217,7 +217,56 @@ async function setSocketToken(req, res){
     await util.cache.setAsync(`${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`, opGroup.id);
     res.json({success:true});
 }
-
+/**
+ * get方法，返回该客服组下所有的留言
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
+async function getMsgList(req, res){
+    var msgList = await model.message.find({operatorGroupId:req.user.operatorGroupId});
+    var result = [];
+    msgList.forEach(val => {
+        var tmp = util.doc2Object(val);
+        result.push(tmp);
+    });
+    res.json(result);
+}
+/**
+ * get方法，返回该客服组下所有的聊天记录，附带所有客服id对应表项中的姓名
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getChatList(req, res){
+    var chatList = await model.chatLog.find({operatorGroupId:req.user.operatorGroupId});
+    var result = [];
+    for(let i = 0; i < chatList.length; ++i){
+        var tmp = util.doc2Object(chatList[i]);
+        tmp.contents = null;
+        tmp.operatorName = await model.operator.findById(tmp.operatorId).name;
+        if(tmp.crossed){
+            tmp.crosserName = await model.operator.findById(tmp.crosserId);
+        }
+        result.push(tmp);
+    }
+    res.json(result);
+}
+/**
+ * get方法，参数类型{id}
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getChatLog(req, res){
+    if(!util.bodyContains(req, 'id')){
+        res.json({success:false});
+        return;
+    }
+    var chatLog = await model.chatLog.findById(req.body.id);
+    if(!chatLog || chatLog.operatorGroupId !== req.user.operatorGroupId){
+        res.json({success:false});
+        return;
+    }
+    res.json(chatLog.contents);
+}
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
  */
@@ -236,4 +285,7 @@ module.exports.apiInterfaces = [
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
     {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
+    {url:'/api/admin/message_list', callBack:getMsgList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_list',callBack:getChatList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_log',callBack:getChatLog, auth:true, type:'admin'},
 ];
