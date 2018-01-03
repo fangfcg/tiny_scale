@@ -1,9 +1,6 @@
 import io from 'socket.io-client'
-import {urlClient, clientToken} from '../../configs'
+import {urlClient, clientToken, serverIp} from '../../configs'
 const axios = require('axios')
-const httpUrl = {
-  postRateUrl: '/api/client/post_rate'
-}
 
 let msgId = 0
 let serverAddress = urlClient
@@ -11,11 +8,13 @@ let Chat = {
   msgList: [],
   socket: null,
   imgUrl: null,
-  status: 4, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
+  serverIp: serverIp,
+  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
   createMsg: function () {
     msgId++
     return {
-      type: 0, // 0: self 1: other 2: system 3:pictures
+      type: 0, // 0: self 1: other 2: system
+      isPicture: false,
       msg: null,
       name: null,
       key: msgId,
@@ -166,18 +165,10 @@ let Chat = {
       this.msgList.push(sysObj)
       this.status = 0
     } else {
-      axios.post(httpUrl.postRateUrl, {
-        rate: rate
-      }).then(function (response) {
-        if (response.success === true) {
-          sysObj.msg = '评分成功,评分为' + rate + '分'
-          Chat.msgList.push(sysObj)
-          Chat.status = 0
-        } else {
-          sysObj.msg = '出现连接错误，请重试'
-          Chat.msgList.push(sysObj)
-        }
-      })
+      this.socket.emit('comment', rate)
+      sysObj.msg = '评分成功,评分为' + rate + '分'
+      this.msgList.push(sysObj)
+      this.status = 0
     }
   }
 }

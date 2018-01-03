@@ -121,7 +121,23 @@ export default {
     uploadImgSuccess (res, file) {
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.type = 3
-      newMsg.imgUrl = URL.createObjectURL(file.raw) // to be done
+      newMsg.imgUrl = this.$store.state.chat.serverIp + res // to be done
+      this.$store.state.chat.msgList.push(newMsg)
+      this.$message({
+        message: '图片上传成功',
+        type: 'success'
+      })
+    },
+    beforeImgUpload (file) {
+      const isJPG = (file.type === 'image/jpeg')
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传头像图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传头像图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   },
   components: {
