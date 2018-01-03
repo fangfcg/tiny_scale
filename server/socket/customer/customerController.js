@@ -35,7 +35,7 @@ class customerController {
         if(answerId){
             //用户的留言已经被回答
             var msg = await model.message.findById(answerId);
-            socket.emit('message_answered', msg.answer, msg.content);
+            socket.emit('message_answered', {answer:msg.answer, content:msg.content});
         }
         else{
             var opGroup = await model.operatorGroup.findById(socket.opGroup);
@@ -45,12 +45,14 @@ class customerController {
     _serviceRequest(customerId) {
         this.event.emit('allocate_operator', customerId);
     }
-    _operatorAllocated(customerId, allocated, operatorId) {
+    _operatorAllocated(customerId, allocated, operatorId, operator) {
         if(allocated){
             this.socketPool[customerId].servingState = SERVING_STATUS_WAITING;
             this.socketPool[customerId].serviceOperatorId = operatorId;
         }
-        this.socketPool[customerId].emit('service_response', allocated);
+        this.socketPool[customerId].emit('service_response', {allocated:allocated, 
+            portrait:operator.portrait,
+            name:operator.name});
     }
     _operatorConnected(customerId, chatId) {
         var socket = this.socketPool[customerId];

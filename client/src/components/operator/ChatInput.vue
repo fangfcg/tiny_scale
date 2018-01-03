@@ -96,10 +96,10 @@ export default {
       this.msg += code
       this.showEmoji = false
     },
-    transferCommand () {
-      this.$http.get(this.serverIp + '/api/operator/get_colleagues').then(function (response) {
-        this.gridData = response
-      })
+    async transferCommand () {
+      let res = await this.$http.get(this.serverIp + '/api/operator/get_colleagues')
+      let response = res.data
+      this.gridData = response
       this.dialogTableVisible = true
     },
     transferClient (operatorId) {

@@ -8,9 +8,10 @@ var chatLogPool = {};
 /**
  * 创建一个聊天记录对象，返回该对象的id，
  */
-function createChat(customerId, operatorId){
+function createChat(customerId, operatorId, operatorGroupId){
     var chat = new model.chatLog({operatorId:operatorId,
-         customerId:customerId,
+        customerId:customerId,
+        operatorGroupId:operatorGroupId,
         startTime:Date.now(),
         commented:false,
         crossed:false});

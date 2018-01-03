@@ -17,6 +17,7 @@ var adminobj = {
   endDate: null,
   serverIp: serverIp,
   data: [],
+  imgUrl: null,
   name: '小明',
   email: '123@123.com',
   operatorList: [], // [{id: 1, name: 'abc'}],
@@ -81,6 +82,13 @@ var adminobj = {
     })
     .then(function (response) {
       adminobj.data = response.data
+    })
+  },
+  initData () {
+    axios.get('/api/get_profile').then(function (response) {
+      adminobj.name = response.name
+      adminobj.email = response.email
+      adminobj.imgUrl = response.portrait
     })
   }
 }

@@ -114,7 +114,7 @@
 var setting = {
   data () {
     return {
-      imageUrl: '',
+      imageUrl: this.$store.state.chat.imgUrl,
       inputName: this.$store.state.chat.name,
       inputEmail: this.$store.state.chat.email,
       nameInputFlag: true,
@@ -147,9 +147,8 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      console.log('success')
-      console.log(file)
       this.imageUrl = this.$store.state.chat.serverIp + res
+      this.$store.state.chat.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
       const isJPG = (file.type === 'image/jpeg')
@@ -172,7 +171,7 @@ var setting = {
       this.nameButtonFlag = !this.nameButtonFlag
       this.nameInputFlag = !this.nameInputFlag
     },
-    nameSubmit () {
+    async nameSubmit () {
       if (this.inputName === '') {
         this.$message({
           message: '昵称不能为空',
@@ -181,18 +180,18 @@ var setting = {
         return
       }
       this.nameLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
         name: this.inputName
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.nameLoading = false
-          setting.nameButtonFlag = true
-          setting.nameInputFlag = true
-        } else {
-          setting.nameLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.nameLoading = false
+        this.nameButtonFlag = true
+        this.nameInputFlag = true
+      } else {
+        this.nameLoading = false
+      }
       if (this.nameButtonFlag === true) {
         this.$store.state.chat.name = this.inputName
         this.$message({
@@ -213,7 +212,7 @@ var setting = {
       this.emailButtonFlag = !this.emailButtonFlag
       this.emailInputFlag = !this.emailInputFlag
     },
-    emailSubmit () {
+    async emailSubmit () {
       console.log(this.inputEmail)
       if (this.inputEmail === '') {
         this.$message({
@@ -223,18 +222,18 @@ var setting = {
         return
       }
       this.emailLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
         email: this.inputEmail
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.emailLoading = false
-          setting.emailButtonFlag = true
-          setting.emailInputFlag = true
-        } else {
-          setting.emailLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailLoading = false
+        this.emailButtonFlag = true
+        this.emailInputFlag = true
+      } else {
+        this.emailLoading = false
+      }
       if (this.emailButtonFlag === true) {
         this.$store.state.chat.email = this.inputEmail
         this.$message({
