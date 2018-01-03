@@ -24,6 +24,16 @@
           </div>
         </transition>
       </div>
+      <div v-if="this.$store.state.chat.status === 4">
+        <div class="rate-container">
+          <el-rate class="rate-place"
+            v-model="point"
+            show-text
+            :texts="['1分', '2分', '3分', '4分', '5分']">
+          </el-rate>
+        </div>
+        <span class="rate-sub" @click="sendRate()">评分完成</span>
+      </div>
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="callService()">人工客服</span>
       <span class="message-sub" @click="leaveMessage(msg)">留言</span>
@@ -38,7 +48,8 @@ export default {
   data () {
     return {
       msg: '',
-      showEmoji: false
+      showEmoji: false,
+      point: 0
     }
   },
   ready () {
@@ -75,7 +86,7 @@ export default {
         }
       }
       if (i === this.msg.length) {
-        var newMsg = this.$store.state.chat.createMsg()
+        let newMsg = this.$store.state.chat.createMsg()
         newMsg.msg = '请勿发送空白消息'
         newMsg.type = 2
         this.$store.state.chat.msgList.push(newMsg)
@@ -84,6 +95,16 @@ export default {
       }
       this.$store.commit('leaveMsg', msg)
       this.msg = ''
+    },
+    sendRate () {
+      if (this.point === 0) {
+        let newMsg = this.$store.state.chat.createMsg()
+        newMsg.msg = '请给出一个1-5分之间的有效分数'
+        newMsg.type = 2
+        this.$store.state.chat.msgList.push(newMsg)
+      } else {
+        this.$store.commit('sendRate', this.point)
+      }
     }
   },
   components: {
@@ -205,7 +226,30 @@ ul{
       outline: none;
       margin-left: 5px;
     }
-    .operator-sub, .chat-sub, .message-sub:hover{
+    .rate-container{
+      position: absolute;
+      display: flex;
+      margin-left: 125px;
+      margin-top: 5px;
+      width: 160px;
+      background-color: white;
+    }
+    .rate-place{
+      margin-left: 5px;
+    }
+    .rate-sub{
+      position: absolute;
+      display: flex;
+      background-color: rgba(0, 0, 0, 0.1);
+      justify-content: center;
+      align-items: center;
+      height: 30px;
+      width: 78px;
+      font-size: 13px;
+      outline: none;
+      margin-left: 290px;
+    }
+    .operator-sub, .chat-sub, .message-sub, .rate-sub:hover{
       cursor: pointer;
     }
     .primary{
