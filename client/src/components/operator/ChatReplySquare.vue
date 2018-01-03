@@ -63,32 +63,9 @@
 export default {
   data () {
     return {
-      fake: true, // 删
       currPage: 1,
-      pagesize: 2,
-      isAnswering: false,
-      replyText: '',
-      tableData5: [{
-        id: '12987122',
-        time: '2017-09-11',
-        content: '这个东西是假的吧，怎么没有售后服务和购买方案呢？'
-      }, {
-        id: '12987123',
-        time: '2017-09-11',
-        content: '这个东西是假的吧，怎么没有帮助和指引呢？'
-      }, {
-        id: '12987125',
-        time: '2017-09-11',
-        content: '我应该去哪里进行售后服务和保修？'
-      }, {
-        id: '12987126',
-        time: '2017-09-11',
-        content: '我应该携带什么样的材料？'
-      }, {
-        id: '12987127',
-        time: '2017-09-11',
-        content: '有优惠方案吗？'
-      }]
+      pagesize: 10,
+      replyText: ''
     }
   },
   computed: {
@@ -125,14 +102,13 @@ export default {
       //  将对应的修改信息发到后端，
       if (this.$store.commit('customReplyMsg', this.replyText) === true) {
         this.$message({
-            message: '留言为' + this.replyText + ',回复留言成功！',
-            type: 'success'
+          message: '留言为' + this.replyText + ',回复留言成功！',
+          type: 'success'
         })
-        this.isAnswering = false
         this.replyText = ''
         this.init()
       } else {
-         this.$message.error('回复留言失败！')
+        this.$message.error('回复留言失败！')
       }
     }
   }
