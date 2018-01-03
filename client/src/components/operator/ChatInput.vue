@@ -27,6 +27,13 @@
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="finishService()">结束</span>
       <span class="transfer-sub" @click="transferCommand">转接</span>
+      <el-upload
+        action="uploadImageUrl"
+        :on-success="uploadImgSuccess"
+        :before-upload="beforeImgUpload"
+        :show-file-list="false">
+        <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
+      </el-upload>
       <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
         <el-table :data="gridData">
           <el-table-column property="id" label="客服ID"></el-table-column>
@@ -98,6 +105,27 @@ export default {
     transferClient (operatorId) {
       this.$store.commit('crossServe', operatorId)
       this.dialogTableVisible = false
+    },
+    uploadImgSuccess (res, file) {
+      let newMsg = this.$store.state.chat.createMsg()
+      newMsg.isPicture = true
+      newMsg.msg = this.$store.state.chat.serverIp + res
+      this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList.push(newMsg)
+      this.$message({
+        message: '图片上传成功',
+        type: 'success'
+      })
+    },
+    beforeImgUpload (file) {
+      const isJPG = (file.type === 'image/jpeg')
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   },
   components: {
@@ -181,7 +209,7 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 400px;
+      margin-left: 340px;
     }
     .operator-sub{
       position: relative;
