@@ -112,6 +112,7 @@ var Chat = {
     this.socket.on('msg', function (customId, inputMsg) {
       var clientMsg = this.createMsg()
       clientMsg.msg = inputMsg.msg
+      clientMsg.isPicture = inputMsg.isPic
       clientMsg.type = 1
       for (var j = 0; j < this.currentNum; j++) {
         if (this.userList[j].userid === customId) {
@@ -172,15 +173,16 @@ var Chat = {
   getNext: function () {
     this.socket.emit('get_next')
   },
-  sendMsg: function (msg) {
+  sendMsg: function (payload) {
     if (this.currentUser === null) {
       return
     }
     var newMsg = this.createMsg()
-    newMsg.msg = msg
+    newMsg.msg = payload.msg
     newMsg.type = 0
+    newMsg.isPicture = payload.isPic
     this.userList[this.currentIndex].msgList.push(newMsg)
-    this.socket.emit('msg', this.currentUser, {msg: msg, time: newMsg.time})
+    this.socket.emit('msg', this.currentUser, {msg: payload.msg, isPic: payload.isPic, time: newMsg.time})
   },
   changeStatus (command) {
     this.socket.emit('change_state', command)

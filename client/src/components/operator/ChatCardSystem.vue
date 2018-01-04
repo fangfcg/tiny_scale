@@ -13,7 +13,7 @@ export default {
   },
   props: ['msg'],
   mounted () {
-    this.$el.scrollIntoView()
+    // this.$el.scrollIntoView()
   }
 }
 </script>

@@ -23,12 +23,12 @@ var adminobj = {
   email: '123@123.com',
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
-    axios.post(httpUrl.postUrl, {
+    axios.post(this.serverIp + httpUrl.postUrl, {
       username: 'fcg',
       password: '123456',
       type: 'admin'
     }).then(function () {
-      axios.get(httpUrl.groupInfoUrl, {
+      axios.get(adminobj.serverIp + httpUrl.groupInfoUrl, {
         params: {
           id: adminobj.adminId,
           dataType: null
@@ -40,7 +40,7 @@ var adminobj = {
     })
   },
   getGroupInfo () {
-    axios.get(httpUrl.groupInfoUrl, {
+    axios.get(this.serverIp + httpUrl.groupInfoUrl, {
       params: {
         id: adminobj.adminId,
         dataType: dataTypeList[adminobj.choosenDataType]
@@ -53,7 +53,7 @@ var adminobj = {
     })
   },
   getOperatorInfo () {
-    axios.get(httpUrl.operatorInfoUrl, {
+    axios.get(this.serverIp + httpUrl.operatorInfoUrl, {
       params: {
         id: adminobj.choosenOperator.id,
         dataType: dataTypeList[adminobj.choosenDataType]
@@ -66,7 +66,7 @@ var adminobj = {
     })
   },
   getOperatorChatTotal () {
-    axios.get(httpUrl.operatorChatTotalUrl, {
+    axios.get(this.serverIp + httpUrl.operatorChatTotalUrl, {
       params: {
         id: adminobj.choosenOperator.id
       }
@@ -76,7 +76,7 @@ var adminobj = {
     })
   },
   getOperatorChatLog () {
-    axios.get(httpUrl.operatorChatTotalUrl, {
+    axios.get(this.serverIp + httpUrl.operatorChatTotalUrl, {
       params: {
         id: adminobj.choosenOperator.id
       }
@@ -89,7 +89,7 @@ var adminobj = {
     axios.get(this.serverIp + '/api/get_profile').then(function (response) {
       adminobj.name = response.name
       adminobj.email = response.email
-      adminobj.imgUrl = this.serverIp + '/' + response.imgUrl
+      adminobj.imgUrl = adminobj.serverIp + '/' + response.imgUrl
     })
   }
 }

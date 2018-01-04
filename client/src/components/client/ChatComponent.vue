@@ -26,7 +26,7 @@ export default {
     ChatInput
   },
   created () {
-    // this.$store.commit('initSock')
+    this.$store.commit('initSock')
   },
   methods: {
     drag (event) {
@@ -38,7 +38,6 @@ export default {
       document.onmousemove = function (e) {
         let l = e.clientX - disX
         let t = e.clientY - disY
-        console.log(e.clientX, e.clientY)
         self.bodystyle.left = l + 'px'
         self.bodystyle.top = t + 'px'
       }
