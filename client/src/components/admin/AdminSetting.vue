@@ -37,12 +37,15 @@
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
 
     <span class="main-text">token设置</span><br>
-      <el-input
-        class="token-input"
-        placeholder="请输入token"
-        v-model="inputToken">
-      </el-input>
-      <el-button @click="tokenSubmit">提交</el-button>
+    <el-input
+      class="token-input"
+      placeholder="请输入token"
+      v-model="inputToken"
+      :disabled="tokenFlag">
+    </el-input>
+    <el-button @click="tokenModify">修改</el-button>
+    <el-button :disabled="tokenFlag" @click="tokenSubmit">提交</el-button>
+
 
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="getAdminReply()">设置</el-button></span><br>
@@ -105,7 +108,8 @@
 
 <script>
 var setting = {
-  async created () {
+  created () {
+    /*
     let res = await this.$http.get(this.serverIp + '/api/get_profile')
     let response = res.data
     this.inputName = response.name
@@ -115,19 +119,22 @@ var setting = {
     this.$store.state.admin.name = this.inputName
     this.$store.state.admin.email = this.inputEmail
     this.$store.state.admin.imgUrl = this.imageUrl
+    */
   },
   data () {
     return {
       imageUrl: this.$store.state.admin.imgUrl,
       inputName: this.$store.state.admin.name,
       inputEmail: this.$store.state.admin.email,
-      inputToken: '',
+      inputToken: this.$store.state.admin.token,
       nameInputFlag: true,
       emailInputFlag: true,
       nameButtonFlag: true,
       emailButtonFlag: true,
+      tokenFlag: true,
       nameLoading: false,
       emailLoading: false,
+      tokenLoading: false,
       selfDialogVisible: false,
       comDialogVisible: false,
       addDialogVisible: false,
@@ -250,14 +257,27 @@ var setting = {
         })
       }
     },
-    tokenSubmit () {
-      this.$http.post(this.serverIp + '/api/admin/set_socket_token', {
+    tokenModify () {
+      if (this.tokenFlag === false) {
+        this.inputToken = this.$store.state.admin.token
+      }
+      this.tokenFlag = !this.tokenFlag
+    },
+    async tokenSubmit () {
+      let res = await this.$http.post(this.serverIp + '/api/admin/set_socket_token', {
         token: this.inputToken
       })
-      this.$message({
-        message: 'token修改成功',
-        type: 'success'
-      })
+      let response = res.data
+      if (response.success) {
+        this.$message({
+          message: 'token修改成功',
+          type: 'success'
+        })
+        this.$store.state.admin.token = this.inputToken
+        this.tokenFlag = true
+      } else {
+        this.$message.error('token修改失败，请更换')
+      }
     },
     addHandleClose () {
       this.addDialogVisible = false

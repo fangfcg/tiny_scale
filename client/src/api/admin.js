@@ -18,6 +18,7 @@ var adminobj = {
   endDate: null,
   serverIp: serverIp,
   data: [],
+  token: null,
   imgUrl: null,
   name: '小明',
   email: '123@123.com',

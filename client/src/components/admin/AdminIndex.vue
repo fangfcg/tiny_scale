@@ -28,8 +28,17 @@
 
 <script>
 export default {
-  created () {
-    // this.$store.commit('initData')
+  async created () {
+    let res = await this.$http.get(this.$store.state.admin.serverIp + '/api/get_profile')
+    let response = res.data
+    this.$store.state.admin.name = response.name
+    this.$store.state.admin.email = response.email
+    this.$store.state.admin.imgUrl = this.$store.state.admin.serverIp + '/' + response.imgUrl
+    res = await this.$http.get(this.$store.state.admin.serverIp + '/api/admin/get_socket_token')
+    response = res.data
+    if (res.token !== null) {
+      this.$store.state.admin.token = res.token
+    }
   },
   data () {
     return {
