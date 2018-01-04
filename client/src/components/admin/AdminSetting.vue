@@ -9,7 +9,8 @@
         :show-file-list="false"
         :on-preview="handlePictureCardPreview"
         :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+        :with-credentials="true">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
@@ -34,8 +35,19 @@
     <el-button @click="emailModify">修改</el-button>
     <el-button :disabled="emailButtonFlag" @click="emailSubmit" :loading="emailLoading">提交</el-button>
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
-    <span class="main-text">logo设置</span><br>
-    <hr width=80% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
+
+    <span class="main-text">token设置</span><br>
+    <el-input
+      class="token-input"
+      placeholder="请输入token"
+      v-model="inputToken"
+      :disabled="tokenFlag">
+    </el-input>
+    <el-button @click="tokenModify">修改</el-button>
+    <el-button :disabled="tokenFlag" @click="tokenSubmit">提交</el-button>
+
+
+    <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="getAdminReply()">设置</el-button></span><br>
     <el-dialog
         title="快捷回复设置"
@@ -79,9 +91,9 @@
             min-width="80">
             <template slot-scope="scope">
               <el-button class="small-elbutton" @click="openAddDialog(scope.$index)">修改</el-button>
-                <el-button class="small-elbutton" type="danger" @click="delReply(scope.$index)">删除</el-button>
-                <el-button class="small-elbutton" v-if="scope.$index != 0" @click="upReply(scope.$index)">上移</el-button>
-                <el-button class="small-elbutton" v-if="scope.$index != compData.length-1" @click="downReply(scope.$index)">下移</el-button>
+              <el-button class="small-elbutton" type="danger" @click="delReply(scope.$index)">删除</el-button>
+              <el-button class="small-elbutton" v-if="scope.$index != 0" @click="upReply(scope.$index)">上移</el-button>
+              <el-button class="small-elbutton" v-if="scope.$index != compData.length-1" @click="downReply(scope.$index)">下移</el-button>
               
             </template>
           </el-table-column>
@@ -96,17 +108,33 @@
 
 <script>
 var setting = {
+  created () {
+    /*
+    let res = await this.$http.get(this.serverIp + '/api/get_profile')
+    let response = res.data
+    this.inputName = response.name
+    this.inputEmail = response.email
+    this.imageUrl = this.serverIp + '/' + response.imgUrl
+    console.log(response.imgUrl)
+    this.$store.state.admin.name = this.inputName
+    this.$store.state.admin.email = this.inputEmail
+    this.$store.state.admin.imgUrl = this.imageUrl
+    */
+  },
   data () {
     return {
-      imageUrl: '',
+      imageUrl: this.$store.state.admin.imgUrl,
       inputName: this.$store.state.admin.name,
       inputEmail: this.$store.state.admin.email,
+      inputToken: this.$store.state.admin.token,
       nameInputFlag: true,
       emailInputFlag: true,
       nameButtonFlag: true,
       emailButtonFlag: true,
+      tokenFlag: true,
       nameLoading: false,
       emailLoading: false,
+      tokenLoading: false,
       selfDialogVisible: false,
       comDialogVisible: false,
       addDialogVisible: false,
@@ -118,7 +146,7 @@ var setting = {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.admin.serverIp + '/files'
+      return this.$store.state.admin.serverIp + '/api/upload_portrait'
     },
     serverIp () {
       return this.$store.state.admin.serverIp
@@ -126,9 +154,10 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      console.log('success')
-      console.log(file)
-      this.imageUrl = this.$store.state.admin.serverIp + res
+      console.log(this.imageUrl)
+      this.imageUrl = this.$store.state.admin.serverIp + '/' + res.path
+      console.log(this.imageUrl)
+      this.$store.state.admin.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
       const isJPG = (file.type === 'image/jpeg')
@@ -151,7 +180,7 @@ var setting = {
       this.nameButtonFlag = !this.nameButtonFlag
       this.nameInputFlag = !this.nameInputFlag
     },
-    nameSubmit () {
+    async nameSubmit () {
       if (this.inputName === '') {
         this.$message({
           message: '昵称不能为空',
@@ -160,18 +189,19 @@ var setting = {
         return
       }
       this.nameLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
-        name: this.inputName
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.nameLoading = false
-          setting.nameButtonFlag = true
-          setting.nameInputFlag = true
-        } else {
-          setting.nameLoading = false
-        }
+        name: this.inputName,
+        email: this.inputEmail
       })
+      let response = res.data
+      if (response.success === true) {
+        this.nameLoading = false
+        this.nameButtonFlag = true
+        this.nameInputFlag = true
+      } else {
+        this.nameLoading = false
+      }
       if (this.nameButtonFlag === true) {
         this.$store.state.chat.name = this.inputName
         this.$message({
@@ -192,7 +222,7 @@ var setting = {
       this.emailButtonFlag = !this.emailButtonFlag
       this.emailInputFlag = !this.emailInputFlag
     },
-    emailSubmit () {
+    async emailSubmit () {
       if (this.inputEmail === '') {
         this.$message({
           message: '邮箱不能为空',
@@ -201,18 +231,19 @@ var setting = {
         return
       }
       this.emailLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'admin',
+        name: this.inputName,
         email: this.inputEmail
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.emailLoading = false
-          setting.emailButtonFlag = true
-          setting.emailInputFlag = true
-        } else {
-          setting.emailLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailLoading = false
+        this.emailButtonFlag = true
+        this.emailInputFlag = true
+      } else {
+        this.emailLoading = false
+      }
       if (this.emailButtonFlag === true) {
         this.$store.state.chat.email = this.inputEmail
         this.$message({
@@ -224,6 +255,28 @@ var setting = {
           message: '邮箱修改失败，请重试',
           type: 'fail'
         })
+      }
+    },
+    tokenModify () {
+      if (this.tokenFlag === false) {
+        this.inputToken = this.$store.state.admin.token
+      }
+      this.tokenFlag = !this.tokenFlag
+    },
+    async tokenSubmit () {
+      let res = await this.$http.post(this.serverIp + '/api/admin/set_socket_token', {
+        token: this.inputToken
+      })
+      let response = res.data
+      if (response.success) {
+        this.$message({
+          message: 'token修改成功',
+          type: 'success'
+        })
+        this.$store.state.admin.token = this.inputToken
+        this.tokenFlag = true
+      } else {
+        this.$message.error('token修改失败，请更换')
       }
     },
     addHandleClose () {
@@ -270,31 +323,31 @@ var setting = {
     selfHandleClose () {
       this.selfDialogVisible = false
     },
-    getAdminReply () {
-      this.$http.get(this.serverIp + '/api/common/settings/adminReply').then(function (response) {
-        if (response.success === true) {
-          this.compData = response.data
-          this.selfDialogVisible = true
-        } else {
-          this.$message.error('打开失败，请重试！')
-        }
-      })
+    async getAdminReply () {
+      let res = await this.$http.get(this.serverIp + '/api/common/settings/adminReply')
+      let response = res.data
+      if (response.success === true) {
+        this.compData = response.data
+        this.selfDialogVisible = true
+      } else {
+        this.$message.error('打开失败，请重试！')
+      }
     },
-    renewReply () {
-      this.$http.post(this.serverIp + '/api/common/settings/renewReply', {
+    async renewReply () {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/renewReply', {
         data: this.compData
-      }).then(function (response) {
-        if (response.success === true) {
-          this.$message({
-            message: '信息更新成功！',
-            type: 'success'
-          })
-          return true
-        } else {
-          this.$message.error('信息更新失败，请重试！')
-          return false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.$message({
+          message: '信息更新成功！',
+          type: 'success'
+        })
+        return true
+      } else {
+        this.$message.error('信息更新失败，请重试！')
+        return false
+      }
     }
   }
 }
@@ -364,7 +417,7 @@ export default setting
     height: 178px;
     display: block;
   }
-  .name-input, .email-input {
+  .name-input, .email-input, .token-input {
     width:200px;
     margin-top:20px;
     margin-right:40px;

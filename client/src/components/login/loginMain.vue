@@ -50,16 +50,16 @@ var Login = {
     }
   },
   methods: {
-    login () {
-      this.$http.post(this.loginUrl, {
+    async login () {
+      let res = await this.$http.post(this.loginUrl, {
         type: this.usertype,
         username: this.username,
         password: this.password
-      }).then(function (response) {
-        if (response.success === true) {
-          window.location.href = Login.serverIp + '/' + Login.usertype + '.html'
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        window.location.href = '/' + this.usertype + '.html'
+      }
     }
   }
 }
@@ -76,9 +76,10 @@ export default Login
 }
 .content {
   width: 500px;
+  height: 350px;
   margin:auto;
   background-color: white;
-  border-radius:10px;
+  border-radius:20px;
 }
 .login-title {
   font-size: 30px;

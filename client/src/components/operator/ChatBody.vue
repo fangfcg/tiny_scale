@@ -7,8 +7,8 @@
           <chat-card-system :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-system>
         </template>
         <template>
-          <chat-card-other v-if="msgObj.type === 1" :msg="msgObj.msg" :key="msgObj.msgId"></chat-card-other>
-          <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :key="msgObj.msgId" :imageUrl="imageUrl"></chat-card-self>
+          <chat-card-other v-if="msgObj.type === 1" :msg="msgObj.msg" :key="msgObj.msgId" :isPicture="msgObj.isPicture"></chat-card-other>
+          <chat-card-self v-if="msgObj.type === 0" :msg="msgObj.msg" :key="msgObj.msgId" :imgUrl="imgUrl" :isPicture="msgObj.isPicture"></chat-card-self>
         </template>
       </template>
     </template>
@@ -28,8 +28,8 @@ export default {
   created () {
   },
   computed: {
-    imageUrl () {
-      return this.$store.state.chat.imageUrl
+    imgUrl () {
+      return this.$store.state.chat.imgUrl
     }
   },
   components: {

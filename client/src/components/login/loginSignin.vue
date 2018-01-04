@@ -52,22 +52,24 @@
             </el-input>
           </div>
           <div class="normal-input2">
-            <el-input placeholder="请输入密码" v-model="password" clearable>
+            <el-input type="password" placeholder="请输入密码" v-model="password" clearable>
               <template slot="prepend">密码</template>
             </el-input>
           </div>
           <div class="normal-input2">
-            <el-input placeholder="请再次输入密码" v-model="password2" clearable>
+            <el-input type="password" placeholder="请再次输入密码" v-model="password2" clearable>
               <template slot="prepend">确认密码</template>
             </el-input>
           </div>
           <el-button type="primary" class="next-button" :disabled="signupFlag" @click="nextStep">下一步</el-button><br>
         </div>
         <div v-else-if="status === 4">
-          <div>注册成功!</div>
-          <router-link to="/signin">
-            <el-button>返回登录界面</el-button>
-          </router-link>
+          <div class="success-text">注册成功!</div>
+          <template class="success-button">
+            <router-link to="/login">
+              <el-button>返回登录界面</el-button>
+            </router-link>
+          </template>
         </div>
       </template>
     </div>    
@@ -84,7 +86,6 @@ var Login = {
       username: '',
       password: '',
       password2: '',
-      usertype: '1',
       companyName: '',
       emailNum: '',
       status: 1,      // 1, 2, 3, 4 represents for status respectively
@@ -122,19 +123,19 @@ var Login = {
       this.choosenType = 1
       this.status = 2
     },
-    nextStep () {
+    async nextStep () {
       if (this.status === 2) {
         if (this.choosenType === 0) {
           if (this.certiCode === '') {
             return
           }
-          this.$http.post(this.adminCertificateUrl, {
+          let res = await this.$http.post(this.adminCertificateUrl, {
             certificate: this.certiCode
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 3
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 3
+          }
           if (this.status !== 3) {
             this.$message.error('验证码错误，请重试')
           }
@@ -142,13 +143,13 @@ var Login = {
           if (this.inviteCode === 0) {
             return
           }
-          this.$http.post(this.operatorCertificateUrl, {
+          let res = await this.$http.post(this.operatorCertificateUrl, {
             certificate: this.inviteCode
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 3
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 3
+          }
           if (this.status !== 3) {
             this.$message.error('验证码错误，请重试')
           }
@@ -164,15 +165,15 @@ var Login = {
             this.$message.error('两次密码输入不一致，请重试')
             return
           }
-          this.$http.post(this.adminCreateUrl, {
+          let res = await this.$http.post(this.adminCreateUrl, {
             companyName: this.companyName,
             name: this.username,
             pass: this.password
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 4
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 4
+          }
           if (this.status !== 4) {
             this.$message.error('注册失败，请重试')
           }
@@ -184,37 +185,34 @@ var Login = {
             this.$message.error('两次密码输入不一致，请重试')
             return
           }
-          this.$http.post(this.operatorCreateUrl, {
+          let res = await this.$http.post(this.operatorCreateUrl, {
             name: this.username,
             pass: this.password
-          }).then(function (response) {
-            if (response.success === true) {
-              Login.status = 4
-            }
           })
+          let response = res.data
+          if (response.success === true) {
+            this.status = 4
+          }
           if (this.status !== 4) {
             this.$message.error('注册失败，请重试')
           }
         }
       }
     },
-    sendIdenCode () {
+    async sendIdenCode () {
       if (this.emailNum === '') {
         return
       }
       this.emailSendDisabled = true
-      this.$http.post(this.sendEmailUrl, {
+      let res = await this.$http.post(this.sendEmailUrl, {
         email: this.emailNum
-      }).then(function (response) {
-        if (response.success === true) {
-          Login.emailSendFlag = true
-        } else {
-          Login.emailSendFlag = false
-        }
-      }).catch(function (error) {
-        console.log(error)
-        Login.emailSendFlag = false
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailSendFlag = true
+      } else {
+        this.emailSendFlag = false
+      }
       if (this.emailSendFlag === true) {
         this.$message({
           message: '发送邮件成功',
@@ -240,9 +238,10 @@ export default Login
 }
 .content {
   width: 500px;
-  height: 300px;
+  height: 350px;
   margin:auto;
   background-color: white;
+  border-radius:20px;
 }
 .login-title {
   font-size: 30px;
@@ -281,5 +280,12 @@ hr {
   width: 200px;
   margin-top: 25px;
   font-size:18px;
+}
+.success-text {
+  margin-top:30px;
+  font-size: 20px;
+}
+.success-button {
+  margin-top:30px;
 }
 </style>

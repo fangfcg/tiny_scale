@@ -48,8 +48,11 @@ const mutations = {
   getCompReply (state) {
     state.chat.getCompReply()
   },
-  setSelfReply (state, data) {
-    state.chat.setSelfReply(data)
+  renewReply (state) {
+    state.chat.renewReply()
+  },
+  initData (state) {
+    state.chat.initData()
   }
 }
 

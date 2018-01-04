@@ -54,26 +54,23 @@ var Invite = {
     }
   },
   methods: {
-    getInviteCode () {
+    async getInviteCode () {
       if (this.choosenNum === 0) {
         return
       }
       this.codeArray = []
-      this.$http.post(this.uploadPostUrl, {
+      var res = await this.$http.post(this.uploadPostUrl, {
         count: this.choosenNum
-      }).then(function (response) {
-        if (response.success === true) {
-          for (var j = 0; j < Invite.choosenNum; j++) {
-            Invite.codeArray.push({ index: j, code: j * 100 })
-          }
-          Invite.getSuccess = 'success'
-        } else {
-          Invite.getSuccess = 'fail'
-        }
-      }).catch(function (error) {
-        console.log(error)
-        Invite.getSuccess = 'error'
       })
+      var response = res.data
+      if (response.success === true) {
+        for (var j = 0; j < this.choosenNum; j++) {
+          this.codeArray.push({ index: j, code: response.certificates[j] })
+        }
+        this.getSuccess = 'success'
+      } else {
+        this.getSuccess = 'fail'
+      }
       if (this.getSuccess === 'success') {
         this.$message({
           message: '获取邀请码成功',

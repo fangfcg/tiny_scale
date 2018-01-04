@@ -1,10 +1,10 @@
 <template>
   <div class="main-container">
-    <el-carousel indicator-position="outside">
+    <!--<el-carousel indicator-position="outside">
       <el-carousel-item v-for="item in 4" :key="item">
         <h3>{{ item }}</h3>
       </el-carousel-item>
-    </el-carousel>
+    </el-carousel>-->
     <div class="main-table">
       <div class="main-text">
       <span>客服状态</span>
@@ -15,10 +15,8 @@
           :data="tableOperator"
           :stripe="true"
           style="width: 90%">
-          <el-table-column label="客服昵称" prop="name"> </el-table-column>
-          <el-table-column label="队列人数" prop="waitingNum"> </el-table-column>
-          <el-table-column label="当前处理人数" prop="currentNum"> </el-table-column>
-          <el-table-column label="客服状态" prop="status"></el-table-column>
+          <el-table-column label="客服id" prop="operator"> </el-table-column>
+          <el-table-column label="客服状态" prop="state"></el-table-column>
         </el-table>
       </template>
       <div class="main-text">
@@ -29,79 +27,84 @@
           :data="tableWorkRecord"
           :stripe="true"
           style="width: 90%">
-          <el-table-column label="工单类型" prop="type"> </el-table-column>
+          <el-table-column label="工单id" prop="id"> </el-table-column>
           <el-table-column label="处理客服" prop="operatorName"> </el-table-column>
-          <el-table-column label="处理完成时间" prop="finishTime"> </el-table-column>
-          <el-table-column label="满意度" prop="score"></el-table-column>
+          <el-table-column label="开始时间" prop="startTime"> </el-table-column>
+          <el-table-column label="完成时间" prop="endTime"> </el-table-column>
+          <el-table-column label="是否被评价" prop="commented"></el-table-column>
+          <el-table-column label="满意度" prop="comment"></el-table-column>
+          <el-table-column label="操作" min-width="80">
+            <template slot-scope="props">
+              <el-button size="mini" @click="handleDetail(props.row)">查看详情</el-button>
+            </template>
+          </el-table-column> 
         </el-table>
       </template>
-      
-      <div class="main-text">
-        <span>回复查看</span>
-      </div>
-      <template>
-         <el-table
-          :data="tableWorkRecord"
-          :stripe="true"
-          style="width: 90%">
-          <el-table-column label="工单类型" prop="type"> </el-table-column>
-          <el-table-column label="处理客服" prop="operatorName"> </el-table-column>
-          <el-table-column label="处理完成时间" prop="finishTime"> </el-table-column>
-          <el-table-column label="满意度" prop="score"></el-table-column>
-        </el-table>
-      </template>
+
+      <el-dialog
+        title="详情"
+        :visible.sync="dialogVisible"
+        width="30%">
+        <template v-for="msg in chatData">
+          <template v-if="msg.sender === 'customer'" class="customer-text">{{msg.time + '客户:' + msg.content}}</template>
+          <template v-else class="operator-text">{{msg.time + '客服:' + msg.content}}</template>
+        </template>
+        <span slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+        </span>
+      </el-dialog>
 
     </div>
   </div>
 </template>
 
 <script>
-export default {
+var adminMain = {
+  async created () {
+    var res1 = await this.$http.get(this.serverIp + '/api/admin/get_chat_list')
+    var response1 = res1.data
+    this.tableWorkRecord = response1
+    for (var i of this.tableWorkRecord) {
+      i.commented = i.commented ? '是' : '否'
+    }
+    var res2 = await this.$http.get(this.serverIp + '/api/admin/operator_state_list')
+    var response2 = res2.data
+    this.tableOperator = response2
+  },
   data () {
     return {
-      tableOperator: [
-        {
-          name: '小明',
-          waitingNum: 1,
-          currentNum: 2,
-          finishNum: 3,
-          status: '在线'
-        },
-        {
-          name: '小明',
-          waitingNum: 1,
-          currentNum: 2,
-          finishNum: 3,
-          status: '休息'
-        }
-      ],
-      tableWorkRecord: [
-        {
-          type: '客服',
-          operatorName: '小明',
-          finishTime: '19970109',
-          score: 5
-        },
-        {
-          type: '留言',
-          operatorName: '小明',
-          finishTime: '19970109',
-          score: 5
-        }
-      ]
+      tableOperator: [],
+      tableWorkRecord: [],
+      chatData: [],
+      dialogVisible: false
+    }
+  },
+  computed: {
+    serverIp () {
+      return this.$store.state.admin.serverIp
     }
   },
   methods: {
     tableRowClassName ({row, rowIndex}) {
-      if (row.status === '在线') {
+      if (row.status === 'working') {
         return 'working-row'
-      } else if (row.status === '休息') {
+      } else if (row.status === 'resting') {
         return 'rest-row'
       }
       return ''
+    },
+    async handleDetail (data) {
+      var response = await this.$http.get(this.serverIp + '/api/admin/get_chat_list', {
+        params: {
+          id: data.id
+        }
+      })
+      this.chatData = response.data
+      this.dialogVisible = true
     }
   }
 }
+export default adminMain
 </script>
 
 <style>
@@ -139,5 +142,11 @@ export default {
 }
 .el-table .working-row {
   background: #f0f9eb;
+}
+.operator-text {
+  float: left;
+}
+.customer-text {
+  float: left;
 }
 </style>

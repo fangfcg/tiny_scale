@@ -9,7 +9,8 @@
         :show-file-list="false"
         :on-preview="handlePictureCardPreview"
         :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+        :with-credentials="true">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
@@ -112,9 +113,19 @@
 
 <script>
 var setting = {
+  async created () {
+    let res = await this.$http.get(this.serverIp + '/api/get_profile')
+    let response = res.data
+    this.inputName = response.name
+    this.inputEmail = response.email
+    this.imageUrl = this.serverIp + '/' + response.imgUrl
+    this.$store.state.chat.name = this.inputName
+    this.$store.state.chat.email = this.inputEmail
+    this.$store.state.chat.imgUrl = this.imageUrl
+  },
   data () {
     return {
-      imageUrl: '',
+      imageUrl: this.$store.state.chat.imgUrl,
       inputName: this.$store.state.chat.name,
       inputEmail: this.$store.state.chat.email,
       nameInputFlag: true,
@@ -133,7 +144,7 @@ var setting = {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.chat.serverIp + '/files'
+      return this.$store.state.chat.serverIp + '/api/upload_portrait'
     },
     serverIp () {
       return this.$store.state.chat.serverIp
@@ -147,9 +158,8 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      console.log('success')
-      console.log(file)
-      this.imageUrl = this.$store.state.chat.serverIp + res
+      this.imageUrl = this.$store.state.chat.serverIp + '/' + res.path
+      this.$store.state.chat.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
       const isJPG = (file.type === 'image/jpeg')
@@ -172,7 +182,7 @@ var setting = {
       this.nameButtonFlag = !this.nameButtonFlag
       this.nameInputFlag = !this.nameInputFlag
     },
-    nameSubmit () {
+    async nameSubmit () {
       if (this.inputName === '') {
         this.$message({
           message: '昵称不能为空',
@@ -181,18 +191,19 @@ var setting = {
         return
       }
       this.nameLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
-        name: this.inputName
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.nameLoading = false
-          setting.nameButtonFlag = true
-          setting.nameInputFlag = true
-        } else {
-          setting.nameLoading = false
-        }
+        name: this.inputName,
+        email: this.inputEmail
       })
+      let response = res.data
+      if (response.success === true) {
+        this.nameLoading = false
+        this.nameButtonFlag = true
+        this.nameInputFlag = true
+      } else {
+        this.nameLoading = false
+      }
       if (this.nameButtonFlag === true) {
         this.$store.state.chat.name = this.inputName
         this.$message({
@@ -213,7 +224,7 @@ var setting = {
       this.emailButtonFlag = !this.emailButtonFlag
       this.emailInputFlag = !this.emailInputFlag
     },
-    emailSubmit () {
+    async emailSubmit () {
       console.log(this.inputEmail)
       if (this.inputEmail === '') {
         this.$message({
@@ -223,18 +234,19 @@ var setting = {
         return
       }
       this.emailLoading = true
-      this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
+        name: this.inputName,
         email: this.inputEmail
-      }).then(function (response) {
-        if (response.success === true) {
-          setting.emailLoading = false
-          setting.emailButtonFlag = true
-          setting.emailInputFlag = true
-        } else {
-          setting.emailLoading = false
-        }
       })
+      let response = res.data
+      if (response.success === true) {
+        this.emailLoading = false
+        this.emailButtonFlag = true
+        this.emailInputFlag = true
+      } else {
+        this.emailLoading = false
+      }
       if (this.emailButtonFlag === true) {
         this.$store.state.chat.email = this.inputEmail
         this.$message({
@@ -259,21 +271,25 @@ var setting = {
     },
     delReply (id) {
       this.$store.state.chat.selfData.splice(id, 1)
+      this.renewReply()
     },
     upReply (id) {
       let strFormerUp = this.$store.state.chat.selfData[id - 1].text
       let strNewUp = this.$store.state.chat.selfData[id].text
       this.$store.state.chat.selfData[id].text = strFormerUp
       this.$store.state.chat.selfData[id - 1].text = strNewUp
+      this.renewReply()
     },
     downReply (id) {
       let strFormerDown = this.$store.state.chat.selfData[id + 1].text
       let strNewDown = this.$store.state.chat.selfData[id].text
       this.$store.state.chat.selfData[id].text = strFormerDown
       this.$store.state.chat.selfData[id + 1].text = strNewDown
+      this.renewReply()
     },
     updateReply (id, newMsg) {
       this.$store.state.chat.selfData[id].text = newMsg
+      this.renewReply()
     },
     addDialogClose () {
       this.addDialogVisible = false
@@ -282,6 +298,7 @@ var setting = {
       } else {
         this.$store.state.chat.selfData[this.replyID].text = this.rawText
       }
+      this.renewReply()
     },
     openAddDialog (id) {
       this.replyID = id
@@ -301,6 +318,9 @@ var setting = {
     openSelfDialog () {
       this.$store.commit('getSelfReply')
       this.selfDialogVisible = true
+    },
+    renewReply () {
+      this.$store.commit('renewReply')
     }
   }
 }

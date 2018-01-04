@@ -30,6 +30,8 @@ export default {
   },
   methods: {
     msg (id) {
+      console.log(1111)
+      console.log(this.data[id].text)
       this.$store.commit('sendMsg', this.data[id].text)
     },
     changeStatus () {

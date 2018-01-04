@@ -68,6 +68,9 @@ export default {
       replyText: ''
     }
   },
+  created () {
+    this.init()
+  },
   computed: {
   },
   methods: {

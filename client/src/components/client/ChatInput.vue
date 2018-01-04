@@ -38,10 +38,11 @@
       <span class="operator-sub" @click="callService()">人工客服</span>
       <span class="message-sub" @click="leaveMessage(msg)">留言</span>
       <el-upload
-        action="uploadImageUrl"
+        :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
-        :show-file-list="false">
+        :show-file-list="false"
+        :with-credentials="true">
         <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
       </el-upload>
     </div>
@@ -61,7 +62,7 @@ export default {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.chat.urlClient + '/clientimage'
+      return this.$store.state.chat.serverIp + '/api/upload_chat_file'
     }
   },
   ready () {
@@ -120,8 +121,24 @@ export default {
     },
     uploadImgSuccess (res, file) {
       let newMsg = this.$store.state.chat.createMsg()
-      newMsg.type = 3
-      newMsg.imgUrl = URL.createObjectURL(file.raw) // to be done
+      newMsg.isPicture = true
+      newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path // to be done
+      this.$store.state.chat.msgList.push(newMsg)
+      this.$message({
+        message: '图片上传成功',
+        type: 'success'
+      })
+    },
+    beforeImgUpload (file) {
+      const isJPG = (file.type === 'image/jpeg')
+      const isLt2M = file.size / 1024 / 1024 < 2
+      if (!isJPG) {
+        this.$message.error('上传图片只能是 JPG 格式!')
+      }
+      if (!isLt2M) {
+        this.$message.error('上传图片大小不能超过 2MB!')
+      }
+      return isJPG && isLt2M
     }
   },
   components: {

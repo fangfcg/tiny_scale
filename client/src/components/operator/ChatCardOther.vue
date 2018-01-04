@@ -1,7 +1,19 @@
 <template>
 <div class="other-wrap">
   <img class="-header" width="35" height="35" src="/static/1.jpg" alt="nopic"/>
-  <div class="-msg"><span v-html="emoji(msg)"></span></div>
+  <div class="-msg" v-if="isPicture===false"><span v-html="emoji(msg)"></span></div>
+  <div class="-imgwrapper" v-if="isPicture===true">
+    <img class="-img" width="100" height="100" @click="dialogVisible = true" :src="msg" alt="picErr">
+    <el-dialog
+      title="图片（原图大小）"
+      :visible.sync="dialogVisible"
+      :before-close="handleClose">
+      <img :src="msg">
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+      </span>
+    </el-dialog>
+  </div>
 </div>
 </template>
 
@@ -9,16 +21,22 @@
 export default {
   data () {
     return {
+      dialogVisible: false
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
       // its initial state.
     }
   },
-  mounted () {
-    this.$el.scrollIntoView()
+  methods: {
+    handleClose (done) {
+      this.dialogVisible = false
+    }
   },
-  props: ['msg']
+  mounted () {
+    // this.$el.scrollIntoView()
+  },
+  props: ['msg', 'isPicture']
 }
 </script>
 
@@ -54,6 +72,25 @@ export default {
     max-width: 200px;
     box-shadow: 0 0 1px #888888;
     word-wrap: break-word;
+  }
+  .-imgwrapper{
+    background-color: #fff;
+    padding: 10px;
+    position: relative;
+    left: 40px;
+    top: -40px;
+    border-radius: 6px;
+    width: fit-content;
+    width:-webkit-fit-content;
+    width:-moz-fit-content;
+    max-width: 200px;
+    box-shadow: 0 0 1px #888888;
+  }
+  .-img{
+    justify-content: center;
+    border-radius: 1px;
+    height: 100px;
+    width: 100px;
   }
 }
 </style>

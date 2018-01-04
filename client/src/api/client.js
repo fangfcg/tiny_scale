@@ -1,33 +1,34 @@
 import io from 'socket.io-client'
-import {urlClient, clientToken} from '../../configs'
+import {urlClient, clientToken, serverIp} from '../../configs'
 const axios = require('axios')
-const httpUrl = {
-  postRateUrl: '/api/client/post_rate'
-}
-
+axios.defaults.withCredentials = true
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
   msgList: [],
   socket: null,
   imgUrl: null,
-  status: 4, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
+  robotUrl: '/static/robot.jpg',
+  operatorName: null,
+  serverIp: serverIp,
+  status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
   createMsg: function () {
     msgId++
     return {
-      type: 0, // 0: self 1: other 2: system 3:pictures
+      type: 0, // 0: self 1: other 2: system
+      isPicture: false,
       msg: null,
       name: null,
       key: msgId,
-      imgUrl: null,
       time: Date.now()
     }
   },
-  initSock () {
+  async initSock () {
     var session
-    axios.get(urlClient + '/api/get_session_id').then(function (response) {
-      session = response.session
-    })
+    let res = await axios.get(urlClient + '/api/get_session_id')
+    let response = res.data
+    session = response.session
+
     this.socket = io(serverAddress, {
       query: {
         session: session,
@@ -52,16 +53,20 @@ let Chat = {
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
-      if (data === false) {
+      console.log(data)
+      if (!data.allocated) {
         Chat.status = 3
         sysmsg.msg = '请求客服失败，如需重试，请刷新；您现在可以留言，直接在下方编辑点击留言发送即可'
         Chat.msgList.push(sysmsg)
+      } else {
+        Chat.imgUrl = Chat.serverIp + '/' + data.portrait
+        Chat.operatorName = data.name
       }
     })
     this.socket.on('operator_connected', function () {
       Chat.status = 2
       let sysmsg = Chat.createMsg()
-      sysmsg.msg = '已接入客服，正在为您服务'
+      sysmsg.msg = '客服' + Chat.operatorName + '正在为您服务'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
@@ -69,6 +74,13 @@ let Chat = {
       let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
+      // operatorMsg.isPicture = inputMsgObj.isPicture
+      if (Chat.status === 2) {
+        console.log(Chat.imgUrl)
+        operatorMsg.imgUrl = Chat.imgUrl
+      } else {
+        operatorMsg.imgUrl = Chat.robotUrl
+      }
       Chat.msgList.push(operatorMsg)
     })
     this.socket.on('operator_disconnected', function () {
@@ -134,9 +146,7 @@ let Chat = {
       msgObj.msg = newMsg
       msgObj.type = 0
       this.msgList.push(msgObj)
-      if (this.status === 2) {
-        this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
-      }
+      this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
     }
   },
   leaveMsg (newMsg) {
@@ -166,18 +176,10 @@ let Chat = {
       this.msgList.push(sysObj)
       this.status = 0
     } else {
-      axios.post(httpUrl.postRateUrl, {
-        rate: rate
-      }).then(function (response) {
-        if (response.success === true) {
-          sysObj.msg = '评分成功,评分为' + rate + '分'
-          Chat.msgList.push(sysObj)
-          Chat.status = 0
-        } else {
-          sysObj.msg = '出现连接错误，请重试'
-          Chat.msgList.push(sysObj)
-        }
-      })
+      this.socket.emit('comment', rate)
+      sysObj.msg = '评分成功,评分为' + rate + '分'
+      this.msgList.push(sysObj)
+      this.status = 0
     }
   }
 }

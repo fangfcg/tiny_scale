@@ -1,6 +1,7 @@
 import io from 'socket.io-client'
 import {urlOperator, serverIp} from '../../configs'
 const axios = require('axios')
+axios.defaults.withCredentials = true
 const httpUrl = {
   leaveMsgUrl: '/api/operator/get_left_msg_lst',
   getLeaveMsgUrl: '/api/operator/get_left_msg',
@@ -67,6 +68,7 @@ var Chat = {
       msg: null,
       name: null,
       key: msgId,
+      isPicture: false,
       time: Date.now()
     }
   },
@@ -78,15 +80,15 @@ var Chat = {
       }
     }
   },
-  initSock: function () {
+  initSock: async function () {
     var session
-    axios.get(serverIp + '/api/get_session_id').then(function (response) {
-      session = response.session
-    })
+    let res = await axios.get(serverIp + '/api/get_session_id')
+    let response = res.data
+    session = response.session
     this.socket = io(serverAddress, {
       query: {
         session: session,
-        type: 'client'
+        type: 'operator'
       }
     })
     this.socket.on('new_customer', function () {
@@ -197,15 +199,15 @@ var Chat = {
   },
   getLeaveMessageList () {
     axios.get(httpUrl.leaveMsgUrl).then(function (response) {
-      if (response.success === true) {
-        Chat.leaveMsgList = response.data
+      if (response.data.success === true) {
+        Chat.leaveMsgList = response.data.data
         Chat.isReplying = false
         Chat.replyingId = -1
         Chat.replyingMsg = ''
       } else {
         Chat.isReplying = true
-        Chat.replyingId = response.data.id
-        Chat.replyingMsg = response.data.msg
+        Chat.replyingId = response.data.data.id
+        Chat.replyingMsg = response.data.data.msg
       }
     })
   },
@@ -214,9 +216,9 @@ var Chat = {
       id: msgId,
       type: 'custom'
     }).then(function (response) {
-      if (response.success === true) {
+      if (response.data.success === true) {
         Chat.isReplying = true
-        Chat.replyingMsg = response.data.replyingMsg
+        Chat.replyingMsg = response.data.data.replyingMsg
       } else {
         Chat.isReplying = false
       }
@@ -227,7 +229,7 @@ var Chat = {
       id: id,
       msg: msg
     }).then(function (response) {
-      if (response.success === true) {
+      if (response.data.success === true) {
         Chat.isReplying = false
         Chat.replyingMsg = ''
         return true
@@ -237,25 +239,31 @@ var Chat = {
     })
   },
   getSelfReply () {
-    axios.get(httpUrl.getSelfQuickReplyUrl).then(function (response) {
-      Chat.selfData = response.data
+    axios.get(this.serverIp + httpUrl.getSelfQuickReplyUrl).then(function (response) {
+      Chat.selfData = response.data.data
     })
   },
   getCompReply () {
-    axios.get(httpUrl.getCompQuickReplyUrl).then(function (response) {
-      Chat.compData = response.data
+    axios.get(this.serverIp + httpUrl.getCompQuickReplyUrl).then(function (response) {
+      Chat.compData = response.data.data
     })
   },
-  setSelfReply () {
-    axios.post(httpUrl.replyMsgUrl, {
-      data: Chat.selfData,
-      type: 'custom'
+  renewReply () {
+    axios.post(this.serverIp + httpUrl.setQuickReplyUrl, {
+      data: Chat.selfData
     }).then(function (response) {
-      if (response.success === true) {
+      if (response.data.success === true) {
         return true
       } else {
         return false
       }
+    })
+  },
+  initData () {
+    axios.get(this.serverIp + '/api/get_profile').then(function (response) {
+      Chat.name = response.data.name
+      Chat.email = response.data.email
+      Chat.imgUrl = this.serverIp + '/' + response.data.imgUrl
     })
   }
 }
