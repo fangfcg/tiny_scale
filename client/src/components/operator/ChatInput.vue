@@ -111,7 +111,7 @@ export default {
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
       newMsg.msg = this.$store.state.chat.serverIp + res
-      this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList.push(newMsg)
+      this.$store.commit('sendMsg', newMsg)
       this.$message({
         message: '图片上传成功',
         type: 'success'
