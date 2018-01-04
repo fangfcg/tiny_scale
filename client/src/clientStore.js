@@ -16,8 +16,8 @@ const mutations = {
   initSock (state) {
     state.chat.initSock()
   },
-  sendMsg (state, msg) {
-    state.chat.sendMsg(msg)
+  sendMsg (state, payload) {
+    state.chat.sendMsg(payload)
   },
   leaveMsg (state, msg) {
     state.chat.leaveMsg(msg)

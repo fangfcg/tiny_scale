@@ -30,7 +30,6 @@ export default {
   },
   methods: {
     msg (id) {
-      console.log(1111)
       console.log(this.data[id].text)
       this.$store.commit('sendMsg', this.data[id].text)
     },
@@ -40,16 +39,18 @@ export default {
       this.name = this.buttonName
       this.buttonName = tmp
       if (this.isSelfReply) {
+        this.$store.commit('getSelfReply')
         this.data = this.$store.state.chat.selfData
       } else {
+        this.$store.commit('getCompReply')
         this.data = this.$store.state.chat.compData
       }
     }
   },
   created () {
     // 对对应数据进行一次更新
-    this.$store.commit('getSelfReply')
-    this.$store.commit('getCompReply')
+    // this.$store.commit('getSelfReply')
+    // this.$store.commit('getCompReply')
   }
 }
 </script>
