@@ -41,7 +41,7 @@
         :visible.sync="selfDialogVisible"
         width="70%"
         :before-close="selfHandleClose">
-        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog()">新建回复</el-button> </div>
+        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog(selfData.length)">新建回复</el-button> </div>
 
             <el-dialog
             title=""
@@ -271,21 +271,25 @@ var setting = {
     },
     delReply (id) {
       this.$store.state.chat.selfData.splice(id, 1)
+      this.renewReply()
     },
     upReply (id) {
       let strFormerUp = this.$store.state.chat.selfData[id - 1].text
       let strNewUp = this.$store.state.chat.selfData[id].text
       this.$store.state.chat.selfData[id].text = strFormerUp
       this.$store.state.chat.selfData[id - 1].text = strNewUp
+      this.renewReply()
     },
     downReply (id) {
       let strFormerDown = this.$store.state.chat.selfData[id + 1].text
       let strNewDown = this.$store.state.chat.selfData[id].text
       this.$store.state.chat.selfData[id].text = strFormerDown
       this.$store.state.chat.selfData[id + 1].text = strNewDown
+      this.renewReply()
     },
     updateReply (id, newMsg) {
       this.$store.state.chat.selfData[id].text = newMsg
+      this.renewReply()
     },
     addDialogClose () {
       this.addDialogVisible = false
@@ -294,9 +298,9 @@ var setting = {
       } else {
         this.$store.state.chat.selfData[this.replyID].text = this.rawText
       }
+      this.renewReply()
     },
-    openAddDialog () {
-      var id = this.$store.state.chat.selfData.length
+    openAddDialog (id) {
       this.replyID = id
       this.addDialogVisible = true
       if (id === this.$store.state.chat.selfData.length) {
@@ -314,6 +318,9 @@ var setting = {
     openSelfDialog () {
       this.$store.commit('getSelfReply')
       this.selfDialogVisible = true
+    },
+    renewReply () {
+      this.$store.commit('renewReply')
     }
   }
 }

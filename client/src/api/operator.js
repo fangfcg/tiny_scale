@@ -248,7 +248,7 @@ var Chat = {
       Chat.compData = response.data.data
     })
   },
-  setSelfReply () {
+  renewReply () {
     axios.post(this.serverIp + httpUrl.setQuickReplyUrl, {
       data: Chat.selfData
     }).then(function (response) {
