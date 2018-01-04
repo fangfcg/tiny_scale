@@ -65,12 +65,11 @@ async function nameCheck(req, res){
  * @param {*} res
  */
 async function profileUpdate(req,res){
-    if(!util.bodyContains(req, 'name', 'pass', 'email')){
+    if(!util.bodyContains(req, 'name', 'email')){
         res.json({success:false});
         return;
     }
     req.user.name = req.body.name;
-    req.user.pass = req.body.pass;
     req.user.email = req.body.email;
     await req.user.save();
     res.json({success:true});
@@ -176,18 +175,46 @@ const storage = multer.diskStorage({
         cb(null, req.user.userType === "admin" ? adminPortraitDir : operatorPortraitDir);
     },
     filename:function(req, file, cb){
-        cb(null, req.user.id);
+        var filename = req.user.id + String(Date.now());
+        req.fileName = filename;
+        cb(null, filename);
     }
 });
+//头像修改设置
 var upload = multer({storage: storage, limits:{fileSize:1000000}}).single("file");
 upload = bluebird.promisify(upload);
 async function uploadPortrait(req, res){
     await upload(req, res);
     var dirName = req.user.userType === "admin" ? config.static.portrait.admin : config.static.portrait.operator;
-    req.user.portrait = path.join(dirName, req.user.id);
+    req.user.portrait = path.join(dirName, req.fileName);
     await req.user.save();
     res.json({success: true, path: req.user.portrait});
 }
+//name email imgUrl
+function getProfile(req, res){
+    res.json({name:req.user.name, email:req.user.email, imgUrl:req.user.portrait});
+}
+var stringGenerator = require('randomstring');
+//聊天文件上传接口
+const chatFileStorage = multer.diskStorage({
+    destination: path.join(__dirname, '../' ,config.static.chat),
+    filename:function(req, file, cb){
+        req.filename = stringGenerator.generate(50) + String(Date.now());
+        cb(null, req.filename);
+   }
+});
+var chatUpload = multer({storage: chatFileStorage, limits:{fileSize:1000000}}).single("file");
+chatUpload = bluebird.promisify(chatUpload);
+async function chatFile(req, res){
+    await chatUpload(req, res);
+    res.json({success:true, path: path.join(config.static.chat,req.filename)});
+}
+
+//name email imgUrl
+function getProfile(req, res){
+    res.json({name:req.user.name, email:req.user.email, imgUrl:req.user.portrait});
+}
+
 
 module.exports.apiInterfaces = [
     {url:'/api/get_session_id', callBack:getSessionId},
@@ -197,5 +224,7 @@ module.exports.apiInterfaces = [
     {url:'/api/find_pass/get_certificate', callBack:getCertificateFindPass, method:'post'},
     {url:'/api/find_pass/certificate', callBack:certificateFindPass, method:'post'},
     {url:'/api/find_pass/new_pass', callBack:newPass, method:'post'},
-    {url:'/api/upload_portrait', callBack:uploadPortrait, method:'post'},
+    {url:'/api/upload_portrait', callBack:uploadPortrait, method:'post', auth:true},
+    {url:'/api/get_profile', callBack:getProfile, auth:true,},
+    {url:'/api/upload_chat_file', callBack:chatFile, method:"post"},
 ];

@@ -14,7 +14,8 @@ async function addQuestion(req, res){
     var question = new model.question({name:req.body.name,
          content:req.body.content,
         similarities:req.body.similarities,
-        answer:req.body.answer});
+        answer:req.body.answer,
+        operatorGroupId:req.user.operatorGroupId});
     //对question的问题和相似问题进行分词
     getCutterCache(question);
     await question.save();
@@ -77,9 +78,9 @@ async function modifyQuestion(req, res){
 function getCutterCache(question){
     var descriptions = question.similarities.concat(question.content);
         var wordBag = new Set();
-        for(var i = 0; i < descriptions.size; ++i){
+        for(var i = 0; i < descriptions.length; ++i){
             cutter.cut(descriptions[i]).forEach(word => {
-                if(word.size > 1){
+                if(word.length > 1){
                     wordBag.add(word);
                 }
             });
@@ -100,10 +101,19 @@ async function setSpecialAnswer(req, res){
         return;
     }
     var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
-    opGroup.sepcialRobotAnswer[req.body.type] = req.body.content;
+    opGroup.specialRobotAnswer[req.body.type] = req.body.content;
     await opGroup.save();
     res.json({success:true});
     return;
+}
+/**
+ * get 方法
+ * @param {*} req 
+ * @param {*} res 
+ */
+async function getSpecialAnswer(req, res){
+    var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
+    res.json({greet:opGroup.specialRobotAnswer.greet, unknown:opGroup.specialRobotAnswer.unknown});
 }
 
 /**
@@ -120,17 +130,17 @@ async function getAutoAnswer(question, groupId){
     //对传入的question进行分词
     var qSet = new Set();
     cutter.cut(question).forEach(val=>{
-        if(val.size > 1)
+        if(val.length > 1)
             qSet.add(val);
     });
     //计算最大Piccard距离
     var dMax = 0, result, intersect = 0;
-    for(let i = 0; i < questionLst.size; ++i){
+    for(let i = 0; i < questionLst.length; ++i){
         questionLst[i].cutterCache.forEach(val =>{
             if(qSet.has(val))
                 ++intersect;
         });
-        var distance = intersect / (qSet.size + questionLst[i].hcutterCache.size - intersect);
+        var distance = intersect / (qSet.size + questionLst[i].cutterCache.length - intersect);
         if(distance > PICCARD_THRESHOLD && distance > dMax){
             dMax = distance;
             result = questionLst[i].answer;
@@ -138,7 +148,7 @@ async function getAutoAnswer(question, groupId){
     }
     if(!dMax){
         //没有高于阈值的相似性答案
-        result = group.sepcialRobotAnswer.unknown;
+        result = group.specialRobotAnswer.unknown;
     }
     return result;
 }
@@ -149,5 +159,6 @@ module.exports.apiInterfaces = [
     {url:'/api/robot/get_question_list', callBack:getQuestions, auth:true, type:'admin'},
     {url:'/api/robot/modify', callBack:modifyQuestion, method:'post', auth:true, type:'admin'},
     {url:'/api/robot/set_special', callBack:setSpecialAnswer, method:'post', auth:true, type:'admin'},
+    {url:'/api/robot/get_special', callBack:getSpecialAnswer, auth:true, type:'admin'}
 ];
 module.exports.getAutoAnswer = getAutoAnswer;

@@ -28,6 +28,7 @@ class operatorControler {
         socket.on('end_service', this._endService.bind(this,socket.user.id));
         socket.on('change_status', this._changeStatus.bind(this, socket.user.id));
         socket.on('cross_serve', this._crossServe.bind(this, socket.user.id));
+        socket.on('disconnect', this._disconnect.bind(this, socket.user.id));
         //设置缓存中客服的状态为working
         util.cache.set(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
         this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
@@ -56,9 +57,12 @@ class operatorControler {
         if(allocated){
             this.socketPool[opId].emit('new_customer', socket.user.id);
             this.socketPool[opId].waitingList.push(socket.user.id);
+            //opId中保留分配的客服的Id，是否分配保留在allocated中
+            this.event.emit('operator_allocated', socket.user.id, allocated, opId, this.socketPool[opId].user);
         }
-        //opId中保留分配的客服的Id，是否分配保留在allocated中
-        this.event.emit('operator_allocated', socket.user.id, allocated, opId, socket.user);
+        else{
+            this.event.emit('operator_allocated', socket.user.id, false);
+        }
     }
     _getNext(operatorId) {
         var socket = this.socketPool[operatorId];
@@ -82,7 +86,9 @@ class operatorControler {
         }
     }
     _operatorMsg(operatorId,customerId, msg) {
-        var socket = this.socketPool[customerId];
+        var socket = this.socketPool[operatorId];
+        msg.content = msg.msg;
+        msg.type = "text";
         chatLogger.newMsg(socket.chattingSet[customerId], msg, "operator");
         this.event.emit('msg', customerId, msg);
     }
@@ -98,7 +104,9 @@ class operatorControler {
         //结束会话
         var chattingCustomers =  Object.keys(socket.chattingSet);
         for(let i = 0; i < chattingCustomers.length; ++i){
-            await chatLogger.finishChat(socket.chattingSet[chattingCustomers[i]]);
+            if(chattingCustomers[i]){
+                await chatLogger.finishChat(socket.chattingSet[chattingCustomers[i]]);
+            }
         }
         //通知所有用户客服socket意外关闭
         this.event.emit('crash', chattingCustomers.concat(socket.waitingList));

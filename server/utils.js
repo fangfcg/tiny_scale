@@ -13,6 +13,8 @@ module.exports.PREFIX_OPERATOR_STATUS = "operator_status";
 module.exports.PREFIX_MESSAGE_OPERATOR = "message_operator";
 module.exports.PREFIX_MESSAGE_LEFT = "message_left";
 module.exports.PREFIX_MESSAGE_ANSWERED = "message_answered";
+module.exports.STAT_SESS_COUNT = "stat_sess_count";
+module.exports.STAT_MSG_COUNT = "stat_msg_count";
 //邮件服务对象配置
 const nodemailer = require('nodemailer');
 const mailConfig = require('./serverConfig.json').mail;

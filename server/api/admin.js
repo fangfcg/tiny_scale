@@ -79,7 +79,7 @@ async function getCertificate(req, res){
         return;
     }
     //寄件成功，将验证码和邮箱保存在缓存中
-    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',req.body.email);
+    await util.cache.setAsync(`certificate:${certificate}`, req.body.email);
     res.json({success:true});
 }
 /**
@@ -89,7 +89,7 @@ async function getCertificate(req, res){
  * 读出验证码之后应该立刻清除
  * 注意一个客服组是在这里被第一次创建的存
  * @param {*} req 
- * @param {*} res 
+ * @param {Express.Response} res 
  */
 async function certificate(req, res){
     if(!util.bodyContains(req, "certificate")){
@@ -97,7 +97,7 @@ async function certificate(req, res){
         return;
     }
     var key = `certificate:${req.body.certificate}`;
-    var email = await util.cache.hgetAsync(key, "email");
+    var email = await util.cache.getAsync(key);
     if(!email){
         res.json({success:false, err:"invalid certificate"});
         return;
@@ -106,8 +106,8 @@ async function certificate(req, res){
     await util.cache.delAsync(key);
     //保存会话信息
     req.session.email = email;
-    res.json({success:true});
     req.session.save();
+    res.json({success:true});
 }
 /**
  * post方法
@@ -122,14 +122,14 @@ async function certificate(req, res){
 const path = require('path');
 const config = require('../serverConfig.json');
 async function createAdmin(req, res){
-    if(!util.bodyContains(req , "name", "pass", "companyName") || req.session.email){
+    if(!util.bodyContains(req , "name", "pass", "companyName") || !req.session.email){
         res.json({success:false});
         return;
     }
     //管理员账号重名检查
     var admin = await model.admin.findOne({name:req.body.name});
     if(admin){
-        req.json({success:false, err:"admin already exists"});
+        res.json({success:false, err:"admin already exists"});
         return;
     }
     var opGroup = new model.operatorGroup({
@@ -148,10 +148,10 @@ async function createAdmin(req, res){
         portrait:path.join(config.static.portrait.admin, "default.jpg")
     });
     await admin.save();
-    res.json({success:true});
     //取消认证状态
     req.session.email = null;
     req.session.save();
+    res.json({success:true});
 }
 /**
  * post方法
@@ -215,6 +215,8 @@ async function setSocketToken(req, res){
         return;
     }
     await util.cache.setAsync(`${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`, opGroup.id);
+    //保存新的token
+    await opGroup.save();
     res.json({success:true});
 }
 /**
@@ -275,8 +277,36 @@ async function getStateList(req, res){
         var tmp = {};
         tmp.id = operatorList[i].id;
         tmp.state = state ? state : 'left';
+        result.push(tmp);
     }
     res.json(result);
+}
+async function getAdminReply(req, res) {
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var result = [];
+    group.quickReply.forEach(val => {
+        result.push({text:val});
+    });
+    res.json({success:true, data:result});
+}
+
+async function updateReply(req, res){
+    if(!util.bodyContains(req, 'data')){
+        res.json({success:false});
+    }
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var replys = [];
+    req.body.data.forEach(val => {
+        replys.push(val.text);
+    });
+    group.quickReply = replys;
+    await group.save();
+    res.json({success:true});
+}
+
+async function getSocketToken(req, res){
+    var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
+    res.json({success: true, token:opGroup.companySocketToken});
 }
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
@@ -297,7 +327,10 @@ module.exports.apiInterfaces = [
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
     {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
+    {url:'/api/admin/get_socket_token', callBack:getSocketToken,auth:true, type:'admin'},
     {url:'/api/admin/message_list', callBack:getMsgList, auth:true, type:'admin'},
     {url:'/api/admin/get_chat_list',callBack:getChatList, auth:true, type:'admin'},
     {url:'/api/admin/get_chat_log',callBack:getChatLog, auth:true, type:'admin'},
+    {url:'/api/common/settings/adminReply', callBack:getAdminReply, auth:true,type:'admin'},
+    {url:'/api/common/settings/renewReply', callBack:updateReply, auth:true, type:'admin', method:'post'},
 ];

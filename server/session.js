@@ -28,7 +28,8 @@ module.exports.configApp = async function(app){
         secret: sessionSecret,
         resave: false,
         name: sessionName,
-        saveUninitialized:false,
+        saveUninitialized:true,
+        cookie:{sameSite:false, httpOnly:false},
         store: store}));
     app.use(function(req, res, next){
         blueBird.promisifyAll(req.session);
@@ -51,6 +52,9 @@ module.exports.getSession = async function(sessionId){
     var sid = req.signedCookies[sessionName];
     //加密的cookie应在signedCookies中
     var s = await store.getAsync(sid);
+    if(!s){
+        return;
+    }
     return new sessionObject(sid, s);
 };
 module.exports.getSessionId = async function(req){

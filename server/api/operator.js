@@ -37,7 +37,7 @@ async function certificate(req, res){
 const path = require('path');
 const config = require('../serverConfig.json');
 async function createOperator(req, res){
-    if(!util.bodyContains(req, 'name', 'pass', 'email')){
+    if(!util.bodyContains(req, 'name', 'pass', )){
         res.json({success:false});
         return;
     }
@@ -140,6 +140,39 @@ async function answerMsg(req, res){
     res.json({success:true});
 }
 
+/**
+ * 快速回复处理函数
+ */
+function getOperatorReply(req, res){
+    var result = [];
+    req.user.quickReply.forEach(val => {
+        result.push({text:val});
+    });
+    res.json({data:result, success:true});
+}
+
+async function getGroupReply(req, res){
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var result = [];
+    group.quickReply.forEach(val => {
+        result.push({text:val});
+    });
+    res.json({success:true, data:result});
+}
+
+async function updateReply(req, res){
+    if(!util.bodyContains(req, 'data')){
+        res.json({success:false});
+    }
+    var result = [];
+    req.body.data.forEach(val => {
+        result.push(val.text);
+    });
+    req.user.quickReply = result;
+    await req.user.save();
+    res.json({success:true});
+}
+
 module.exports.apiInterfaces = [
     {url:'/api/operator/signup/certificate', callBack:certificate, method:'post'},
     {url:'/api/operator/signup/create_operator',callBack:createOperator, method:'post'},
@@ -147,4 +180,7 @@ module.exports.apiInterfaces = [
     {url:'/api/operator/get_msg_lst', callBack:getMsgList, auth:true},
     {url:'/api/operator/get_msg',callBack:getMsg, auth:true, method:'post'},
     {url:'/api/operator/answer_msg', callBack:answerMsg, auth:true, method:'post'},
+    {url:'/api/operator/get_selfreply', callBack:getOperatorReply, auth:true},
+    {url:'/api/operator/get_compreply', callBack:getGroupReply, auth:true},
+    {url:'/api/operator/set_quickreply', callBack:updateReply, auth:true, method:'post'},
 ];
