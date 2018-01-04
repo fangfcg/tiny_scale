@@ -65,7 +65,7 @@ var Invite = {
       var response = res.data
       if (response.success === true) {
         for (var j = 0; j < this.choosenNum; j++) {
-          this.codeArray.push({ index: j, code: j * 100 })
+          this.codeArray.push({ index: j, code: response.certificates[j] })
         }
         this.getSuccess = 'success'
       } else {

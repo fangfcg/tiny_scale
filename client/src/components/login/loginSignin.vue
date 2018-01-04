@@ -66,7 +66,7 @@
         <div v-else-if="status === 4">
           <div class="success-text">注册成功!</div>
           <template class="success-button">
-            <router-link to="/signin">
+            <router-link to="/login">
               <el-button>返回登录界面</el-button>
             </router-link>
           </template>

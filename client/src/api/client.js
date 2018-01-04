@@ -40,11 +40,12 @@ let Chat = {
       time: Date.now()
     }
   },
-  initSock () {
+  async initSock () {
     var session
-    axios.get(urlClient + '/api/get_session_id').then(function (response) {
-      session = response.session
-    })
+    let res = await axios.get(urlClient + '/api/get_session_id')
+    let response = res.data
+    session = response.session
+
     this.socket = io(serverAddress, {
       query: {
         session: session,

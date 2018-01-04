@@ -57,7 +57,7 @@
 
         <div v-else-if="status === 4">
           <div>密码修改成功!</div>
-          <router-link to="/signin">
+          <router-link to="/login">
             <el-button>返回登录界面</el-button>
           </router-link>
         </div>

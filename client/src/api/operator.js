@@ -80,15 +80,15 @@ var Chat = {
       }
     }
   },
-  initSock: function () {
+  initSock: async function () {
     var session
-    axios.get(serverIp + '/api/get_session_id').then(function (response) {
-      session = response.data.session
-    })
+    let res = await axios.get(serverIp + '/api/get_session_id')
+    let response = res.data
+    session = response.session
     this.socket = io(serverAddress, {
       query: {
         session: session,
-        type: 'client'
+        type: 'operator'
       }
     })
     this.socket.on('new_customer', function () {

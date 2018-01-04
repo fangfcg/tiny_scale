@@ -31,7 +31,8 @@
         action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
-        :show-file-list="false">
+        :show-file-list="false"
+        :with-credentials="true">
         <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
       </el-upload>
       <el-dialog title="收货地址" :visible.sync="dialogTableVisible">

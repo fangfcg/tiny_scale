@@ -9,7 +9,8 @@
         :show-file-list="false"
         :on-preview="handlePictureCardPreview"
         :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+        :with-credentials="true">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
@@ -40,7 +41,7 @@
         :visible.sync="selfDialogVisible"
         width="70%"
         :before-close="selfHandleClose">
-        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog(selfData.length)">新建回复</el-button> </div>
+        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog()">新建回复</el-button> </div>
 
             <el-dialog
             title=""
@@ -112,6 +113,16 @@
 
 <script>
 var setting = {
+  async created () {
+    let res = await this.$http.get(this.serverIp + '/api/get_profile')
+    let response = res.data
+    this.inputName = response.name
+    this.inputEmail = response.email
+    this.imageUrl = this.serverIp + '/' + response.imgUrl
+    this.$store.state.chat.name = this.inputName
+    this.$store.state.chat.email = this.inputEmail
+    this.$store.state.chat.imgUrl = this.imageUrl
+  },
   data () {
     return {
       imageUrl: this.$store.state.chat.imgUrl,
@@ -147,7 +158,7 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      this.imageUrl = this.$store.state.chat.serverIp + '/' + res
+      this.imageUrl = this.$store.state.chat.serverIp + '/' + res.path
       this.$store.state.chat.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
@@ -182,7 +193,8 @@ var setting = {
       this.nameLoading = true
       let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
-        name: this.inputName
+        name: this.inputName,
+        email: this.inputEmail
       })
       let response = res.data
       if (response.success === true) {
@@ -224,6 +236,7 @@ var setting = {
       this.emailLoading = true
       let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
         type: 'operator',
+        name: this.inputName,
         email: this.inputEmail
       })
       let response = res.data
@@ -282,7 +295,8 @@ var setting = {
         this.$store.state.chat.selfData[this.replyID].text = this.rawText
       }
     },
-    openAddDialog (id) {
+    openAddDialog () {
+      var id = this.$store.state.chat.selfData.length
       this.replyID = id
       this.addDialogVisible = true
       if (id === this.$store.state.chat.selfData.length) {

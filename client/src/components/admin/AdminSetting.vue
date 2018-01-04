@@ -9,7 +9,8 @@
         :show-file-list="false"
         :on-preview="handlePictureCardPreview"
         :on-success="handleAvatarSuccess"
-        :before-upload="beforeAvatarUpload">
+        :before-upload="beforeAvatarUpload"
+        :with-credentials="true">
         <img v-if="imageUrl" :src="imageUrl" class="avatar">
         <i v-else class="el-icon-plus avatar-uploader-icon"></i>
       </el-upload>
@@ -135,7 +136,9 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      this.imageUrl = this.$store.state.admin.serverIp + '/' + res
+      console.log(this.imageUrl)
+      this.imageUrl = this.$store.state.admin.serverIp + '/' + res.path
+      console.log(this.imageUrl)
       this.$store.state.admin.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
