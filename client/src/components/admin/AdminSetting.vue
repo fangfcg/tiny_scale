@@ -35,6 +35,16 @@
     <el-button @click="emailModify">修改</el-button>
     <el-button :disabled="emailButtonFlag" @click="emailSubmit" :loading="emailLoading">提交</el-button>
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
+
+    <span class="main-text">token设置</span><br>
+      <el-input
+        class="token-input"
+        placeholder="请输入token"
+        v-model="inputToken">
+      </el-input>
+      <el-button @click="tokenSubmit">提交</el-button>
+
+    <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <span class="main-text">管理员快捷回复设置 <el-button style="margin-left:100px" @click="getAdminReply()">设置</el-button></span><br>
     <el-dialog
         title="快捷回复设置"
@@ -111,6 +121,7 @@ var setting = {
       imageUrl: this.$store.state.admin.imgUrl,
       inputName: this.$store.state.admin.name,
       inputEmail: this.$store.state.admin.email,
+      inputToken: '',
       nameInputFlag: true,
       emailInputFlag: true,
       nameButtonFlag: true,
@@ -238,6 +249,15 @@ var setting = {
           type: 'fail'
         })
       }
+    },
+    tokenSubmit () {
+      this.$http.post(this.serverIp + '/api/admin/set_socket_token', {
+        token: this.inputToken
+      })
+      this.$message({
+        message: 'token修改成功',
+        type: 'success'
+      })
     },
     addHandleClose () {
       this.addDialogVisible = false
@@ -377,7 +397,7 @@ export default setting
     height: 178px;
     display: block;
   }
-  .name-input, .email-input {
+  .name-input, .email-input, .token-input {
     width:200px;
     margin-top:20px;
     margin-right:40px;

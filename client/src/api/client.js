@@ -5,27 +5,10 @@ axios.defaults.withCredentials = true
 let msgId = 0
 let serverAddress = urlClient
 let Chat = {
-  msgList: [{
-    type: 1,
-    isPicture: false,
-    msg: '123',
-    name: null,
-    key: 0,
-    imgUrl: null,
-    time: Date.now()
-  },
-  {
-    type: 0,
-    isPicture: false,
-    msg: '123',
-    name: null,
-    key: 0,
-    imgUrl: null,
-    time: Date.now()
-  }],
+  msgList: [],
   socket: null,
   imgUrl: null,
-  robotUrl: null,
+  robotUrl: '/static/robot.jpg',
   operatorName: null,
   serverIp: serverIp,
   status: 0, // 0: not call. 1: calling, 2: serving 3:leavingMessage 4:rating
@@ -70,12 +53,13 @@ let Chat = {
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
+      console.log(data)
       if (!data.allocated) {
         Chat.status = 3
         sysmsg.msg = '请求客服失败，如需重试，请刷新；您现在可以留言，直接在下方编辑点击留言发送即可'
         Chat.msgList.push(sysmsg)
       } else {
-        Chat.imgUrl = data.portrait
+        Chat.imgUrl = Chat.serverIp + '/' + data.portrait
         Chat.operatorName = data.name
       }
     })
@@ -91,6 +75,7 @@ let Chat = {
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
       if (Chat.status === 2) {
+        console.log(Chat.imgUrl)
         operatorMsg.imgUrl = Chat.imgUrl
       } else {
         operatorMsg.imgUrl = Chat.robotUrl
