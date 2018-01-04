@@ -38,7 +38,7 @@
       <span class="operator-sub" @click="callService()">人工客服</span>
       <span class="message-sub" @click="leaveMessage(msg)">留言</span>
       <el-upload
-        action="uploadImageUrl"
+        :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
         :show-file-list="false"
@@ -62,7 +62,7 @@ export default {
   },
   computed: {
     uploadImageUrl () {
-      return this.$store.state.chat.urlClient + '/clientimage'
+      return this.$store.state.chat.serverIp + '/api/upload_chat_file'
     }
   },
   ready () {
@@ -122,7 +122,7 @@ export default {
     uploadImgSuccess (res, file) {
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
-      newMsg.msg = this.$store.state.chat.serverIp + res // to be done
+      newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path // to be done
       this.$store.state.chat.msgList.push(newMsg)
       this.$message({
         message: '图片上传成功',

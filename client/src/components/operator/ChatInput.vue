@@ -28,7 +28,7 @@
       <span class="operator-sub" @click="finishService()">结束</span>
       <span class="transfer-sub" @click="transferCommand">转接</span>
       <el-upload
-        action="uploadImageUrl"
+        :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
         :show-file-list="false"
@@ -68,6 +68,9 @@ export default {
   computed: {
     serverIp () {
       return this.$store.state.chat.serverIp
+    },
+    uploadImageUrl () {
+      return this.$store.state.chat.serverIp + '/api/upload_chat_file'
     }
   },
   ready () {
@@ -110,7 +113,7 @@ export default {
     uploadImgSuccess (res, file) {
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
-      newMsg.msg = this.$store.state.chat.serverIp + res
+      newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path
       this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList.push(newMsg)
       this.$message({
         message: '图片上传成功',

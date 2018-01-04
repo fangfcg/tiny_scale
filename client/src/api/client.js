@@ -74,6 +74,7 @@ let Chat = {
       let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
+      // operatorMsg.isPicture = inputMsgObj.isPicture
       if (Chat.status === 2) {
         console.log(Chat.imgUrl)
         operatorMsg.imgUrl = Chat.imgUrl

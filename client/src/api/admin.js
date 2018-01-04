@@ -28,7 +28,7 @@ var adminobj = {
       password: '123456',
       type: 'admin'
     }).then(function () {
-      axios.get(this.serverIp + httpUrl.groupInfoUrl, {
+      axios.get(adminobj.serverIp + httpUrl.groupInfoUrl, {
         params: {
           id: adminobj.adminId,
           dataType: null
@@ -89,7 +89,7 @@ var adminobj = {
     axios.get(this.serverIp + '/api/get_profile').then(function (response) {
       adminobj.name = response.name
       adminobj.email = response.email
-      adminobj.imgUrl = this.serverIp + '/' + response.imgUrl
+      adminobj.imgUrl = adminobj.serverIp + '/' + response.imgUrl
     })
   }
 }
