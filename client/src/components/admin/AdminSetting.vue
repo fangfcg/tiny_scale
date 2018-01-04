@@ -41,10 +41,10 @@
       class="token-input"
       placeholder="请输入token"
       v-model="inputToken"
-      :disabled="tokenFLag">
+      :disabled="tokenFlag">
     </el-input>
     <el-button @click="tokenModify">修改</el-button>
-    <el-button :disabled="toknFlag" @click="tokenSubmit" :loading="tokenLoading">提交</el-button>
+    <el-button :disabled="tokenFlag" @click="tokenSubmit">提交</el-button>
 
 
     <hr width=70% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
