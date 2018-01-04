@@ -51,7 +51,6 @@
 export default {
   created () {
     this.$store.commit('initSock')
-    // this.$store.commit('initData')
   },
   data () {
     return {
