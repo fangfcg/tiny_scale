@@ -41,7 +41,7 @@
         :visible.sync="selfDialogVisible"
         width="70%"
         :before-close="selfHandleClose">
-        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog()">新建回复</el-button> </div>
+        <div style="text-align: center"> <el-button class="small-elbutton" @click="openAddDialog(selfData.length)">新建回复</el-button> </div>
 
             <el-dialog
             title=""
@@ -300,8 +300,7 @@ var setting = {
       }
       this.renewReply()
     },
-    openAddDialog () {
-      var id = this.$store.state.chat.selfData.length
+    openAddDialog (id) {
       this.replyID = id
       this.addDialogVisible = true
       if (id === this.$store.state.chat.selfData.length) {
