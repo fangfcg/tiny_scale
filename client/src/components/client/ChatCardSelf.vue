@@ -8,7 +8,8 @@
     <el-dialog
       title="图片（原图大小）"
       :visible.sync="dialogVisible"
-      :before-close="handleClose">
+      :before-close="handleClose"
+      :width="calc">
       <img :src="msg">
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -22,7 +23,8 @@
 export default {
   data () {
     return {
-      dialogVisible: false
+      dialogVisible: false,
+      calc: ''
       // note: changing this line won't causes changes
       // with hot-reload because the reloaded component
       // preserves its current state and we are modifying
@@ -35,7 +37,16 @@ export default {
     }
   },
   mounted () {
-    this.$el.scrollIntoView()
+    if (this.isPicture === true) {
+      var img = new Image()
+      img.src = this.msg
+      let that = this
+      img.onload = function () {
+        let str = (img.width + 40).toString()
+        that.calc = str + 'px'
+      }
+    }
+    // this.$el.scrollIntoView()
   },
   props: ['msg', 'isPicture']
 }

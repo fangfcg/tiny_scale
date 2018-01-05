@@ -82,7 +82,7 @@ var Chat = {
   },
   initSock: async function () {
     var session
-    let res = await axios.get(serverIp + '/api/get_session_id')
+    let res = await axios.get(serverIp + `/api/get_session_id/${Date.now()}`)
     let response = res.data
     session = response.session
     this.socket = io(serverAddress, {
@@ -199,53 +199,60 @@ var Chat = {
       this.currentUser = this.userList[0].userid
     }
   },
-  getLeaveMessageList () {
-    axios.get(httpUrl.leaveMsgUrl).then(function (response) {
-      if (response.data.success === true) {
-        Chat.leaveMsgList = response.data.data
-        Chat.isReplying = false
-        Chat.replyingId = -1
-        Chat.replyingMsg = ''
-      } else {
-        Chat.isReplying = true
-        Chat.replyingId = response.data.data.id
-        Chat.replyingMsg = response.data.data.msg
-      }
-    })
+  async getLeaveMessageList () {
+    var response = await axios.get(this.serverIp + httpUrl.leaveMsgUrl)
+    console.log('Successed')
+    console.log(response)
+    if (response.data.success === true) {
+      Chat.leaveMsgList = response.data.msg
+      Chat.isReplying = false
+      Chat.replyingId = -1
+      Chat.replyingMsg = ''
+    } else {
+      Chat.leaveMsgList = []
+      Chat.isReplying = true
+      Chat.replyingId = response.data.msg.id
+      Chat.replyingMsg = response.data.msg.content
+    }
   },
-  customGetLeaveMsg (msgId) {
-    axios.post(httpUrl.getLeaveMsgUrl, {
-      id: msgId,
-      type: 'custom'
-    }).then(function (response) {
-      if (response.data.success === true) {
-        Chat.isReplying = true
-        Chat.replyingMsg = response.data.data.replyingMsg
-      } else {
-        Chat.isReplying = false
-      }
-    })
+  async customGetLeaveMsg (msgId) {
+    // console.log('into the funciton')
+    // console.log(msgId)
+    var response = await axios.post(this.serverIp + httpUrl.getLeaveMsgUrl, {id: msgId})
+    if (response.data.success === true) {
+      Chat.isReplying = true
+      Chat.replyingId = msgId
+      Chat.replyingMsg = response.data.msg.content
+      // console.log('true')
+    } else {
+      Chat.isReplying = false
+      Chat.replyingId = -1
+      Chat.replyingMsg = ''
+      // console.log('false')
+    }
   },
-  customReplyMsg (msg, id) {
-    axios.post(httpUrl.replyMsgUrl, {
-      id: id,
-      msg: msg
-    }).then(function (response) {
-      if (response.data.success === true) {
-        Chat.isReplying = false
-        Chat.replyingMsg = ''
-        return true
-      } else {
-        return false
-      }
-    })
+  async customReplyMsg (msg) {
+    var response = await axios.post(this.serverIp + httpUrl.replyMsgUrl, {answer: msg})
+    if (response.data.success === true) {
+      Chat.isReplying = false
+      Chat.replyingMsg = ''
+      return true
+    } else {
+      return false
+    }
   },
-  getSelfReply () {
-    axios.get(this.serverIp + httpUrl.getSelfQuickReplyUrl).then(function (response) {
+  async getSelfReply () {
+    var response = await axios.get(this.serverIp + httpUrl.getSelfQuickReplyUrl)
+    this.selfData = response.data.data
+    console.log(this.selfData)
+    console.log('in getSelfReply')
+    /*
+    .then(function (response) {
       Chat.selfData = response.data.data
     })
+    */
   },
-  getCompReply () {
+  async getCompReply () {
     axios.get(this.serverIp + httpUrl.getCompQuickReplyUrl).then(function (response) {
       Chat.compData = response.data.data
     })

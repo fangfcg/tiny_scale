@@ -23,11 +23,11 @@
         </el-table-column>
         <el-table-column
         label="ID"
-        prop="id">
+        prop="customerId">
         </el-table-column>
         <el-table-column
         label="时间"
-        prop="time">
+        prop="leftTime">
         </el-table-column>
         <el-table-column
             label="留言问题（前10字）">
@@ -38,7 +38,7 @@
         <el-table-column
             label="操作">
             <template slot-scope="scope">
-              <el-button type="danger" @click="getReply(scope.row.id, scope.row.content)">接取</el-button>
+              <el-button type="danger" @click="getReply(scope.row.id)">接取</el-button>
             </template>
         </el-table-column>
       </el-table>
@@ -88,22 +88,32 @@ export default {
         return msg.substring(0, 10) + '...'
       }
     },
-    getReply: function (id) {
+    async getReply (arrid) {
       //  将对应的状态修改发到后端，修改对应的ID的回答情况，并且修改对应的客服的状态
-      this.$store.commit('customGetLeaveMsg', id)
-      if (this.$store.state.chat.isReplying === true) {
+      // console.log('arridis:' + arrid)
+      var response = await this.$http.post(this.$store.state.chat.serverIp + '/api/operator/get_left_msg', {id: arrid})
+      if (response.data.success === true) {
+        this.$store.state.chat.isReplying = true
+        this.$store.state.chat.replyingId = arrid
+        this.$store.state.chat.replyingMsg = response.data.msg.content
         this.$message({
           message: '接取留言成功！',
           type: 'success'
         })
+        // this.init()
       } else {
+        this.$store.state.chat.isReplying = false
+        this.$store.state.chat.replyingId = -1
+        this.$store.state.chat.replyingMsg = ''
         this.$message.error('这条留言已经被其他客服抢先回复，请尝试别的留言吧！')
         this.init() // 刷新当前的页面
       }
     },
-    replyEnd: function () {
-      //  将对应的修改信息发到后端，
-      if (this.$store.commit('customReplyMsg', this.replyText, this.$store.state.chat.replyingId) === true) {
+    async replyEnd () {
+      var response = await this.$http.post(this.$store.state.chat.serverIp + '/api/operator/answer_msg', {answer: this.replyText})
+      if (response.data.success === true) {
+        this.$store.state.chat.isReplying = false
+        this.$store.state.chat.replyingMsg = ''
         this.$message({
           message: '留言为' + this.replyText + ',回复留言成功！',
           type: 'success'
@@ -113,6 +123,18 @@ export default {
       } else {
         this.$message.error('回复留言失败！')
       }
+      //  将对应的修改信息发到后端，
+      /* if (this.$store.commit('customReplyMsg', this.replyText) === true) {
+        this.$message({
+          message: '留言为' + this.replyText + ',回复留言成功！',
+          type: 'success'
+        })
+        this.replyText = ''
+        this.init()
+      } else {
+        this.$message.error('回复留言失败！')
+      }
+      */
     }
   }
 }
