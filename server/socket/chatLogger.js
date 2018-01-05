@@ -22,23 +22,34 @@ function createChat(customerId, operatorId, operatorGroupId){
  * 从内存中删除该id指向的Chat对象
  */
 function withDrawChat(chatId){
-    chatLogPool[chatId] = null;
+    delete chatLogPool[chatId];
 }
 /**
  * 有一方发送了新消息，msg为{type, content}类型的对象，senderType为"customer"或者"operator"
  */
 function newMsg(chatId, msg, senderType){
-    chatLogPool[chatId].contents.push({msg:msg,sender:senderType});
+    if(chatLogPool[chatId]){
+        //对传入的消息对象进行转换
+        var msgObj = {};
+        msgObj.content = msg.msg;
+        msgObj.type = msg.isPicture ? "picture" : "text";
+        msgObj.time = msg.time;
+        chatLogPool[chatId].contents.push({msg:msgObj,sender:senderType});
+    }
 }
 /**
  * 插入
  */
 function commentChat(chatId, comment){
-    chatLogPool[chatId].comment = comment;
-    chatLogPool[chatId].commented = true;
+    if(chatLogPool[chatId]){
+        chatLogPool[chatId].comment = comment;
+        chatLogPool[chatId].commented = true;
+    }
 }
 
 async function finishChat (chatId, options) {
+    if(!chatLogPool[chatId])
+        return;
     var chat = chatLogPool[chatId];
     options = options || {};
     chat.endTime = Date.now();
@@ -47,6 +58,7 @@ async function finishChat (chatId, options) {
         chat.crosserId = options.crosserId;
     }
     await chatLogPool[chatId].save();
+    delete chatLogPool[chatId];
 }
 
 module.exports.createChat = createChat;

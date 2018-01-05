@@ -227,11 +227,16 @@ async function setSocketToken(req, res){
 async function getMsgList(req, res){
     var msgList = await model.message.find({operatorGroupId:req.user.operatorGroupId});
     var result = [];
-    msgList.forEach(val => {
+    for(var i = 0; i < msgList.length; ++i){
+        var val = msgList[i];
         var tmp = util.doc2Object(val);
+        tmp.id = val.id;
+        var operator = await model.operator.findById(val.answerOperatorId);
+        operator = operator || {};
+        tmp.operatorName = operator.name;
         result.push(tmp);
-    });
-    res.json(result);
+    }
+   res.json(result);
 }
 /**
  * get方法，返回该客服组下所有的聊天记录，附带所有客服id对应表项中的姓名
@@ -243,7 +248,8 @@ async function getChatList(req, res){
     var result = [];
     for(let i = 0; i < chatList.length; ++i){
         var tmp = util.doc2Object(chatList[i]);
-        tmp.contents = null;
+        delete tmp.contents;
+        tmp.id = chatList[i].id;
         tmp.operatorName = await model.operator.findById(tmp.operatorId).name;
         if(tmp.crossed){
             tmp.crosserName = await model.operator.findById(tmp.crosserId);
@@ -258,12 +264,14 @@ async function getChatList(req, res){
  * @param {*} res 
  */
 async function getChatLog(req, res){
+    req.body = req.query;
     if(!util.bodyContains(req, 'id')){
         res.json({success:false});
         return;
     }
     var chatLog = await model.chatLog.findById(req.body.id);
-    if(!chatLog || chatLog.operatorGroupId !== req.user.operatorGroupId){
+    var opGroup1 = String(chatLog.operatorGroupId), opGroup2 = String(req.user.operatorGroupId);
+    if(!chatLog || opGroup1 !== opGroup2){
         res.json({success:false});
         return;
     }
@@ -284,9 +292,11 @@ async function getStateList(req, res){
 async function getAdminReply(req, res) {
     var group = await model.operatorGroup.findById(req.user.operatorGroupId);
     var result = [];
-    group.quickReply.forEach(val => {
-        result.push({text:val});
-    });
+    if(group.quickReply){
+        group.quickReply.forEach(val => {
+            result.push({text:val});
+        });
+    }
     res.json({success:true, data:result});
 }
 
@@ -319,18 +329,18 @@ async function clearCertificate(){
 module.exports.clearCertificateCount = clearCertificate;
 
 module.exports.apiInterfaces = [
-    {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
-    {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
-    {url:'/api/admin/operator_state_list',callBack:getStateList, auth:true, type:'admin'},
-    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin', method:'post'},
+    {url:'/api/admin/group_info*', callBack:getGroupInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_info*', callBack:getOperatorInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_state_list*',callBack:getStateList, auth:true, type:'admin'},
+    {url:'/api/admin/signup/get_certificate*', callBack:getCertificate, type:'admin', method:'post'},
     {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
     {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
-    {url:'/api/admin/get_socket_token', callBack:getSocketToken,auth:true, type:'admin'},
-    {url:'/api/admin/message_list', callBack:getMsgList, auth:true, type:'admin'},
-    {url:'/api/admin/get_chat_list',callBack:getChatList, auth:true, type:'admin'},
-    {url:'/api/admin/get_chat_log',callBack:getChatLog, auth:true, type:'admin'},
+    {url:'/api/admin/get_socket_token*', callBack:getSocketToken,auth:true, type:'admin'},
+    {url:'/api/admin/message_lst*', callBack:getMsgList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_list*',callBack:getChatList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_log*',callBack:getChatLog, auth:true, type:'admin'},
     {url:'/api/common/settings/adminReply', callBack:getAdminReply, auth:true,type:'admin'},
     {url:'/api/common/settings/renewReply', callBack:updateReply, auth:true, type:'admin', method:'post'},
 ];

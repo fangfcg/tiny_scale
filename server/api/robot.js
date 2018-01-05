@@ -140,7 +140,10 @@ async function getAutoAnswer(question, groupId){
             if(qSet.has(val))
                 ++intersect;
         });
-        var distance = intersect / (qSet.size + questionLst[i].cutterCache.length - intersect);
+        var union = qSet.size + questionLst[i].cutterCache.length - intersect;
+        if(!union)
+            continue;
+        var distance = intersect / union;
         if(distance > PICCARD_THRESHOLD && distance > dMax){
             dMax = distance;
             result = questionLst[i].answer;

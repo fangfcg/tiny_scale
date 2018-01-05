@@ -71,7 +71,7 @@ async function getColleagues(req, res){
     for(let i = 0; i < operators.length; ++i){
         var tmp = {};
         var state = await util.cache.getAsync(`${util.PREFIX_OPERATOR_STATUS}:${operators[i].id}`);
-        if(!status){
+        if(!state){
             tmp.state = "left";
         }
         else {
@@ -94,9 +94,15 @@ async function getMsgList(req, res){
         return;
     }
     //客服未处理任何消息
-    var msgList = model.message.find({operatorGroupId:req.user.operatorGroupId,
-    answerState:model.message.STATE_UNANSERED});
-    res.json({success:true, msgList});
+    var msgList = await model.message.find({operatorGroupId:req.user.operatorGroupId,
+    answerState:model.message.STATE_UNANSWERED});
+    var result = [];
+    msgList.forEach(val =>{
+        var tmp = util.doc2Object(val);
+        tmp.id = val.id;
+        result.push(tmp);
+    });
+    res.json({success:true, msg:result});
 }
 /**
  * post方法，传入参数为{id}，检查该留言是否已经被回答，如果是则返回true，否则false
@@ -107,15 +113,17 @@ async function getMsg(req, res){
     if(!util.bodyContains(req, "id")){
         res.json({success:false, err:"invalid parameter"});
     }
-    var msg = await model.message.findOneAndUpdate({_id:req.body.id, answerState:model.message.STATE_UNANSERED},
+    var msg = await model.message.findOneAndUpdate({_id:req.body.id, answerState:model.message.STATE_UNANSWERED},
             {answerState:model.message.STATE_ANSWERING, answerOperatorId:req.user.id},{new:true});
     if(!msg){
         res.json({success:false});
         return;
     }
+    //缓存中删掉客户留言未处理的记录，避免删除当前正在处理的留言
+    await util.cache.delAsync(`${util.PREFIX_MESSAGE_LEFT}:${msg.customerId}`);
     //在缓存中记录客服正在处理该消息
     await util.cache.setAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`, msg.id);
-    res.json({success:true});
+    res.json({success:true, msg:util.doc2Object(msg)});
 }
 /**
  * 参数格式：{id:,content:}
@@ -124,19 +132,24 @@ async function getMsg(req, res){
  */
 async function answerMsg(req, res){
     var msgId = await util.cache.getAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
+    if(!util.bodyContains(req, 'answer')){
+        res.json({success:false});
+        return;
+    }
     if(!msgId){
         res.json({success:false});
         return;
     }
     var msg = await model.message.findById(msgId);
-    msg.answer = req.body.content;
+    msg.answer = req.body.answer;
     msg.answerState = model.message.STATE_ANSWERED;
     msg.answerTime = Date.now();
     await msg.save();
     //该客服可以继续回复下一条留言
     await util.cache.delAsync(`${util.PREFIX_MESSAGE_OPERATOR}:${req.user.id}`);
     //在缓存中记录该留言已经被回答
-    await util.cache.setAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${msg.customerId}`);
+    var msgId = String(msg.id);
+    await util.cache.setAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${msg.customerId}`, msgId);
     res.json({success:true});
 }
 
@@ -145,18 +158,22 @@ async function answerMsg(req, res){
  */
 function getOperatorReply(req, res){
     var result = [];
-    req.user.quickReply.forEach(val => {
-        result.push({text:val});
-    });
+    if(req.user.quickReply){
+        req.user.quickReply.forEach(val => {
+            result.push({text:val});
+        });
+    }
     res.json({data:result, success:true});
 }
 
 async function getGroupReply(req, res){
     var group = await model.operatorGroup.findById(req.user.operatorGroupId);
     var result = [];
-    group.quickReply.forEach(val => {
-        result.push({text:val});
-    });
+    if(group.quickReply){
+        group.quickReply.forEach(val => {
+            result.push({text:val});
+        });
+    }
     res.json({success:true, data:result});
 }
 
@@ -177,8 +194,8 @@ module.exports.apiInterfaces = [
     {url:'/api/operator/signup/certificate', callBack:certificate, method:'post'},
     {url:'/api/operator/signup/create_operator',callBack:createOperator, method:'post'},
     {url:'/api/operator/get_colleagues', callBack:getColleagues, auth:true},
-    {url:'/api/operator/get_msg_lst', callBack:getMsgList, auth:true},
-    {url:'/api/operator/get_msg',callBack:getMsg, auth:true, method:'post'},
+    {url:'/api/operator/get_left_msg_lst', callBack:getMsgList, auth:true},
+    {url:'/api/operator/get_left_msg',callBack:getMsg, auth:true, method:'post'},
     {url:'/api/operator/answer_msg', callBack:answerMsg, auth:true, method:'post'},
     {url:'/api/operator/get_selfreply', callBack:getOperatorReply, auth:true},
     {url:'/api/operator/get_compreply', callBack:getGroupReply, auth:true},

@@ -1,6 +1,13 @@
 const session = require('../session');
 const util = require('../utils');
 const model = require('../models/models').models;
+
+/**
+ * socket中间件设置
+ * 通过中间件添加的socket属性包括:
+ * session, user, opGroup
+ */
+
 /**
  * 接入socket时query的参数：
  * {token:如果类型为customer则需要token进行接入公司的验证, 
@@ -88,7 +95,9 @@ async function addUser(socket, next){
         socket.user = op;
         socket.userType = "operator";
     }
+    //对必要的socket域进行设置
     socket.session.data.socketAuthed = true;
+    socket.session.data.serviceRecord = socket.session.data.sessionRecord || {};
     await socket.session.save();
     socket.on("disconnect", async function(){
         socket.session.data.socketAuthed = false;

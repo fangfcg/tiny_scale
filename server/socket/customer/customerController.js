@@ -18,7 +18,7 @@ class customerController {
         operatorEvent.on('msg', this._operatorMsg.bind(this));
         operatorEvent.on('end_service', this._endService.bind(this));
         operatorEvent.on('crash', this._crash.bind(this));
-        operatorEvent.on('cross_served', this._crossServed.bind(this));
+        operatorEvent.on('cross_serve', this._crossServed.bind(this));
     }
     async newSocket(socket) {
         this.socketPool[socket.user.id] = socket;
@@ -36,13 +36,20 @@ class customerController {
         if(answerId){
             //用户的留言已经被回答
             var msg = await model.message.findById(answerId);
-            socket.session.serviceRecord[socket.opGroup] = msg.operatorId;
-            socket.emit('message_answered', {answer:msg.answer, content:msg.content});
+            var operator = await model.operator.findById(msg.answerOperatorId);
+            socket.session.data.serviceRecord[socket.opGroup] = operator.id;
+            await util.cache.delAsync(`${util.PREFIX_MESSAGE_ANSWERED}:${socket.user.id}`);
+            socket.emit('message_answered', {answer:msg.answer, 
+                content:msg.content,
+                name:operator.name,
+                imgUrl:operator.portrait});
         }
         else{
             var opGroup = await model.operatorGroup.findById(socket.opGroup);
             socket.emit('msg', {msg:opGroup.specialRobotAnswer.greet,isPic:false});
         }
+        //会话量统计更新
+        util.cache.incr(`${util.STAT_SESS_GROUP}:${socket.opGroup}`);
     }
     _serviceRequest(customerId) {
         this.event.emit('allocate_operator', this.socketPool[customerId]);
@@ -63,8 +70,10 @@ class customerController {
             socket.chatId = chatId;
             socket.servingState = SERVING_STATUS_CHATTING;
             socket.emit('operator_connected');
-            //非阻塞运行保证速度
-            util.cache.incr(`${util.STAT_SESS_COUNT}:${socket.opGroup}`);
+            //人工服务统计数据更新
+            util.cache.incr(`${util.STAT_MANUAL_GROUP}:${socket.opGroup}`);
+            //相应的客服的会话数据更新
+            util.cache.incr(`${util.STAT_SESS_OPERATOR}:${socket.serviceOperatorId}`);
         }
         else{
             //用户已经断开连接
@@ -72,12 +81,12 @@ class customerController {
             this.event.emit('crash', "connecting", socket.serviceOperatorId,customerId);
         }
     }
-    _crossServed(customerId, crosserId,chatId){
+    _crossServed(customerId, crosserId,chatId, operator){
         var socket = this.socketPool[customerId];
         if(socket){
             socket.chatId = chatId;
             socket.serviceOperatorId = crosserId;
-            socket.emit('cross_served', crosserId);
+            socket.emit('cross_serve', {name:operator.name, imgUrl:operator.portrait});
         }
         else{
             //用户已经断开连接
@@ -88,6 +97,8 @@ class customerController {
     //处理从客户方发来的消息
     async _customerMsg(customerId, msg) {
         var socket = this.socketPool[customerId];
+        if(!socket)
+            return;
         if(socket.servingState === SERVING_STATUS_ROBOT){
             //提供机器人服务
             var answer =  await robot.getAutoAnswer(msg.msg, socket.opGroup);
@@ -97,19 +108,27 @@ class customerController {
             //向客服处发送消息
             var operatorId = this.socketPool[customerId].serviceOperatorId;
             //记录本条消息
-            msg.content = msg.msg;
-            msg.type = "text";
             chatLogger.newMsg(socket.chatId, msg, "customer");
             this.event.emit('msg', operatorId, customerId, msg);
-            //更新消息数统计信息
-            util.cache.incr(`${util.STAT_MSG_COUNT}:${socket.opGroup}`);
+            //更新客服组消息数统计信息
+            util.cache.incr(`${util.STAT_MSG_GROUP}:${socket.user.operatorGroupId}`);
+            //更新客服收到消息数统计
+            util.cache.incr(`${util.STAT_MSG_OP_REQ}:${socket.serviceOperatorId}`);
         }
     }
     //处理从客服方发来的消息
     _operatorMsg(customerId, msg) {
+        var socket = this.socketPool[customerId];
+        if(!socket)
+            return;
+        //客服发送消息数更新
+        util.cache.incr(`${util.STAT_MSG_OP_RES}:${socket.serviceOperatorId}`);
         this.socketPool[customerId].emit('msg', msg);
     }
     _endService(customerId) {
+        var socket = this.socketPool[customerId];
+        if(!socket)
+            return;
         this.socketPool[customerId].emit('operator_disconnected');
         this.socketPool[customerId].servingState = SERVING_STATUS_COMMENTING;
     }
@@ -121,6 +140,14 @@ class customerController {
         socket.servingState = SERVING_STATUS_ROBOT;
         //只有在用户评价一个客服后用户下一次才会被分配到这个客服
         socket.session.serviceRecord[socket.opGroup] = socket.serviceOperatorId;
+        //评价数统计信息更新
+        util.cache.incr(`${util.STAT_COMMENT_GROUP}:${socket.opGroup}`);
+        util.cache.incr(`${util.STAT_COMMENT_OPERATOR}:${socket.serviceOperatorId}`);
+        //满意度统计数据更新
+        if(Number(comment) > util.SATISFACTORY_THRESHOLD){
+            util.cache.incr(`${util.STAT_SATISFIED_GROUP}:${socket.opGroup}`);
+            util.cache.incr(`${util.STAT_SATISFIED_OPERATOR}:${socket.serviceOperatorId}`);
+        }
     }
     /**
      * @param {Array} customerIdList 
@@ -156,6 +183,9 @@ class customerController {
 
     async _disconnect(customerId) {
         var socket = this.socketPool[customerId];
+        if(!socket){
+            return;
+        }
         switch (socket.servingState) {
             case SERVING_STATUS_WAITING:
                 this.event.emit("crash", "waiting",socket.serviceOperatorId, socket.user.id);
@@ -173,7 +203,7 @@ class customerController {
                 break;
         }
         await this.socketPool[customerId].session.save();
-        this.socketPool[customerId] = null;
+        delete this.socketPool[customerId];
     }
 }
 //使用时应设置operatorListener

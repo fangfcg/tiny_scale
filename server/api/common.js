@@ -84,14 +84,14 @@ async function profileUpdate(req,res){
 const PREFIX_FIND_PASS = 'find_pass_certificate';
 
 async function getCertificateFindPass(req, res){
-    if(!util.bodyContains(req,'email', 'userType')){
+    if(!util.bodyContains(req,'email', 'type')){
         res.json({success:false, err:"parameter email loss"});
         return;
     }
-    if(req.body.userType === 'admin'){
+    if(req.body.type === 'admin'){
         var user = await model.admin.findOne({email:req.body.email});
     }
-    if(req.body.userType === 'operator'){
+    if(req.body.type === 'operator'){
         var user = await model.operator.findOne({email:req.body.email});
     }
     if(!user){
@@ -101,7 +101,7 @@ async function getCertificateFindPass(req, res){
     var certificate = stringGenerator.generate({length:50});
     try {
         await util.mailTransporter.sendMail({
-            to:res.body.email,
+            to:req.body.email,
             subject: "小天秤在线客服用户找回密码",
             text: certificate
         });
@@ -111,7 +111,7 @@ async function getCertificateFindPass(req, res){
         return;
     }
     //寄件成功，将验证码和userType和id保存在缓存中
-    await util.cache.hsetAsync(`${PREFIX_FIND_PASS}:${certificate}`, 'type',req.body.userType,'id',user.id);
+    await util.cache.hsetAsync(`${PREFIX_FIND_PASS}:${certificate}`, 'type',req.body.type,'id',user.id);
     res.json({success:true});
 }
 /**
@@ -149,18 +149,17 @@ async function certificateFindPass(req,res){
  */
 async function newPass(req,res){
     req.session.findPass = req.session.findPass || {};
-    if(!util.bodyContains(req ,"pass") || !req.session.findPass.type || !req.session.findPass.id){
+    if(!util.bodyContains(req ,"newPass") || !req.session.findPass.type || !req.session.findPass.id){
         res.json({success:false});
         return;
     }
-
-    if(req.session.findPass.tpye === 'admin'){
+    if(req.session.findPass.type === 'admin'){
         var user = await model.admin.findById(req.session.findPass.id);
     }
     if(req.session.findPass.type === 'operator'){
         var user = await model.operator.findById(req.session.findPass.id);
     }
-    user.pass = auth.Hash(req.body.pass);    //未认证的用户的处理
+    user.pass = auth.Hash(req.body.newPass);    //未认证的用户的处理
     await user.save();
     res.json({success:true});
     return;
@@ -205,7 +204,15 @@ const chatFileStorage = multer.diskStorage({
 });
 var chatUpload = multer({storage: chatFileStorage, limits:{fileSize:1000000}}).single("file");
 chatUpload = bluebird.promisify(chatUpload);
+/**
+ * 聊天时用户或者客服通过该接口上传文件，通过session中的socketAuth变量进行认证
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
 async function chatFile(req, res){
+    if(!req.session.socketAuthed){
+        res.status(404);
+    }
     await chatUpload(req, res);
     res.json({success:true, path: path.join(config.static.chat,req.filename)});
 }
@@ -217,14 +224,14 @@ function getProfile(req, res){
 
 
 module.exports.apiInterfaces = [
-    {url:'/api/get_session_id', callBack:getSessionId},
+    {url:'/api/get_session_id*', callBack:getSessionId},
     {url:'/api/common/is_email_used', callBack:emailCheck},
     {url:'/api/common/is_name_used', callBack:nameCheck},
-    {url:'/api/common/settings/profile', callBack:profileUpdate, auth:true, method:'post'},
+    {url:'/api/common/settings/profile/*', callBack:profileUpdate, auth:true, method:'post'},
     {url:'/api/find_pass/get_certificate', callBack:getCertificateFindPass, method:'post'},
     {url:'/api/find_pass/certificate', callBack:certificateFindPass, method:'post'},
     {url:'/api/find_pass/new_pass', callBack:newPass, method:'post'},
     {url:'/api/upload_portrait', callBack:uploadPortrait, method:'post', auth:true},
-    {url:'/api/get_profile', callBack:getProfile, auth:true,},
+    {url:'/api/get_profile*', callBack:getProfile, auth:true,},
     {url:'/api/upload_chat_file', callBack:chatFile, method:"post"},
 ];

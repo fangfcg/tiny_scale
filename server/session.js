@@ -26,10 +26,10 @@ module.exports.configApp = async function(app){
     //正常情况下选择0号数据库，测试时选择1号
     app.use(session({
         secret: sessionSecret,
-        resave: false,
         name: sessionName,
         saveUninitialized:true,
-        cookie:{sameSite:false, httpOnly:false},
+        cookie:{maxAge:10000000},
+        //cookie:{sameSite:false, httpOnly:false},
         store: store}));
     app.use(function(req, res, next){
         blueBird.promisifyAll(req.session);
