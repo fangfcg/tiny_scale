@@ -7,7 +7,7 @@
           <el-col :span="4">
               <img class="logo" width="167" height="50" src="/static/logoall.jpg" alt="nopic" />
           </el-col>
-          <el-col :span="8" :offset="2">
+          <el-col :span="10" :offset="2">
             <el-menu class="el-menu-demo" :router=true mode="horizontal" default-active="/CustomMenu" >
                 <el-menu-item class="menuitem" index="/CustomMenu">客服界面</el-menu-item>
                 <el-menu-item class="menuitem" index="/CustomTalk">会话界面</el-menu-item>
@@ -16,7 +16,7 @@
             </el-menu>
           </el-col>
           
-          <el-col :span="2" :offset="7" class="top-button">
+          <el-col :span="2" :offset="5" class="top-button">
             <span id="getGuestButton" @click="getGuest">接入客户</span>
           </el-col>
 
@@ -49,8 +49,13 @@
 
 <script>
 export default {
-  created () {
+  async created () {
     this.$store.commit('initSock')
+    let res = await this.$http.get(this.$store.state.chat.serverIp + '/api/get_profile')
+    let response = res.data
+    this.$store.state.chat.name = response.name
+    this.$store.state.chat.email = response.email
+    this.$store.state.chat.imgUrl = this.$store.state.chat.serverIp + '/' + response.imgUrl
   },
   data () {
     return {
@@ -106,7 +111,8 @@ export default {
       for (let item of this.statusList) {
         if (item.statu === command) {
           this.$store.state.chat.operatorStatus = item.num
-          this.$store.commit('changeStatus', command)
+          let commandEnglish = command === '在线' ? 'working' : 'resting'
+          this.$store.commit('changeStatus', commandEnglish)
           const h = this.$createElement
           this.$message({
             message: h('p', null, [

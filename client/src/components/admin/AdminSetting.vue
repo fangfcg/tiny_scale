@@ -120,6 +120,7 @@ var setting = {
     this.$store.state.admin.email = this.inputEmail
     this.$store.state.admin.imgUrl = this.imageUrl
     */
+    this.inputToken = this.$store.state.admin.token
   },
   data () {
     return {

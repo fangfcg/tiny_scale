@@ -5,7 +5,7 @@
             <span style="font-color: red">{{name}}</span>
             <el-button style="float: right; padding: 4px 2px" @click="changeStatus()">转到{{buttonName}}</el-button>
          </div>
-        <button v-for="(sentence, index) in data" :key="index" @click="msg(key)" class="msgitem">
+        <button v-for="(sentence, index) in data" :key="index" @click="msg(index)" class="msgitem">
             {{sentence.text}}
         </button>
     </el-card>
@@ -23,16 +23,17 @@ export default {
       name: '自定义回复',
       buttonName: '公司回复',
       isSelfReply: true,
-      data: this.$store.state.selfData
+      selfdata: [],
+      compData: [],
+      data: []
     }
   },
   components: {
   },
   methods: {
     msg (id) {
-      console.log(1111)
       console.log(this.data[id].text)
-      this.$store.commit('sendMsg', this.data[id].text)
+      this.$store.commit('sendMsg', {msg: this.data[id].text, isPic: false})
     },
     changeStatus () {
       this.isSelfReply = !this.isSelfReply
@@ -40,16 +41,24 @@ export default {
       this.name = this.buttonName
       this.buttonName = tmp
       if (this.isSelfReply) {
-        this.data = this.$store.state.chat.selfData
+        // this.$store.commit('getSelfReply')
+        this.data = this.selfData
       } else {
-        this.data = this.$store.state.chat.compData
+        // this.$store.commit('getCompReply')
+        this.data = this.compData
       }
+    },
+    async init () {
+      var responseSelf = await this.$http.get(this.$store.state.chat.serverIp + '/api/operator/get_selfreply')
+      this.selfData = responseSelf.data.data
+      this.data = this.selfData
+      var responseComp = await this.$http.get(this.$store.state.chat.serverIp + '/api/operator/get_compreply')
+      this.compData = responseComp.data.data
     }
   },
-  created () {
+  async mounted () {
     // 对对应数据进行一次更新
-    this.$store.commit('getSelfReply')
-    this.$store.commit('getCompReply')
+    await this.init()
   }
 }
 </script>

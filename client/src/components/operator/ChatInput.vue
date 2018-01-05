@@ -39,7 +39,7 @@
         <el-table :data="gridData">
           <el-table-column property="id" label="客服ID"></el-table-column>
           <el-table-column property="name" label="客服昵称"></el-table-column>
-          <el-table-column property="status" label="客服状态"></el-table-column>
+          <el-table-column property="state" label="客服状态"></el-table-column>
           <el-table-column
             fixed="right"
             label="操作"
@@ -90,7 +90,7 @@ export default {
         this.msg = ''
         return
       }
-      this.$store.commit('sendMsg', msg)
+      this.$store.commit('sendMsg', {msg: msg, isPic: false})
       this.msg = ''
     },
     finishService () {
@@ -103,7 +103,7 @@ export default {
     async transferCommand () {
       let res = await this.$http.get(this.serverIp + '/api/operator/get_colleagues')
       let response = res.data
-      this.gridData = response
+      this.gridData = response.colleagues
       this.dialogTableVisible = true
     },
     transferClient (operatorId) {
@@ -111,10 +111,13 @@ export default {
       this.dialogTableVisible = false
     },
     uploadImgSuccess (res, file) {
+      console.log(res)
+      console.log(file)
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
       newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path
-      this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList.push(newMsg)
+      console.log(newMsg)
+      this.$store.commit('sendMsg', {msg: newMsg.msg, isPic: true})
       this.$message({
         message: '图片上传成功',
         type: 'success'

@@ -114,14 +114,6 @@
 <script>
 var setting = {
   async created () {
-    let res = await this.$http.get(this.serverIp + '/api/get_profile')
-    let response = res.data
-    this.inputName = response.name
-    this.inputEmail = response.email
-    this.imageUrl = this.serverIp + '/' + response.imgUrl
-    this.$store.state.chat.name = this.inputName
-    this.$store.state.chat.email = this.inputEmail
-    this.$store.state.chat.imgUrl = this.imageUrl
   },
   data () {
     return {

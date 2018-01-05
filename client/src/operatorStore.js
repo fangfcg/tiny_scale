@@ -17,8 +17,8 @@ const mutations = {
   initSock (state) {
     state.chat.initSock()
   },
-  sendMsg (state, msg) {
-    state.chat.sendMsg(msg)
+  sendMsg (state, msg, isPicture) {
+    state.chat.sendMsg(msg, isPicture)
   },
   endService (state) {
     console.log('fcgendservice')
@@ -31,10 +31,10 @@ const mutations = {
     state.chat.getLeaveMessageList()
   },
   customGetLeaveMsg (state, msgId) {
-    state.chat.customGetLeaveMsg(state, msgId)
+    state.chat.customGetLeaveMsg(msgId)
   },
   customReplyMsg (state, msg, id) {
-    state.chat.customReplyMsg(state, msg, id)
+    state.chat.customReplyMsg(msg, id)
   },
   changeStatus (state, command) {
     state.chat.changeStatus(command)
