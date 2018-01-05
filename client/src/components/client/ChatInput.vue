@@ -82,7 +82,7 @@ export default {
         this.msg = ''
         return
       }
-      this.$store.commit('sendMsg', msg)
+      this.$store.commit('sendMsg', {msg: msg, isPic: false})
       this.msg = ''
     },
     callService () {
@@ -123,7 +123,7 @@ export default {
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
       newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path // to be done
-      this.$store.state.chat.msgList.push(newMsg)
+      this.$store.commit('sendMsg', {msg: newMsg.msg, isPic: true})
       this.$message({
         message: '图片上传成功',
         type: 'success'

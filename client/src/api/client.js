@@ -71,10 +71,11 @@ let Chat = {
       Chat.msgList.push(sysmsg)
     })
     this.socket.on('msg', function (inputMsgObj) {
+      console.log(inputMsgObj)
       let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
-      // operatorMsg.isPicture = inputMsgObj.isPicture
+      operatorMsg.isPicture = inputMsgObj.isPic
       if (Chat.status === 2) {
         console.log(Chat.imgUrl)
         operatorMsg.imgUrl = Chat.imgUrl
@@ -131,7 +132,8 @@ let Chat = {
       this.msgList.push(msgObj)
     }
   },
-  sendMsg (newMsg) {
+  sendMsg (payload) {
+    console.log(payload)
     if (this.status === 3 || this.status === 4) {
       let msgObj = Chat.createMsg()
       if (this.status === 3) {
@@ -144,10 +146,12 @@ let Chat = {
     } else {
       let msgObj = Chat.createMsg()
       msgObj.name = Chat.userName
-      msgObj.msg = newMsg
+      msgObj.msg = payload.msg
       msgObj.type = 0
+      msgObj.isPicture = payload.isPic
+      console.log(msgObj)
       this.msgList.push(msgObj)
-      this.socket.emit('msg', {msg: newMsg, time: msgObj.time})
+      this.socket.emit('msg', {msg: payload.msg, isPic: payload.isPic, time: msgObj.time})
     }
   },
   leaveMsg (newMsg) {

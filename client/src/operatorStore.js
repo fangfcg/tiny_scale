@@ -17,8 +17,8 @@ const mutations = {
   initSock (state) {
     state.chat.initSock()
   },
-  sendMsg (state, msg) {
-    state.chat.sendMsg(msg)
+  sendMsg (state, msg, isPicture) {
+    state.chat.sendMsg(msg, isPicture)
   },
   endService (state) {
     console.log('fcgendservice')
