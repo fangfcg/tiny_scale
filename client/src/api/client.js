@@ -108,11 +108,12 @@ let Chat = {
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
     })
-    this.socket.on('cross_serve', function () {
+    this.socket.on('cross_serve', function (obj) {
       let sysmsg = Chat.createMsg()
-      sysmsg.msg = '客服已转接'
+      sysmsg.msg = '客服已转接,现在是客服' + obj.name + '为您服务'
       sysmsg.type = 2
       Chat.msgList.push(sysmsg)
+      Chat.imgUrl = Chat.serverIp + '/' + obj.imgUrl
     })
     this.socket.on('crash', function () {
       Chat.status = 0

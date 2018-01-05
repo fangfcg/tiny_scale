@@ -39,7 +39,7 @@
         <el-table :data="gridData">
           <el-table-column property="id" label="客服ID"></el-table-column>
           <el-table-column property="name" label="客服昵称"></el-table-column>
-          <el-table-column property="status" label="客服状态"></el-table-column>
+          <el-table-column property="state" label="客服状态"></el-table-column>
           <el-table-column
             fixed="right"
             label="操作"
@@ -103,7 +103,7 @@ export default {
     async transferCommand () {
       let res = await this.$http.get(this.serverIp + '/api/operator/get_colleagues')
       let response = res.data
-      this.gridData = response
+      this.gridData = response.colleagues
       this.dialogTableVisible = true
     },
     transferClient (operatorId) {

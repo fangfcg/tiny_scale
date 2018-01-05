@@ -52,6 +52,7 @@
 <style>
   .customServiceMenu {
     padding:0% 10% 0 10%;
+    length: 800px;
   }
   #title-text {
     margin-left: 40%;
