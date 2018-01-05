@@ -37,6 +37,7 @@
       <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
       <span class="operator-sub" @click="callService()">人工客服</span>
       <span class="message-sub" @click="leaveMessage(msg)">留言</span>
+      <span class="message-sub" @click="cutImage">截图</span>
       <el-upload
         :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
@@ -52,6 +53,8 @@
 <script>
 // import Chat from '../api/client'
 import vueEmoji from '../tools/emoji.vue'
+import html2canvas from 'html2canvas'
+
 export default {
   data () {
     return {
@@ -139,6 +142,28 @@ export default {
         this.$message.error('上传图片大小不能超过 2MB!')
       }
       return isJPG && isLt2M
+    },
+    async cutImage () {
+      var canvas = await html2canvas(document.querySelector('body'), {
+        allowTaint: true,
+        taintTest: false
+      })
+      var image = canvas.toDataURL('image/jpeg', 1)
+      var parts = image.split(';base64,')
+      var contentType = parts[0].split(':')[1]
+      var raw = window.atob(parts[1])
+      var uInt8Array = new Uint8Array(raw.length)
+      for (var i = 0; i < raw.length; ++i) {
+        uInt8Array[i] = raw.charCodeAt(i)
+      }
+      var blob = new Blob([uInt8Array], {type: contentType})
+      var eleLink = document.createElement('a')
+      eleLink.download = 'pic.jpeg'
+      eleLink.style.display = 'none'
+      eleLink.href = URL.createObjectURL(blob)
+      document.body.appendChild(eleLink)
+      eleLink.click()
+      document.body.removeChild(eleLink)
     }
   },
   components: {
@@ -234,7 +259,7 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 340px;
+      margin-left: 280px;
     }
     .operator-sub{
       position: relative;

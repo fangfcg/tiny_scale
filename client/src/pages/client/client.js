@@ -10,6 +10,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 Vue.config.productionTip = false
 Vue.prototype.emoji = emoji
 Vue.use(ElementUI)
+Vue.prototype.document = document
 
 window.onbeforeunload = function (event) {
   var message = '确定要离开此网站吗？'
