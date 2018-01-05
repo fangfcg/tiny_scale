@@ -13,6 +13,21 @@ module.exports.PREFIX_OPERATOR_STATUS = "operator_status";
 module.exports.PREFIX_MESSAGE_OPERATOR = "message_operator";
 module.exports.PREFIX_MESSAGE_LEFT = "message_left";
 module.exports.PREFIX_MESSAGE_ANSWERED = "message_answered";
+module.exports.STAT_SESS_GROUP = "stat_sess_group";   //每接入一个socket会话量+1
+module.exports.STAT_MSG_GROUP = "stat_msg_group";     //客户每发送一条消息+1
+module.exports.STAT_MANUAL_GROUP = "stat_manual_group";     //客服每接入一个客户+1
+module.exports.STAT_COMMENT_GROUP = "stat_comment_group";   //每有一个用户评价+1
+module.exports.STAT_SATISFIED_GROUP = "stat_satisfied_group";   //每有一个用户评价在3分以上在则+1
+module.exports.STAT_SESS_OPERATOR = "stat_sess_operator";
+module.exports.STAT_MSG_OP_REQ = "stat_msg_op_req";     //单个客服收到的消息
+module.exports.STAT_MSG_OP_RES = "stat_msg_op_res";     //单个客服回复的消息
+module.exports.STAT_OP_QA_DELAY = "stat_qa_delay_operator";
+module.exports.STAT_OP_QA_TURNS = "stat_qa_turns_operator";
+module.exports.STAT_COMMENT_OPERATOR = "stat_comment_operator";
+module.exports.STAT_SATISFIED_OPERATOR = "stat_satisfied_operator";
+
+
+module.exports.SATISFACTORY_THRESHOLD = 3;      //评分满意度阈值
 //邮件服务对象配置
 const nodemailer = require('nodemailer');
 const mailConfig = require('./serverConfig.json').mail;

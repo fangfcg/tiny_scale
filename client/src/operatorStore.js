@@ -31,10 +31,10 @@ const mutations = {
     state.chat.getLeaveMessageList()
   },
   customGetLeaveMsg (state, msgId) {
-    state.chat.customGetLeaveMsg(state, msgId)
+    state.chat.customGetLeaveMsg(msgId)
   },
   customReplyMsg (state, msg, id) {
-    state.chat.customReplyMsg(state, msg, id)
+    state.chat.customReplyMsg(msg, id)
   },
   changeStatus (state, command) {
     state.chat.changeStatus(command)

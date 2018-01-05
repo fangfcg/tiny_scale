@@ -58,6 +58,63 @@
         </span>
       </el-dialog>
 
+      <div class="main-text">
+      <span>查看留言</span>
+      </div>
+      <el-pagination
+        @current-change="pageChange"
+        :current-page="currPage"
+        :page-size="pagesize"
+        layout="total, prev, pager, next, jumper"
+        :total="leftMsgList.length">
+        </el-pagination>
+      <el-table
+        :data="leftMsgList.slice((currPage - 1) * pagesize, currPage * pagesize)"
+        style="width: 100%">
+        <el-table-column type="expand">
+        <template slot-scope="props">
+            <el-form label-position="left" inline class="demo-table-expand">
+              <el-form-item label="留言时间">
+                  <span>{{ props.row.leftTime }}</span>
+              </el-form-item>
+              <el-form-item label="具体留言">
+                <span>{{ props.row.content }}</span>
+            </el-form-item>
+            <el-form-item label="回复时间">
+                <span>{{ props.row.answerTime }}</span>
+            </el-form-item>
+            <el-form-item label="具体回复">
+                <span>{{ props.row.answer }}</span>
+            </el-form-item>
+            </el-form>
+        </template>
+        </el-table-column>
+        <el-table-column
+        label="留言状态"
+        prop="answerState">
+        </el-table-column>
+        <el-table-column
+        label="客户Id"
+        prop="customerId">
+        </el-table-column>
+        <el-table-column
+        label="处理客服名"
+        prop="operatorName">
+        </el-table-column>
+        <el-table-column
+            label="留言内容（前10字）">
+            <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ cutString(scope.row.content) }}</span>
+            </template>
+          </el-table-column>
+        <el-table-column
+            label="回复内容（前10字）">
+            <template slot-scope="scope">
+              <span style="margin-left: 10px">{{ cutString(scope.row.answer) }}</span>
+            </template>
+        </el-table-column>
+      </el-table>
+
     </div>
   </div>
 </template>
@@ -78,6 +135,26 @@ var adminMain = {
     var res3 = await this.$http.get(this.serverIp + `/api/admin/group_info/${Date.now()}`)
     var response3 = res3.data
     this.operatorList = response3
+    var res4 = await this.$http.get(this.serverIp + `/api/admin/message_lst/${Date.now()}`)
+    var response4 = res4.data
+    this.leftMsgList = response4
+    console.log(response4)
+    for (let i = 0; i < this.leftMsgList.length; i++) {
+      this.leftMsgList[i].leftTime = new Date(this.leftMsgList[i].leftTime).toLocaleString()
+      if (this.leftMsgList[i].answerState === 0) {
+        this.leftMsgList[i].answerState = '未回复'
+        this.leftMsgList[i].answer = '暂无'
+        this.leftMsgList[i].answerTime = '暂无'
+        this.leftMsgList[i].operatorName = '暂无'
+      } else if (this.leftMsgList[i].answerState === 1) {
+        this.leftMsgList[i].answerState = '正在回复'
+        this.leftMsgList[i].answer = '暂无'
+        this.leftMsgList[i].answerTime = '暂无'
+      } else if (this.leftMsgList[i].answerState === 2) {
+        this.leftMsgList[i].answerState = '已回复'
+        this.leftMsgList[i].answerTime = new Date(this.leftMsgList[i].answerTime).toLocaleString()
+      }
+    }
     for (let t = 0; t < this.tableOperator.length; t++) {
       if (this.tableOperator[t].state === 'left') {
         this.tableOperator[t].state = '离线'
@@ -106,7 +183,10 @@ var adminMain = {
       tableWorkRecord: [],
       chatData: [],
       dialogVisible: false,
-      operatorList: []
+      operatorList: [],
+      leftMsgList: [],
+      currPage: 1,
+      pagesize: 2
     }
   },
   computed: {
@@ -115,6 +195,16 @@ var adminMain = {
     }
   },
   methods: {
+    pageChange: function (currPage) {
+      this.currPage = currPage
+    },
+    cutString: function (msg) {
+      if (msg.length <= 10) {
+        return msg
+      } else {
+        return msg.substring(0, 10) + '...'
+      }
+    },
     tableRowClassName ({row, rowIndex}) {
       if (row.status === 'working') {
         return 'working-row'
@@ -187,5 +277,14 @@ export default adminMain
 }
 .customer-text {
   float: left;
+}
+.demo-table-expand label {
+  width: 90px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
 }
 </style>

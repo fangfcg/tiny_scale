@@ -38,16 +38,14 @@ export default {
   mounted () {
     if (this.isPicture === true) {
       var img = new Image()
-      console.log('723' + this.msg)
       img.src = this.msg
+      let that = this
       img.onload = function () {
         let str = (img.width + 40).toString()
-        this.calc = str + 'px'
-        console.log('456' + img.width)
-        console.log(this.calc)
+        that.calc = str + 'px'
       }
     }
-    this.$el.scrollIntoView()
+    // this.$el.scrollIntoView()
   },
   props: ['msg', 'name', 'imgUrl', 'isPicture']
 }

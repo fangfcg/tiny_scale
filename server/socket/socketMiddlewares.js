@@ -1,6 +1,13 @@
 const session = require('../session');
 const util = require('../utils');
 const model = require('../models/models').models;
+
+/**
+ * socket中间件设置
+ * 通过中间件添加的socket属性包括:
+ * session, user, opGroup
+ */
+
 /**
  * 接入socket时query的参数：
  * {token:如果类型为customer则需要token进行接入公司的验证, 
@@ -27,15 +34,15 @@ async function auth(socket, next){
     var authed = true;
     //对客服或者管理员的socket进行认证
     //数据保留在ses.data.passport.user中，包含一个id和一个userType
-    if(socket.handshake.query.type !== "customer"){
+    if(socket.handshake.query.type === "operator"){
         ses.data = ses.data || {};
         ses.data.passport = ses.data.passport || {};
         if(!ses.data.passport.user){authed = false;}
     }
     //对用户的socket进行验证
-    else{
+    else if(socket.handshake.query.type === "client"){
         //从socket的token中取出值并保留在socket中
-        var opGroup = util.cache.get(`${util.PREFIX_SOCKET_CLIENT}:${token}`);
+        var opGroup = await util.cache.getAsync(`${util.PREFIX_SOCKET_CLIENT}:${token}`);
         if(!opGroup){authed = false;}
         else{
             socket.opGroup = opGroup;
@@ -62,26 +69,41 @@ async function auth(socket, next){
  */
 async function addUser(socket, next){
     var sesData = socket.session.data;
-    if(socket.handshake.query.type === "customer"){
+    if(socket.handshake.query.type === "client"){
         //创建客户对象
+        sesData.customerIds = sesData.customerIds || {};
         if(!sesData.customerIds[socket.opGroup]){
             //创建新用户
-            var customer = new model.customer({opeartorGroupId:socket.opGroup});
+            var customer = new model.customer({operatorGroupId:socket.opGroup});
             await customer.save();
+            sesData.customerIds[socket.opGroup] = customer.id;
+            await socket.session.save();
             socket.user = customer;
         }
         else{
-            var customer = await model.customer.find({opeartorGroupId:socket.opGroup});
+            var customer = await model.customer.findById(sesData.customerIds[socket.opGroup]);
             socket.user = customer;
         }
-        socket.userType = "customer";
+        socket.userType = "client";
     }
     else if(socket.handshake.query.type === "operator"){
-        var op =  await model.operator.findById(sesData.data.passport.user.id);
+        var op =  await model.operator.findById(sesData.passport.user.id);
+        if(!op){
+            socket.disconnect(true);
+            return;
+        }
         socket.user = op;
         socket.userType = "operator";
     }
-   return next();
+    //对必要的socket域进行设置
+    socket.session.data.socketAuthed = true;
+    socket.session.data.serviceRecord = socket.session.data.sessionRecord || {};
+    await socket.session.save();
+    socket.on("disconnect", async function(){
+        socket.session.data.socketAuthed = false;
+        await socket.session.save();
+    });
+    return next();
 }
 module.exports.auth = auth;
 module.exports.createUser = addUser;

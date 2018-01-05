@@ -11,28 +11,12 @@ customer.operatorEventHandler(operator.event);
 operator.customerEventHandler(customer.event);
 
 io.on('connection', socket=>{
-    if(socket.userType === "customer"){
+    if(socket.userType === "client"){
         customer.newSocket(socket);
     }
     else{
         operator.newSocket(socket);
     }
-    /*
-    console.log("socket arrived");
-    console.log(socket.handshake.address);
-    if(socket.handshake.headers.referer.endsWith("client.html")){
-        customer.newSocket(socket);
-    }
-    else{
-        operator.newSocket(socket);
-    }*/
-    /*
-    if(socket.handshake.query.type === "customer"){
-        customer.newSocket(socket);
-    }
-    else{
-        operator.newSocket(socket);
-    }*/
 });
 
 function configSocket(server){

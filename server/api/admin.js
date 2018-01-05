@@ -79,7 +79,7 @@ async function getCertificate(req, res){
         return;
     }
     //寄件成功，将验证码和邮箱保存在缓存中
-    await util.cache.hsetAsync(`certificate:${certificate}`, 'email',req.body.email);
+    await util.cache.setAsync(`certificate:${certificate}`, req.body.email);
     res.json({success:true});
 }
 /**
@@ -89,7 +89,7 @@ async function getCertificate(req, res){
  * 读出验证码之后应该立刻清除
  * 注意一个客服组是在这里被第一次创建的存
  * @param {*} req 
- * @param {*} res 
+ * @param {Express.Response} res 
  */
 async function certificate(req, res){
     if(!util.bodyContains(req, "certificate")){
@@ -97,7 +97,7 @@ async function certificate(req, res){
         return;
     }
     var key = `certificate:${req.body.certificate}`;
-    var email = await util.cache.hgetAsync(key, "email");
+    var email = await util.cache.getAsync(key);
     if(!email){
         res.json({success:false, err:"invalid certificate"});
         return;
@@ -106,8 +106,8 @@ async function certificate(req, res){
     await util.cache.delAsync(key);
     //保存会话信息
     req.session.email = email;
-    res.json({success:true});
     req.session.save();
+    res.json({success:true});
 }
 /**
  * post方法
@@ -122,14 +122,14 @@ async function certificate(req, res){
 const path = require('path');
 const config = require('../serverConfig.json');
 async function createAdmin(req, res){
-    if(!util.bodyContains(req , "name", "pass", "companyName") || req.session.email){
+    if(!util.bodyContains(req , "name", "pass", "companyName") || !req.session.email){
         res.json({success:false});
         return;
     }
     //管理员账号重名检查
     var admin = await model.admin.findOne({name:req.body.name});
     if(admin){
-        req.json({success:false, err:"admin already exists"});
+        res.json({success:false, err:"admin already exists"});
         return;
     }
     var opGroup = new model.operatorGroup({
@@ -148,10 +148,10 @@ async function createAdmin(req, res){
         portrait:path.join(config.static.portrait.admin, "default.jpg")
     });
     await admin.save();
-    res.json({success:true});
     //取消认证状态
     req.session.email = null;
     req.session.save();
+    res.json({success:true});
 }
 /**
  * post方法
@@ -215,6 +215,8 @@ async function setSocketToken(req, res){
         return;
     }
     await util.cache.setAsync(`${util.PREFIX_SOCKET_CLIENT}:${req.body.token}`, opGroup.id);
+    //保存新的token
+    await opGroup.save();
     res.json({success:true});
 }
 /**
@@ -225,11 +227,16 @@ async function setSocketToken(req, res){
 async function getMsgList(req, res){
     var msgList = await model.message.find({operatorGroupId:req.user.operatorGroupId});
     var result = [];
-    msgList.forEach(val => {
+    for(var i = 0; i < msgList.length; ++i){
+        var val = msgList[i];
         var tmp = util.doc2Object(val);
+        tmp.id = val.id;
+        var operator = await model.operator.findById(val.answerOperatorId);
+        operator = operator || {};
+        tmp.operatorName = operator.name;
         result.push(tmp);
-    });
-    res.json(result);
+    }
+   res.json(result);
 }
 /**
  * get方法，返回该客服组下所有的聊天记录，附带所有客服id对应表项中的姓名
@@ -241,7 +248,8 @@ async function getChatList(req, res){
     var result = [];
     for(let i = 0; i < chatList.length; ++i){
         var tmp = util.doc2Object(chatList[i]);
-        tmp.contents = null;
+        delete tmp.contents;
+        tmp.id = chatList[i].id;
         tmp.operatorName = await model.operator.findById(tmp.operatorId).name;
         if(tmp.crossed){
             tmp.crosserName = await model.operator.findById(tmp.crosserId);
@@ -256,16 +264,59 @@ async function getChatList(req, res){
  * @param {*} res 
  */
 async function getChatLog(req, res){
+    req.body = req.query;
     if(!util.bodyContains(req, 'id')){
         res.json({success:false});
         return;
     }
     var chatLog = await model.chatLog.findById(req.body.id);
-    if(!chatLog || chatLog.operatorGroupId !== req.user.operatorGroupId){
+    var opGroup1 = String(chatLog.operatorGroupId), opGroup2 = String(req.user.operatorGroupId);
+    if(!chatLog || opGroup1 !== opGroup2){
         res.json({success:false});
         return;
     }
     res.json(chatLog.contents);
+}
+async function getStateList(req, res){
+    var operatorList = await model.operator.find({operatorGroupId:req.user.operatorGroupId});
+    var result = [];
+    for(var i = 0; i < operatorList.length; ++i){
+        var state = await util.cache.getAsync(`${util.PREFIX_OPERATOR_STATUS}:${operatorList.id}`);
+        var tmp = {};
+        tmp.id = operatorList[i].id;
+        tmp.state = state ? state : 'left';
+        result.push(tmp);
+    }
+    res.json(result);
+}
+async function getAdminReply(req, res) {
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var result = [];
+    if(group.quickReply){
+        group.quickReply.forEach(val => {
+            result.push({text:val});
+        });
+    }
+    res.json({success:true, data:result});
+}
+
+async function updateReply(req, res){
+    if(!util.bodyContains(req, 'data')){
+        res.json({success:false});
+    }
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
+    var replys = [];
+    req.body.data.forEach(val => {
+        replys.push(val.text);
+    });
+    group.quickReply = replys;
+    await group.save();
+    res.json({success:true});
+}
+
+async function getSocketToken(req, res){
+    var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
+    res.json({success: true, token:opGroup.companySocketToken});
 }
 /**
  * 在每天结束时将cache中管理员已经生成的验证码的数量置为0
@@ -278,14 +329,18 @@ async function clearCertificate(){
 module.exports.clearCertificateCount = clearCertificate;
 
 module.exports.apiInterfaces = [
-    {url:'/api/admin/group_info', callBack:getGroupInfo, auth:true, type:'admin'},
-    {url:'/api/admin/operator_info', callBack:getOperatorInfo, auth:true, type:'admin'},
-    {url:'/api/admin/signup/get_certificate', callBack:getCertificate, type:'admin', method:'post'},
+    {url:'/api/admin/group_info*', callBack:getGroupInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_info*', callBack:getOperatorInfo, auth:true, type:'admin'},
+    {url:'/api/admin/operator_state_list*',callBack:getStateList, auth:true, type:'admin'},
+    {url:'/api/admin/signup/get_certificate*', callBack:getCertificate, type:'admin', method:'post'},
     {url:'/api/admin/signup/certificate', callBack:certificate, method:'post', type:'admin'},
     {url:'/api/admin/signup/create_admin', callBack:createAdmin, method:'post', type:'admin'},
     {url:'/api/admin/get_signup_certificate', callBack:getOperatorCertificate, method:'post',auth:true, type:'admin'},
     {url:'/api/admin/set_socket_token', callBack:setSocketToken, method:'post', auth:true, type:'admin'},
-    {url:'/api/admin/message_list', callBack:getMsgList, auth:true, type:'admin'},
-    {url:'/api/admin/get_chat_list',callBack:getChatList, auth:true, type:'admin'},
-    {url:'/api/admin/get_chat_log',callBack:getChatLog, auth:true, type:'admin'},
+    {url:'/api/admin/get_socket_token*', callBack:getSocketToken,auth:true, type:'admin'},
+    {url:'/api/admin/message_lst*', callBack:getMsgList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_list*',callBack:getChatList, auth:true, type:'admin'},
+    {url:'/api/admin/get_chat_log*',callBack:getChatLog, auth:true, type:'admin'},
+    {url:'/api/common/settings/adminReply', callBack:getAdminReply, auth:true,type:'admin'},
+    {url:'/api/common/settings/renewReply', callBack:updateReply, auth:true, type:'admin', method:'post'},
 ];
