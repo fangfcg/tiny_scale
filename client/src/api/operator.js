@@ -37,27 +37,7 @@ var Chat = {
   email: '123@123.com',
   selfData: [],
   compData: [],
-  leaveMsgList: [{
-    id: '12987122',
-    time: '2017-09-11',
-    content: '这个东西是假的吧，怎么没有售后服务和购买方案呢？'
-  }, {
-    id: '12987123',
-    time: '2017-09-11',
-    content: '这个东西是假的吧，怎么没有帮助和指引呢？'
-  }, {
-    id: '12987125',
-    time: '2017-09-11',
-    content: '我应该去哪里进行售后服务和保修？'
-  }, {
-    id: '12987126',
-    time: '2017-09-11',
-    content: '我应该携带什么样的材料？'
-  }, {
-    id: '12987127',
-    time: '2017-09-11',
-    content: '有优惠方案吗？'
-  }],
+  leaveMsgList: [],
   isReplying: false,
   replyingId: 0,
   replyingMsg: '',

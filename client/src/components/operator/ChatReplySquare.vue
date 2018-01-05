@@ -26,15 +26,17 @@
         prop="customerId">
         </el-table-column>
         <el-table-column
-        label="时间"
-        prop="leftTime">
+        label="时间">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ changeTime(scope.row.leftTime) }}</span>
+          </template>
         </el-table-column>
         <el-table-column
-            label="留言问题（前10字）">
-            <template slot-scope="scope">
-              <span style="margin-left: 10px">{{ cutString(scope.row.content) }}</span>
-            </template>
-          </el-table-column>
+          label="留言问题（前10字）">
+          <template slot-scope="scope">
+            <span style="margin-left: 10px">{{ cutString(scope.row.content) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column
             label="操作">
             <template slot-scope="scope">
@@ -74,6 +76,9 @@ export default {
   computed: {
   },
   methods: {
+    changeTime: function (rawTime) {
+      return new Date(rawTime).toLocaleString()
+    },
     pageChange: function (currPage) {
       this.currPage = currPage
     },
