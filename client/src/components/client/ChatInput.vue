@@ -24,7 +24,7 @@
           </div>
         </transition>
       </div>
-      <div v-if="this.$store.state.chat.status === 4">
+      <div class = "score-bar" v-show="this.$store.state.chat.status === 4">
         <div class="rate-container">
           <el-rate class="rate-place"
             v-model="point"
@@ -32,19 +32,20 @@
             :texts="['1分', '2分', '3分', '4分', '5分']">
           </el-rate>
         </div>
-        <span class="rate-sub" @click="sendRate()">评分完成</span>
+        <el-button class="rate-sub" size="small" @click="sendRate()">评分完成</el-button>
       </div>
-      <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
-      <span class="operator-sub" @click="callService()">人工客服</span>
-      <span class="message-sub" @click="leaveMessage(msg)">留言</span>
-      <span class="message-sub" @click="cutImage">截图</span>
+      <el-button size="small" class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)" v-show="this.$store.state.chat.status !== 4">发送</el-button>
+      <el-button size="small" class="operator-sub" @click="callService()" v-show="this.$store.state.chat.status !== 4">人工客服</el-button>
+      <el-button size="small" class="message-sub" @click="leaveMessage(msg)" v-show="this.$store.state.chat.status !== 4">留言</el-button>
+      <el-button size="small" class="message-sub" @click="cutImage()" v-show="this.$store.state.chat.status !== 4">截图</el-button>
+
       <el-upload
         :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
         :show-file-list="false"
         :with-credentials="true">
-        <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
+        <el-button size="small" class="upload-sub" style="margin-left:5px" v-show="this.$store.state.chat.status !== 4" >上传图片</el-button>
       </el-upload>
     </div>
   </div>
@@ -250,6 +251,7 @@ ul{
     .fade-move { transition: transform .4s; }
 
     .chat-sub{
+      /*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -259,9 +261,11 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 280px;
+      */
+      height: 30px;
+      margin-left: 200px;
     }
-    .operator-sub{
+    .operator-sub{/*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -271,9 +275,12 @@ ul{
       width: 78px;
       font-size: 13px;
       outline: none;
+      */
+      height: 30px;
       margin-left: 5px;
     }
     .message-sub{
+      /*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -283,12 +290,14 @@ ul{
       width: 50px;
       font-size: 13px;
       outline: none;
+      */
+      height: 30px;
       margin-left: 5px;
     }
     .rate-container{
       position: absolute;
       display: flex;
-      margin-left: 85px;
+      margin-left: 100px;
       margin-top: 5px;
       width: 160px;
       background-color: white;
@@ -297,6 +306,7 @@ ul{
       margin-left: 5px;
     }
     .rate-sub{
+      /*
       position: absolute;
       display: flex;
       background-color: rgba(0, 0, 0, 0.1);
@@ -306,7 +316,13 @@ ul{
       width: 78px;
       font-size: 13px;
       outline: none;
+      */
+      height: 30px;
       margin-left: 250px;
+    }
+    .upload-sub{
+      margin-left: 5px;
+      height: 30px;
     }
     .operator-sub, .chat-sub, .message-sub, .rate-sub:hover{
       cursor: pointer;
@@ -314,6 +330,10 @@ ul{
     .primary{
       background-color: #1E90FF;
       color: white;
+    }
+    .score-bar {
+      position: relative;
+      float: left;
     }
   }
   

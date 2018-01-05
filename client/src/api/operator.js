@@ -188,10 +188,13 @@ var Chat = {
     this.socket.emit('change_state', command)
   },
   crossServe (operatorId) {
+    if (this.currentNum <= 0) {
+      return
+    }
     this.socket.emit('cross_serve', this.currentUser, operatorId)
     this.currentNum --
     this.userList.splice(this.currentIndex, 1)
-    if (this.currentNum === 0) {
+    if (this.currentNum <= 0) {
       this.currentIndex = null
       this.currentUser = null
     } else {

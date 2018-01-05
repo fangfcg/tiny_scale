@@ -24,18 +24,18 @@
           </div>
         </transition>
       </div>
-      <span class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</span>
-      <span class="operator-sub" @click="finishService()">结束</span>
-      <span class="transfer-sub" @click="transferCommand">转接</span>
+      <el-button size="small" class="chat-sub" :class="{'primary':!!msg}"  @click="send(msg)">发送</el-button>
+      <el-button size="small" class="operator-sub" @click="finishService()">结束</el-button>
+      <el-button size="small" class="transfer-sub" @click="transferCommand">转接</el-button>
       <el-upload
         :action="uploadImageUrl"
         :on-success="uploadImgSuccess"
         :before-upload="beforeImgUpload"
         :show-file-list="false"
         :with-credentials="true">
-        <el-button size="small" type="primary" style="margin-left:5px">上传图片</el-button>
+        <el-button size="small" class="upload-sub" style="margin-left:5px">上传图片</el-button>
       </el-upload>
-      <el-dialog title="收货地址" :visible.sync="dialogTableVisible">
+      <el-dialog title="转接列表" :visible.sync="dialogTableVisible">
         <el-table :data="gridData">
           <el-table-column property="id" label="客服ID"></el-table-column>
           <el-table-column property="name" label="客服昵称"></el-table-column>
@@ -45,7 +45,7 @@
             label="操作"
             width="100">
             <template slot-scope="scope">
-              <el-button @click="transferClient(scope.row.id)" type="text" size="small" :disabled="scope.row.status === 'resting'">转接</el-button>
+              <el-button @click="transferClient(scope.row)" type="text" size="small" :disabled="scope.row.state !== '在线'">转接 </el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -103,10 +103,27 @@ export default {
     async transferCommand () {
       let res = await this.$http.get(this.serverIp + '/api/operator/get_colleagues')
       let response = res.data
-      this.gridData = response.colleagues
+      let datas = response.colleagues
+      this.gridData.splice(this.gridData.length)
+      let tempState
+      for (let d of datas) {
+        if (d.state === 'resting') {
+          tempState = '休息'
+        } else if (d.state === 'left') {
+          tempState = '离线'
+        } else {
+          tempState = '在线'
+        }
+        this.gridData.push({
+          id: d.id,
+          name: d.name,
+          state: tempState
+        })
+      }
       this.dialogTableVisible = true
     },
     transferClient (operatorId) {
+      console.log(operatorId)
       this.$store.commit('crossServe', operatorId)
       this.dialogTableVisible = false
     },
@@ -207,6 +224,7 @@ export default {
     .fade-move { transition: transform .4s; }
 
     .chat-sub{
+      /*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -216,9 +234,12 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
-      margin-left: 340px;
+      */
+      height: 30px;
+      margin-left: 280px;
     }
     .operator-sub{
+      /*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -228,9 +249,12 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
+      */
+      height: 30px;
       margin-left: 5px;
     }
     .transfer-sub{
+      /*
       position: relative;
       display: flex;
       background-color: rgba(0,0,0,0.1);
@@ -240,6 +264,12 @@ export default {
       width: 50px;
       font-size: 13px;
       outline: none;
+      */
+      height: 30px;
+      margin-left: 5px;
+    }
+    .upload-sub{
+      height: 30px;
       margin-left: 5px;
     }
     .operator-sub, .chat-sub, .transfer-sub:hover{

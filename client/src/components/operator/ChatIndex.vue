@@ -51,7 +51,7 @@
 export default {
   async created () {
     this.$store.commit('initSock')
-    let res = await this.$http.get(this.serverIp + '/api/get_profile')
+    let res = await this.$http.get(this.$store.state.chat.serverIp + '/api/get_profile')
     let response = res.data
     this.$store.state.chat.name = response.name
     this.$store.state.chat.email = response.email

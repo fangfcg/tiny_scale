@@ -30,8 +30,25 @@ export default {
   computed: {
     imgUrl () {
       return this.$store.state.chat.imgUrl
+    },
+    msgList () {
+      /*
+      if (this.$store.state.chat.userList[this.$store.state.chat.currentIndex] === undefined ||
+        this.$store.state.chat.userList[this.$store.state.chat.currentIndex] === null) {
+        return null
+      }
+      return this.$store.state.chat.userList[this.$store.state.chat.currentIndex].msgList
+      */
     }
   },
+  /*
+  watch: {
+    msgList () {
+      var container = this.$el.querySelector('.body-wrapper')
+      container.scrollTop = container.scrollHeight
+    }
+  },
+  */
   components: {
     ChatCardOther,
     ChatCardSelf,

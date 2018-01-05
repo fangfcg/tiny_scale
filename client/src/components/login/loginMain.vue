@@ -51,14 +51,20 @@ var Login = {
   },
   methods: {
     async login () {
-      let res = await this.$http.post(this.loginUrl, {
-        type: this.usertype,
-        username: this.username,
-        password: this.password
-      })
-      let response = res.data
-      if (response.success === true) {
-        window.location.href = '/' + this.usertype + '.html'
+      try {
+        let res = await this.$http.post(this.loginUrl, {
+          type: this.usertype,
+          username: this.username,
+          password: this.password
+        })
+        let response = res.data
+        if (response.success === true) {
+          window.location.href = '/' + this.usertype + '.html'
+        } else {
+          this.$message.error('密码错误，请重试')
+        }
+      } catch (err) {
+        this.$message.error('密码错误，请重试')
       }
     }
   }
