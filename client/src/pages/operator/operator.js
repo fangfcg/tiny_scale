@@ -14,6 +14,12 @@ Vue.config.productionTip = false
 Vue.prototype.$http = axios
 Vue.prototype.emoji = emoji
 
+window.onbeforeunload = function (event) {
+  var message = '确定要离开此网站吗？'
+  event.returnValue = message
+  return message
+}
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
