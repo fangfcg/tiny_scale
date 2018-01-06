@@ -30,5 +30,5 @@ module.exports.disconnect = async function(){
   await mongoose.disconnect();
 };
 module.exports.connect = async function(){
-  await mongoose.connect(url, {useMongoClient:true});
+  await mongoose.connect(url, {useMongoClient:true, autoIndex:false});
 };

@@ -38,6 +38,8 @@ class operatorControler {
     }
     //传入一个客户的socket，为该客户分配客服
     _allocateOperator(socket) {
+        if(!socket)
+            return;
         var ses = socket.session;
         var groupId = socket.opGroup;
         ses.serviceRecord = ses.serviceRecord || {};

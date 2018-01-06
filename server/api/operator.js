@@ -46,6 +46,12 @@ async function createOperator(req, res){
         res.status(404);
         return;
     }
+    //检查客服名称是否重复
+    var op = await model.operator.findOne({name:req.body.name});
+    if(op){
+        res.json({success:false});
+        return;
+    }
     var operator = new model.operator({name:req.body.name,
         pass:auth.Hash(req.body.pass),
         email:req.body.email,

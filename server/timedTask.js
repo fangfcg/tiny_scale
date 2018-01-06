@@ -2,7 +2,7 @@ const model = require('./models/models').models;
 const admin =  require('./api/admin');
 const util = require('./utils');
 //每隔一天清除缓存中的count
-setInterval(timedTask, 300000);
+setInterval(timedTask, 30000);
 var date = new Date(Date.now());
 async function timedTask(){
     var dtNow = new Date(Date.now());

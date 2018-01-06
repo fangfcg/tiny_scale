@@ -290,7 +290,7 @@ async function getStateList(req, res){
     var operatorList = await model.operator.find({operatorGroupId:req.user.operatorGroupId});
     var result = [];
     for(var i = 0; i < operatorList.length; ++i){
-        var state = await util.cache.getAsync(`${util.PREFIX_OPERATOR_STATUS}:${operatorList.id}`);
+        var state = await util.cache.getAsync(`${util.PREFIX_OPERATOR_STATUS}:${operatorList[i].id}`);
         var tmp = {};
         tmp.id = operatorList[i].id;
         tmp.state = state ? state : 'left';
