@@ -138,7 +138,6 @@ var adminMain = {
     var res4 = await this.$http.get(this.serverIp + `/api/admin/message_lst/${Date.now()}`)
     var response4 = res4.data
     this.leftMsgList = response4
-    console.log(response4)
     for (let i = 0; i < this.leftMsgList.length; i++) {
       this.leftMsgList[i].leftTime = new Date(this.leftMsgList[i].leftTime).toLocaleString()
       if (this.leftMsgList[i].answerState === 0) {

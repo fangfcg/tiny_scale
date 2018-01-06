@@ -32,7 +32,6 @@ export default {
   },
   methods: {
     msg (id) {
-      console.log(this.data[id].text)
       this.$store.commit('sendMsg', {msg: this.data[id].text, isPic: false})
     },
     changeStatus () {

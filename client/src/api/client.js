@@ -39,20 +39,15 @@ let Chat = {
     this.socket.on('msg_left', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
-      // console.log('123')
-      // console.log(sysmsg)
       if (data.success === true) {
         sysmsg.msg = '留言成功'
         Chat.msgList.push(sysmsg)
-        // console.log('234')
       } else {
         sysmsg.msg = '出现了奇怪的错误导致留言失败，我们会尽快处理！'
         Chat.msgList.push(sysmsg)
-        // console.log('345')
       }
     })
     this.socket.on('message_answered', function (data) {
-      console.log(data)
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
       sysmsg.msg = '您的请求已经被客服' + data.name + '受理，下面是您的问题和客服人员对应的答案'
@@ -70,7 +65,6 @@ let Chat = {
     this.socket.on('service_response', function (data) {
       let sysmsg = Chat.createMsg()
       sysmsg.type = 2
-      console.log(data)
       if (!data.allocated) {
         Chat.status = 3
         sysmsg.msg = '没有客服在线诶，请留言，我们会尽快处理哒^_^'
@@ -88,13 +82,11 @@ let Chat = {
       Chat.msgList.push(sysmsg)
     })
     this.socket.on('msg', function (inputMsgObj) {
-      console.log(inputMsgObj)
       let operatorMsg = Chat.createMsg()
       operatorMsg.msg = inputMsgObj.msg
       operatorMsg.type = 1
       operatorMsg.isPicture = inputMsgObj.isPic
       if (Chat.status === 2) {
-        console.log(Chat.imgUrl)
         operatorMsg.imgUrl = Chat.imgUrl
       } else {
         operatorMsg.imgUrl = Chat.robotUrl
@@ -150,7 +142,6 @@ let Chat = {
     }
   },
   sendMsg (payload) {
-    console.log(payload)
     if (this.status === 3 || this.status === 4) {
       let msgObj = Chat.createMsg()
       if (this.status === 3) {
@@ -166,7 +157,6 @@ let Chat = {
       msgObj.msg = payload.msg
       msgObj.type = 0
       msgObj.isPicture = payload.isPic
-      console.log(msgObj)
       this.msgList.push(msgObj)
       this.socket.emit('msg', {msg: payload.msg, isPic: payload.isPic, time: msgObj.time})
     }

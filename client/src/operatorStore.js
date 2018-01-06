@@ -21,7 +21,6 @@ const mutations = {
     state.chat.sendMsg(msg, isPicture)
   },
   endService (state) {
-    console.log('fcgendservice')
     state.chat.endService()
   },
   changeCard (state, userid) {

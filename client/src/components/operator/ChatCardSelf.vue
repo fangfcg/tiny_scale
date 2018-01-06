@@ -39,7 +39,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.$el)
     if (this.isPicture === true) {
       var img = new Image()
       img.src = this.msg
@@ -49,7 +48,7 @@ export default {
         that.calc = str + 'px'
       }
     }
-    // this.$el.scrollIntoView()
+    this.$el.scrollIntoView()
   },
 
   props: ['msg', 'imgUrl', 'isPicture']

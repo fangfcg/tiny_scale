@@ -46,7 +46,7 @@ export default {
         that.calc = str + 'px'
       }
     }
-    // this.$el.scrollIntoView()
+    this.$el.scrollIntoView()
   },
   props: ['msg', 'isPicture']
 }

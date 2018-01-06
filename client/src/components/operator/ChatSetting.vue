@@ -165,7 +165,6 @@ var setting = {
       return isJPG && isLt2M
     },
     handlePictureCardPreview (file) {
-      console.log(file.response)
     },
     nameModify () {
       if (this.nameButtonFlag === false) {
@@ -217,7 +216,6 @@ var setting = {
       this.emailInputFlag = !this.emailInputFlag
     },
     async emailSubmit () {
-      console.log(this.inputEmail)
       if (this.inputEmail === '') {
         this.$message({
           message: '邮箱不能为空',

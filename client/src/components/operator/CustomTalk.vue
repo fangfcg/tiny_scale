@@ -54,7 +54,7 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   width: 600px;
-  height: 800px;
+  height: 600px;
   float: left;
 }
 .chatadd{

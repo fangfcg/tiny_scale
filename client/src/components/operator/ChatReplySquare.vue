@@ -95,7 +95,6 @@ export default {
     },
     async getReply (arrid) {
       //  将对应的状态修改发到后端，修改对应的ID的回答情况，并且修改对应的客服的状态
-      // console.log('arridis:' + arrid)
       var response = await this.$http.post(this.$store.state.chat.serverIp + '/api/operator/get_left_msg', {id: arrid})
       if (response.data.success === true) {
         this.$store.state.chat.isReplying = true
@@ -128,18 +127,6 @@ export default {
       } else {
         this.$message.error('回复留言失败！')
       }
-      //  将对应的修改信息发到后端，
-      /* if (this.$store.commit('customReplyMsg', this.replyText) === true) {
-        this.$message({
-          message: '留言为' + this.replyText + ',回复留言成功！',
-          type: 'success'
-        })
-        this.replyText = ''
-        this.init()
-      } else {
-        this.$message.error('回复留言失败！')
-      }
-      */
     }
   }
 }
