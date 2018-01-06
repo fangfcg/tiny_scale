@@ -114,6 +114,7 @@ var Robot = {
   async created () {
     let res = await this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_question_list')
     let response = res.data
+    console.log(response)
     for (let ques of response) {
       let data = {}
       data.name = ques.name
@@ -124,6 +125,7 @@ var Robot = {
       data.questionId = ques.questionId
       this.tableData.push(data)
     }
+    console.log(this.tableData)
     res = await this.$http.get(this.$store.state.admin.serverIp + '/api/robot/get_special')
     response = res.data
     this.inputGreeting = response.greet
