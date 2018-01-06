@@ -139,7 +139,7 @@ class customerController {
         //评价结束之后一个完整的流程走完
         socket.servingState = SERVING_STATUS_ROBOT;
         //只有在用户评价一个客服后用户下一次才会被分配到这个客服
-        socket.session.serviceRecord[socket.opGroup] = socket.serviceOperatorId;
+        socket.session.data.serviceRecord[socket.opGroup] = socket.serviceOperatorId;
         //评价数统计信息更新
         util.cache.incr(`${util.STAT_COMMENT_GROUP}:${socket.opGroup}`);
         util.cache.incr(`${util.STAT_COMMENT_OPERATOR}:${socket.serviceOperatorId}`);

@@ -23,7 +23,7 @@
         "portrait":{
             "operator": "public/media/portrait/operator",
             "admin": "public/media/portrait/admin",
-            "robot": "public/media/portrait/robot"           
+            "robot": "public/media/portrait/robot"
         },
         "chat": "public/media/chat"
     }

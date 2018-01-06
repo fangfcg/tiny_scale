@@ -1,4 +1,5 @@
-export const urlClient = 'http://183.172.154.239:8000'
-export const urlOperator = 'http://183.172.154.239:8000'
-export const serverIp = 'http://183.172.154.239:8000'
+const url = 'http://59.66.137.78:8000'
+export const urlClient = url
+export const urlOperator = url
+export const serverIp = url
 export const clientToken = 'tsinghua'

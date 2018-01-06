@@ -16,16 +16,16 @@ class operatorControler {
     }
     newSocket(socket) {
         //对于整个group中第一个上线的operator则新建一个allocator
-        if(!this.allocators[socket.user.operatorGroupId]){
-            this.allocators[socket.user.operatorGroupId] = new allocator();
-            this.counters[socket.user.operatorGroupId] = 1;
+        if(!this.allocators[socket.user.operatorGroupIdStr]){
+            this.allocators[socket.user.operatorGroupIdStr] = new allocator();
+            this.counters[socket.user.operatorGroupIdStr] = 1;
         }
         //socket放入池中
         this.socketPool[socket.user.id] = socket;
         socket.waitingList = [];
         socket.chattingSet = {};
         socket.workingState = "working";
-        socket.qaCounter = {};
+        socket.qaCounter = {};      //包含queried和queryStart两个域
         socket.on('get_next', this._getNext.bind(this, socket.user.id));
         socket.on('msg', this._operatorMsg.bind(this, socket.user.id));
         socket.on('end_service', this._endService.bind(this,socket.user.id));
@@ -34,13 +34,13 @@ class operatorControler {
         socket.on('disconnect', this._disconnect.bind(this, socket.user.id));
         //设置缓存中客服的状态为working
         util.cache.set(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
-        this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
+        this.allocators[socket.user.operatorGroupIdStr].addOperator(socket.user.id);
     }
     //传入一个客户的socket，为该客户分配客服
     _allocateOperator(socket) {
         if(!socket)
             return;
-        var ses = socket.session;
+        var ses = socket.session.data;
         var groupId = socket.opGroup;
         ses.serviceRecord = ses.serviceRecord || {};
         var allocated = false;
@@ -133,14 +133,14 @@ class operatorControler {
         //通知所有用户客服socket意外关闭
         this.event.emit('crash', chattingCustomers.concat(socket.waitingList));
         //从分配器中删除该客服
-        if(this.allocators[socket.user.operatorGroupId]){
-            this.allocators[socket.user.operatorGroupId].deleteOperator(socket.user.id);
-            --this.counters[socket.user.operatorGroupId];
+        if(this.allocators[socket.user.operatorGroupIdStr] && socket.workingState === "working"){
+            this.allocators[socket.user.operatorGroupIdStr].deleteOperator(socket.user.id);
+            --this.counters[socket.user.operatorGroupIdStr];
         }
         //减少内存的占用
-        if(this.counters[socket.user.operatorGroupId] <= 0){
-            delete this.counters[socket.user.operatorGroupId];
-            delete this.allocators[socket.user.operatorGroupId];
+        if(this.counters[socket.user.operatorGroupIdStr] <= 0){
+            delete this.counters[socket.user.operatorGroupIdStr];
+            delete this.allocators[socket.user.operatorGroupIdStr];
         }
         util.cache.del(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`);
     }
@@ -182,18 +182,19 @@ class operatorControler {
             }
             await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "resting");
             socket.workingState = "resting";
-            this.allocators[socket.user.operatorGroupId].deleteOperator(socket.user.id);
+            this.allocators[socket.user.operatorGroupIdStr].deleteOperator(socket.user.id);
         }
         else if(state === "working"){
             await util.cache.setAsync(`${util.PREFIX_OPERATOR_STATUS}:${socket.user.id}`, "working");
             socket.workingState = "working";
-            this.allocators[socket.user.operatorGroupId].addOperator(socket.user.id);
+            this.allocators[socket.user.operatorGroupIdStr].addOperator(socket.user.id);
         }
         socket.emit("change_state", {success:true});
         return;
     }
-    async _crossServe(operatorId,customerId, crosserId){
+    async _crossServe(operatorId,customerId, crosser){
         var socket = this.socketPool[operatorId];
+        var crosserId = crosser.id;
         var socketCrosser = this.socketPool[crosserId];
         //该客服是否可以分配
         if(!this.socketPool[crosserId] || this.socketPool[crosserId].workingState !== "working"){
@@ -203,9 +204,10 @@ class operatorControler {
         var chatIdOld = socket.chattingSet[customerId];
         await chatLogger.finishChat(chatIdOld, {crossed:true, crosserId:crosserId});
         delete socket.chattingSet[customerId];
-        //会话加入转接者的chattingSet
+        //会话加入转接者的chattingSet，相当于被转接者get_next
         var chatId = chatLogger.createChat(customerId, crosserId);
         socketCrosser.chattingSet[customerId] = chatId;
+        socketCrosser.qaCounter[customerId] = {queried:false};
         socketCrosser.emit('cross_serve',customerId, chatIdOld);
         this.event.emit('cross_serve', customerId, crosserId, chatId, this.socketPool[crosserId].user);
     }
