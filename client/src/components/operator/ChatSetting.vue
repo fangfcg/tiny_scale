@@ -165,7 +165,6 @@ var setting = {
       return isJPG && isLt2M
     },
     handlePictureCardPreview (file) {
-      console.log(file.response)
     },
     nameModify () {
       if (this.nameButtonFlag === false) {
@@ -183,7 +182,7 @@ var setting = {
         return
       }
       this.nameLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'operator',
         name: this.inputName,
         email: this.inputEmail
@@ -217,7 +216,6 @@ var setting = {
       this.emailInputFlag = !this.emailInputFlag
     },
     async emailSubmit () {
-      console.log(this.inputEmail)
       if (this.inputEmail === '') {
         this.$message({
           message: '邮箱不能为空',
@@ -226,7 +224,7 @@ var setting = {
         return
       }
       this.emailLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'operator',
         name: this.inputName,
         email: this.inputEmail

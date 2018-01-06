@@ -9,7 +9,7 @@ const httpUrl = {
   operatorChatTotalUrl: '/api/admin/operator_chat_total', // get方法，参数为某个特定客服的id
   operatorChatLogUrl: '/api/admin/operator_chat_log' // 参数为ChatHistory的id和时间(还没想好)
 }
-const dataTypeList = ['sessionCount', 'manualRate', 'messageCount', 'satRate', 'commentRate', 'qaRate', 'avaResponseTime']
+const dataTypeList = ['sessionCount', 'manualRate', 'messageCount', 'satisfiedRate', 'commentRate', 'qaRate', 'responseTime']
 var adminobj = {
   adminId: null,
   choosenOperator: {id: null, name: null},  // {id: x, name: 'a'}
@@ -24,6 +24,7 @@ var adminobj = {
   email: '123@123.com',
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
+    // adminobj.operatorList = [{name: 'hello', id: 1}, {name: 'hi', id: 2}]
     axios.post(this.serverIp + httpUrl.postUrl, {
       username: 'fcg',
       password: '123456',

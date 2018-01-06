@@ -109,17 +109,6 @@
 <script>
 var setting = {
   created () {
-    /*
-    let res = await this.$http.get(this.serverIp + '/api/get_profile')
-    let response = res.data
-    this.inputName = response.name
-    this.inputEmail = response.email
-    this.imageUrl = this.serverIp + '/' + response.imgUrl
-    console.log(response.imgUrl)
-    this.$store.state.admin.name = this.inputName
-    this.$store.state.admin.email = this.inputEmail
-    this.$store.state.admin.imgUrl = this.imageUrl
-    */
     this.inputToken = this.$store.state.admin.token
   },
   data () {
@@ -155,9 +144,7 @@ var setting = {
   },
   methods: {
     handleAvatarSuccess (res, file) {
-      console.log(this.imageUrl)
       this.imageUrl = this.$store.state.admin.serverIp + '/' + res.path
-      console.log(this.imageUrl)
       this.$store.state.admin.imgUrl = this.imageUrl
     },
     beforeAvatarUpload (file) {
@@ -172,7 +159,6 @@ var setting = {
       return isJPG && isLt2M
     },
     handlePictureCardPreview (file) {
-      console.log(file.response)
     },
     nameModify () {
       if (this.nameButtonFlag === false) {
@@ -190,7 +176,7 @@ var setting = {
         return
       }
       this.nameLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'admin',
         name: this.inputName,
         email: this.inputEmail
@@ -232,7 +218,7 @@ var setting = {
         return
       }
       this.emailLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'admin',
         name: this.inputName,
         email: this.inputEmail

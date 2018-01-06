@@ -123,17 +123,13 @@ export default {
       this.dialogTableVisible = true
     },
     transferClient (operatorId) {
-      console.log(operatorId)
       this.$store.commit('crossServe', operatorId)
       this.dialogTableVisible = false
     },
     uploadImgSuccess (res, file) {
-      console.log(res)
-      console.log(file)
       let newMsg = this.$store.state.chat.createMsg()
       newMsg.isPicture = true
       newMsg.msg = this.$store.state.chat.serverIp + '/' + res.path
-      console.log(newMsg)
       this.$store.commit('sendMsg', {msg: newMsg.msg, isPic: true})
       this.$message({
         message: '图片上传成功',
@@ -188,8 +184,8 @@ export default {
     .emoji-box {
       position: absolute;
       z-index: 10;
-      left: -35px;
-      top: 24px;
+      left: -50px;
+      top: -240px;
       box-shadow: 0 4px 20px 1px rgba(0, 0, 0, 0.2);
       background: white;
       .el-button {
@@ -224,47 +220,14 @@ export default {
     .fade-move { transition: transform .4s; }
 
     .chat-sub{
-      /*
-      position: relative;
-      display: flex;
-      background-color: rgba(0,0,0,0.1);
-      justify-content: center;
-      align-items: center;
-      height: 30px;
-      width: 50px;
-      font-size: 13px;
-      outline: none;
-      */
       height: 30px;
       margin-left: 280px;
     }
     .operator-sub{
-      /*
-      position: relative;
-      display: flex;
-      background-color: rgba(0,0,0,0.1);
-      justify-content: center;
-      align-items: center;
-      height: 30px;
-      width: 50px;
-      font-size: 13px;
-      outline: none;
-      */
       height: 30px;
       margin-left: 5px;
     }
     .transfer-sub{
-      /*
-      position: relative;
-      display: flex;
-      background-color: rgba(0,0,0,0.1);
-      justify-content: center;
-      align-items: center;
-      height: 30px;
-      width: 50px;
-      font-size: 13px;
-      outline: none;
-      */
       height: 30px;
       margin-left: 5px;
     }

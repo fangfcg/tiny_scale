@@ -184,8 +184,6 @@ var Chat = {
   },
   async getLeaveMessageList () {
     var response = await axios.get(this.serverIp + httpUrl.leaveMsgUrl)
-    console.log('Successed')
-    console.log(response)
     if (response.data.success === true) {
       Chat.leaveMsgList = response.data.msg
       Chat.isReplying = false
@@ -199,19 +197,15 @@ var Chat = {
     }
   },
   async customGetLeaveMsg (msgId) {
-    // console.log('into the funciton')
-    // console.log(msgId)
     var response = await axios.post(this.serverIp + httpUrl.getLeaveMsgUrl, {id: msgId})
     if (response.data.success === true) {
       Chat.isReplying = true
       Chat.replyingId = msgId
       Chat.replyingMsg = response.data.msg.content
-      // console.log('true')
     } else {
       Chat.isReplying = false
       Chat.replyingId = -1
       Chat.replyingMsg = ''
-      // console.log('false')
     }
   },
   async customReplyMsg (msg) {
@@ -227,8 +221,6 @@ var Chat = {
   async getSelfReply () {
     var response = await axios.get(this.serverIp + httpUrl.getSelfQuickReplyUrl)
     this.selfData = response.data.data
-    console.log(this.selfData)
-    console.log('in getSelfReply')
     /*
     .then(function (response) {
       Chat.selfData = response.data.data

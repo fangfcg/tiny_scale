@@ -13,7 +13,7 @@
                 <el-dropdown-item v-if="item.id === choosenDataType" :key="item.num" :command="item.id" disabled>
                   {{item.data}}
                 </el-dropdown-item>
-                <el-dropdown-item v-else :key="item.id" :command="item.id">
+                <el-dropdown-item v-else :key="item.id" :command="item.id" :disabled="!item[choosenOperatorType]">
                   {{item.data}}
                 </el-dropdown-item>
               </template>
@@ -91,12 +91,23 @@ export default {
   data () {
     return {
       value1: '',
-      DataList: [{id: 0, data: '会话量'}, {id: 1, data: '人工接入率'}, {id: 2, data: '消息数'}, {id: 3, data: '满意度'}, {id: 4, data: '参评率'}, {id: 5, data: '问答比'}, {id: 6, data: '平均响应时间'}]
+      DataList: [{id: 0, data: '会话量', all: true, single: true},
+                 {id: 1, data: '人工接入率', all: true, single: false},
+                 {id: 2, data: '消息数', all: true, single: false},
+                 {id: 3, data: '满意度', all: true, single: true},
+                 {id: 4, data: '参评率', all: true, single: false},
+                 {id: 5, data: '问答比', all: false, single: true},
+                 {id: 6, data: '平均响应时间', all: false, single: true}]
+      // 总体有五个：会话量 消息数 (人工接入率 参评率 满意度)小数
+      // 个人： 会话量 (问答比 满意度)小数 平均响应时间
     }
   },
   computed: {
     choosenOperator () {
       return this.$store.state.admin.choosenOperator
+    },
+    choosenOperatorType () {
+      return this.choosenOperator.id === null ? 'all' : 'single'
     },
     choosenDataType () {
       return this.$store.state.admin.choosenDataType
@@ -212,6 +223,9 @@ export default {
     },
     dataTypeChange (command) {
       this.$store.state.admin.choosenDataType = command
+      if (command === null) {
+        return
+      }
       if (this.$store.state.admin.choosenOperator.id === null) {
         this.$store.commit('getGroupInfo')
       } else {
@@ -223,15 +237,8 @@ export default {
       this.changeData([null, null])
     },
     operatorChange (command) {
-      if (this.choosenDataType === null) {
-        return
-      }
+      this.$store.state.admin.choosenDataType = null
       this.$store.state.admin.choosenOperator = command
-      if (this.$store.state.admin.choosenOperator.id === null) {
-        this.$store.commit('getGroupInfo')
-      } else {
-        this.$store.commit('getOperatorInfo')
-      }
       if ((this.startDate === null) || (this.endDate === null)) {
         return
       }
