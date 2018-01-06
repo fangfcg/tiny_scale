@@ -3,8 +3,8 @@ module.exports = (schema, mongoose) => {
         name:String,
         pass:String,
         portrait:String,
-        sessionCounts: Array,
-        msgCounts: Array,
+        //sessionCounts: Array,
+        //msgCounts: Array,
         serviceRecordStart:Date,
         operatorGroupId:schema.Types.ObjectId,  //用作外键
         quickReply:[String],

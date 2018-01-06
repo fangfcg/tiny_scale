@@ -49,7 +49,8 @@ async function createOperator(req, res){
     var operator = new model.operator({name:req.body.name,
         pass:auth.Hash(req.body.pass),
         email:req.body.email,
-        operatorGroupId:req.session.signup.opGroup});
+        operatorGroupId:req.session.signup.opGroup,
+        serviceRecordStart:Date.now()});
     req.session.signup = null;
     await req.session.saveAsync();
     operator.portrait = path.join(config.static.portrait.operator, 'default.jpg');

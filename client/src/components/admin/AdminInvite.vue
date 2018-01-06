@@ -2,7 +2,7 @@
   <div class="main-contain">
     <span class="title-text">管理员邀请</span><br><br>
     <span class="title-warning">请选择邀请客服的人数并点击获取按钮，系统将会为您申请客服邀请码</span><br>
-    <span class="title-warning">注意：一天申请邀请码的上限为20个，同时获得邀请码后请在切换页面前保存到本地，因为切换页面后之前申请邀请码将无法获取</span>
+    <span class="title-warning">注意：一次申请邀请码的上限为20个，每天申请的总验证码数目存在上限，同时获得邀请码后请在切换页面前保存到本地，因为切换页面后之前申请邀请码将无法获取</span>
     <hr width=80% size=1 color=#c5c5c5 style="FILTER: alpha(opacity=100,finishopacity=0,style=3)"> 
     <template>
       <el-select v-model="choosenNum" placeholder="请选择邀请客服人数">
