@@ -65,7 +65,7 @@ async function nameCheck(req, res){
  * @param {*} res
  */
 async function profileUpdate(req,res){
-    if(!util.bodyContains(req, 'name', 'email')){
+    if(!util.bodyContains(req, 'name') && !util.bodyContains(req, "email")){
         res.json({success:false});
         return;
     }
@@ -95,7 +95,7 @@ async function getCertificateFindPass(req, res){
         var user = await model.operator.findOne({email:req.body.email});
     }
     if(!user){
-        req.json({success:false, err:"user doesn't exists"});
+        res.json({success:false, err:"user doesn't exists"});
         return;
     }
     var certificate = stringGenerator.generate({length:50});
@@ -227,7 +227,7 @@ module.exports.apiInterfaces = [
     {url:'/api/get_session_id*', callBack:getSessionId},
     {url:'/api/common/is_email_used', callBack:emailCheck},
     {url:'/api/common/is_name_used', callBack:nameCheck},
-    {url:'/api/common/settings/profile/*', callBack:profileUpdate, auth:true, method:'post'},
+    {url:'/api/common/settings/profile*', callBack:profileUpdate, auth:true, method:'post'},
     {url:'/api/find_pass/get_certificate', callBack:getCertificateFindPass, method:'post'},
     {url:'/api/find_pass/certificate', callBack:certificateFindPass, method:'post'},
     {url:'/api/find_pass/new_pass', callBack:newPass, method:'post'},
