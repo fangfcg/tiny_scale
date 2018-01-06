@@ -104,7 +104,7 @@ export default {
       }
       if (i === this.msg.length) {
         let newMsg = this.$store.state.chat.createMsg()
-        newMsg.msg = '请勿发送空白消息'
+        newMsg.msg = '请勿发送空白留言'
         newMsg.type = 2
         this.$store.state.chat.msgList.push(newMsg)
         this.msg = ''
