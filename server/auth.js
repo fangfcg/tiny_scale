@@ -45,7 +45,12 @@ passport.serializeUser(function(user, done){
 });
 passport.deserializeUser(async function(repr, done){
     if(repr.userType == 'admin'){
-        try{var admin = await model.admin.findById(repr.id);}
+        try{
+            var admin = await model.admin.findById(repr.id);
+            if(!admin){
+                throw(new Error("invalid err"));
+            }
+        }
         catch(e){return done(e);}
         admin.userType = 'admin';
         return done(null, admin);

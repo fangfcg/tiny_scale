@@ -27,6 +27,8 @@ router.setRoute(app);
 const socket = require('./socket/socket');
 socket.configSocket(server);
 
+//设置时间任务
+require('./timedTask');
 //设置静态文件夹
 app.use(express.static(__dirname));
 const config = require('./serverConfig.json');

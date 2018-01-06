@@ -282,13 +282,23 @@ var setting = {
       this.renewReply()
     },
     addDialogClose () {
-      this.addDialogVisible = false
-      if (this.replyID === this.$store.state.chat.selfData.length) {
-        this.$store.state.chat.selfData.push({text: this.rawText})
-      } else {
-        this.$store.state.chat.selfData[this.replyID].text = this.rawText
+      for (var i = 0; i < this.rawText.length; i++) {
+        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+          break
+        }
       }
-      this.renewReply()
+      if (i === this.rawText.length) {
+        this.$message.error('不能设置空的快捷回复！')
+        this.rawText = ''
+      } else {
+        this.addDialogVisible = false
+        if (this.replyID === this.$store.state.chat.selfData.length) {
+          this.$store.state.chat.selfData.push({text: this.rawText})
+        } else {
+          this.$store.state.chat.selfData[this.replyID].text = this.rawText
+        }
+        this.renewReply()
+      }
     },
     openAddDialog (id) {
       this.replyID = id

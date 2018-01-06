@@ -29,6 +29,7 @@ module.exports.configApp = async function(app){
         name: sessionName,
         saveUninitialized:true,
         cookie:{maxAge:10000000},
+        resave:false,
         //cookie:{sameSite:false, httpOnly:false},
         store: store}));
     app.use(function(req, res, next){

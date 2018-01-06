@@ -5,13 +5,14 @@ var auth = require("../auth");
 
 const certificateConfigure = {length:50};
 //restful格式{code, data, msg}, code 为0表示成功，非0表示失败
+/**
+ * get方法
+ * @param {Express.Request} req 
+ * @param {Express.Response} res 
+ */
 async function getGroupInfo(req, res){
-    var map = {sessionCount:'sessionCounts',
-        messageCount:'msgCounts'};
     req.body = req.query;
-    req.body.id = req.user.id;
-    var admin = req.user;
-    var group = await model.operatorGroup.findById(admin.operatorGroupId);
+    var group = await model.operatorGroup.findById(req.user.operatorGroupId);
     //根据dataType确定返回的数据类型
     if(!util.bodyContains(req, 'dataType')){
         //返回该管理员下面的全部客服的id和名称
@@ -24,8 +25,11 @@ async function getGroupInfo(req, res){
         res.json(result);
     }
     else{
-        //返回服务数据
-        var list = group[map[req.body.dataType]] || [];
+        //返回该客服组下所有类型为DataType数据
+        var list = [];
+        group.serviceData.forEach(val => {
+            list.push(val[req.body.dataType]);
+        });
         var result = util.wrapArrayData(group.serviceRecordStart, list);
         res.json(result);
     }
@@ -33,29 +37,28 @@ async function getGroupInfo(req, res){
 
 async function getOperatorInfo(req, res){
     req.body = req.query;
-    var map = {sessionCount:'sessionCounts', messageCount:'msgCounts'};
     if(!util.bodyContains(req, 'id')){
-        res.json({code:1});
+        res.json({success:false});
         return;
     }
     var operator = await model.operator.findById(req.body.id);
-    if(!operator){
-        res.json({code:1, msg:'operator not found'});
-        return;
-    }
-    //防止不同组的管理员获取客服的信息
-    if(operator.operatorGroupId.toString() != req.user.operatorGroupId.toString()){
-        res.json({code:1, msg:'not belong to same group'});
+    //防止管理员获取不是自己组下的客服的信息
+    if(!operator || operator.operatorGroupId.toString() != req.user.operatorGroupId.toString()){
+        res.json({success:false, err:"operator not found"});
         return;
     }
     if(req.body.dataType){
-        var list = operator[map[req.body.dataType]] || [];
+        //返回该客服的类为dataType的数据类型
+        var list = [];
+        operator.serviceData.forEach(val => {
+            list.push(val[req.body.dataType]);
+        });
         var result = util.wrapArrayData(operator.serviceRecordStart, list);
         res.json(result);
     }
 }
 /**
- * get方法
+ * post方法
  * 前端传入邮箱，后端自动生成随机的验证码并发送邮件，如果发送成功则
  * 在缓存中保存该验证码和邮箱同时向前端返回success为true,否则false
  * @param {Express.Request} req 
@@ -64,6 +67,11 @@ async function getOperatorInfo(req, res){
 async function getCertificate(req, res){
     if(!util.bodyContains(req,'email')){
         res.json({success:false, err:"parameter email loss"});
+        return;
+    }
+    var admin = await model.admin.findOne({email:req.body.email});
+    if(admin){
+        res.json({success:false, err:"邮箱重复!"});
         return;
     }
     var certificate = stringGenerator.generate(certificateConfigure);
@@ -137,6 +145,7 @@ async function createAdmin(req, res){
         specialRobotAnswer:{greet:`你好我是${req.body.companyName}智能机器人`,
         unknown:`不好意思这触及到了我的知识盲区，您可以选择人工客服呦~`},
         robotPortrait:config.static.portrait.robot,
+        serviceRecordStart:Date.now(),
     });
     await opGroup.save();
     //使用bcryptjs对密码进行加密存储
@@ -323,7 +332,9 @@ async function getSocketToken(req, res){
  */
 async function clearCertificate(){
     var cerCounts = await util.cache.keysAsync(`${util.PREFIX_CERTIFICATE_COUNT}:*`);
-    await util.cache.delAsync(cerCounts);
+    if(cerCounts.length){
+        await util.cache.delAsync(cerCounts);
+    }
 }
 
 module.exports.clearCertificateCount = clearCertificate;

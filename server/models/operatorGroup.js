@@ -1,8 +1,8 @@
 module.exports = (schema, mongoose) => {
     var operatorGroupSchema = new schema({
         name:String,
-        sessionCounts:[Number],
-        msgCounts:[Number],
+        //sessionCounts:[Number],
+        //msgCounts:[Number],
         serviceData:[schema.Types.Mixed],
         serviceRecordStart:Date,
         companySocketToken:String,

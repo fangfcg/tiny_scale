@@ -91,7 +91,7 @@ class operatorControler {
         if(socket && socket.qaCounter[customerId]){
             //qaCounter中记录本次问答初始时间
             if(!socket.qaCounter[customerId].queried){
-                socket.qaCounter[customerId].queryStart = msg.time.getTime();
+                socket.qaCounter[customerId].queryStart = msg.time;
                 socket.qaCounter[customerId].queried = true;
             }
             socket.emit('msg', customerId, msg);
@@ -102,7 +102,7 @@ class operatorControler {
         if(socket && socket.qaCounter[customerId]){
             if(socket.qaCounter[customerId].queried){
                 //客服在客户提问后进行了回答
-                var interval = msg.time.getTime() - socket.qaCounter[customerId].queryStart;
+                var interval = msg.time - socket.qaCounter[customerId].queryStart;
                 util.cache.incr(`${util.STAT_OP_QA_TURNS}:${socket.user.id}`);
                 util.cache.incrby(`${util.STAT_OP_QA_DELAY}:${socket.user.id}`,interval);
                 socket.qaCounter[customerId].queried = false;

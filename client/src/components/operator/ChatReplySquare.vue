@@ -114,18 +114,29 @@ export default {
       }
     },
     async replyEnd () {
-      var response = await this.$http.post(this.$store.state.chat.serverIp + '/api/operator/answer_msg', {answer: this.replyText})
-      if (response.data.success === true) {
-        this.$store.state.chat.isReplying = false
-        this.$store.state.chat.replyingMsg = ''
-        this.$message({
-          message: '留言为' + this.replyText + ',回复留言成功！',
-          type: 'success'
-        })
+      // 判断留言是否为空
+      for (var i = 0; i < this.replyText.length; i++) {
+        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+          break
+        }
+      }
+      if (i === this.replyText.length) {
+        this.$message.error('回复不能为空，请重试！')
         this.replyText = ''
-        this.init()
       } else {
-        this.$message.error('回复留言失败！')
+        var response = await this.$http.post(this.$store.state.chat.serverIp + '/api/operator/answer_msg', {answer: this.replyText})
+        if (response.data.success === true) {
+          this.$store.state.chat.isReplying = false
+          this.$store.state.chat.replyingMsg = ''
+          this.$message({
+            message: '留言回复成功！',
+            type: 'success'
+          })
+          this.replyText = ''
+          this.init()
+        } else {
+          this.$message.error('回复留言失败！')
+        }
       }
     }
   }
