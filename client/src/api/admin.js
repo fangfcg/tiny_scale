@@ -25,20 +25,14 @@ var adminobj = {
   operatorList: [], // [{id: 1, name: 'abc'}],
   getGroupList () {
     // adminobj.operatorList = [{name: 'hello', id: 1}, {name: 'hi', id: 2}]
-    axios.post(this.serverIp + httpUrl.postUrl, {
-      username: 'fcg',
-      password: '123456',
-      type: 'admin'
-    }).then(function () {
-      axios.get(adminobj.serverIp + httpUrl.groupInfoUrl, {
-        params: {
-          id: adminobj.adminId,
-          dataType: null
-        }
-      })
-      .then(function (response) {
-        adminobj.operatorList = response.data
-      })
+    axios.get(adminobj.serverIp + httpUrl.groupInfoUrl, {
+      params: {
+        id: adminobj.adminId,
+        dataType: null
+      }
+    })
+    .then(function (response) {
+      adminobj.operatorList = response.data
     })
   },
   getGroupInfo () {

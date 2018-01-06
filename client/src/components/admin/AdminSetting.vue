@@ -289,7 +289,7 @@ var setting = {
     },
     addDialogClose () {
       for (var i = 0; i < this.rawText.length; i++) {
-        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+        if (this.rawText[i] !== '\n' && this.rawText[i] !== ' ' && this.rawText[i] !== '\t') {
           break
         }
       }

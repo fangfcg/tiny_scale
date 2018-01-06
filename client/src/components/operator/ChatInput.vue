@@ -104,7 +104,7 @@ export default {
       let res = await this.$http.get(this.serverIp + '/api/operator/get_colleagues')
       let response = res.data
       let datas = response.colleagues
-      this.gridData.splice(this.gridData.length)
+      this.gridData.splice(0, this.gridData.length)
       let tempState
       for (let d of datas) {
         if (d.state === 'resting') {
