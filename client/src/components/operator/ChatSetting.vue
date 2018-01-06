@@ -182,7 +182,7 @@ var setting = {
         return
       }
       this.nameLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'operator',
         name: this.inputName,
         email: this.inputEmail
@@ -224,7 +224,7 @@ var setting = {
         return
       }
       this.emailLoading = true
-      let res = await this.$http.post(this.serverIp + '/api/common/settings/profile', {
+      let res = await this.$http.post(this.serverIp + `/api/common/settings/profile/${Date.now()}`, {
         type: 'operator',
         name: this.inputName,
         email: this.inputEmail

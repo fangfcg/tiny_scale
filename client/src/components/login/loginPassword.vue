@@ -15,40 +15,30 @@
         </div>
 
         <div v-else-if="status === 2">
-          <div v-if="choosenType===0">
-            <div class="normal-input">
-              <el-input placeholder="请输入邮箱号" v-model="emailNum" clearable>
-                <template slot="prepend">邮箱号</template>
-              </el-input>
-            </div>
-            <div class="normal-input">
-              <el-input placeholder="请输入验证码" v-model="certiCode" clearable>
-                <template slot="prepend">验证码</template>
-                <el-button type="primary" slot="append" @click="sendIdenCode" :disabled="emailSendDisabled">
-                <span>发送验证码</span>
-                </el-button>
-              </el-input>
-              <el-button type="primary" class="next-button" @click="nextStep">下一步</el-button>
-            </div>
+          <div class="normal-input">
+            <el-input placeholder="请输入邮箱号" v-model="emailNum" clearable>
+              <template slot="prepend">邮箱号</template>
+            </el-input>
           </div>
-          <div v-if="choosenType===1">
-            <div class="normal-input">
-              <el-input placeholder="请输入验证码" v-model="inviteCode" clearable>
-                <template slot="prepend">验证码</template>
-              </el-input>
-              <el-button type="primary" class="next-button" @click="nextStep">下一步</el-button>
-            </div>
+          <div class="normal-input">
+            <el-input placeholder="请输入验证码" v-model="certiCode" clearable>
+              <template slot="prepend">验证码</template>
+              <el-button type="primary" slot="append" @click="sendIdenCode" :disabled="emailSendDisabled">
+              <span>发送验证码</span>
+              </el-button>
+            </el-input>
+            <el-button type="primary" class="next-button" @click="nextStep">下一步</el-button>
           </div>
         </div>
 
         <div v-else-if="status === 3">
           <div class="normal-input2">
-            <el-input placeholder="请输入新密码" v-model="password" clearable>
+            <el-input placeholder="请输入新密码" v-model="password" clearable type="password">
               <template slot="prepend">新密码</template>
             </el-input>
           </div>
           <div class="normal-input2">
-            <el-input placeholder="请再次输入密码" v-model="password2" clearable>
+            <el-input placeholder="请再次输入密码" v-model="password2" clearable type="password">
               <template slot="prepend">确认密码</template>
             </el-input>
             <el-button type="primary" class="next-button" :disabled="signupFlag" @click="nextStep">下一步</el-button><br>
