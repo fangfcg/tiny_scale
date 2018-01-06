@@ -185,6 +185,7 @@ let Chat = {
       this.status = 0
     } else {
       this.socket.emit('comment', rate)
+      sysObj.msg = '评分成功！您的评分为' + rate + '分'
       this.msgList.push(sysObj)
       this.status = 0
     }

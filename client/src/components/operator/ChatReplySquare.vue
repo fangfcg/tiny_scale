@@ -116,7 +116,7 @@ export default {
     async replyEnd () {
       // 判断留言是否为空
       for (var i = 0; i < this.replyText.length; i++) {
-        if (this.msg[i] !== '\n' && this.msg[i] !== ' ' && this.msg[i] !== '\t') {
+        if (this.replyText[i] !== '\n' && this.replyText[i] !== ' ' && this.replyText[i] !== '\t') {
           break
         }
       }

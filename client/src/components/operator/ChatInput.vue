@@ -157,7 +157,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='less'>
 .foot-wrapper{
-  background-color: #f1f1f1;
   height: 40px;
   flex-shrink: 0;
   display: flex;
@@ -166,7 +165,6 @@ export default {
   justify-content: space-between;
   border-top: solid 1px rgba(0,0,0,0.1);
   textarea {
-    background-color: #eee;
     padding: 10px;
     height: 70px;
     width: 98%;

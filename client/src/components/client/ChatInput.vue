@@ -181,14 +181,12 @@ ul{
   list-style: none;
 }
 .foot-wrapper{
-  background-color: #f1f1f1;
   height: 40px;
   flex-shrink: 0;
   padding: 5px 10px;
   justify-content: space-between;
   border-top: solid 1px rgba(0,0,0,0.1);
   textarea {
-    background-color: #eee;
     padding: 10px;
     height: 70px;
     width: 98%;

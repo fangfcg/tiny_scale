@@ -56,7 +56,6 @@ export default {
   margin-left:15px;
   padding: 5px 5px 0 5px;
   position: relative;
-  height: 52px;
   .-header{
     justify-content: center;
     border-radius: 3px;

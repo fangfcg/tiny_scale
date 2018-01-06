@@ -40,7 +40,6 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style lang='less'>
 .content{
-  background-color: #eee;
   height: ~'calc(100% - 90px)';
   overflow-y: scroll;
   width: 100%;
