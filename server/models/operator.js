@@ -5,6 +5,7 @@ module.exports = (schema, mongoose) => {
         portrait:String,
         //sessionCounts: Array,
         //msgCounts: Array,
+        email:String,
         serviceRecordStart:Date,
         operatorGroupId:schema.Types.ObjectId,  //用作外键
         quickReply:[String],

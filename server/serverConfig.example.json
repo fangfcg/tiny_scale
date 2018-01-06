@@ -1,9 +1,30 @@
 {
     "server":{
-        "port":80
+        "port":8000
     },
     "db":{
         "productUrl": "mongodb://localhost/product",
         "testUrl":"mongodb://localhost/test"
+    },
+    "mail":{
+        "smtpConfig":{
+            "host": "smtp.163.com",
+            "secure":true,
+            "auth": {
+                "user": "hhh",
+                "pass": "hhh"
+                }
+            },
+        "default":{
+            "from":"hhh"
+        }
+    },
+    "static":{
+        "portrait":{
+            "operator": "public/media/portrait/operator",
+            "admin": "public/media/portrait/admin",
+            "robot": "public/media/portrait/robot"           
+        },
+        "chat": "public/media/chat"
     }
 }
