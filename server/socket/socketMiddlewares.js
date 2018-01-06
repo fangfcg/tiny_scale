@@ -97,7 +97,7 @@ async function addUser(socket, next){
     }
     //对必要的socket域进行设置
     socket.session.data.socketAuthed = true;
-    socket.session.data.serviceRecord = socket.session.data.sessionRecord || {};
+    socket.session.data.serviceRecord = socket.session.data.serviceRecord || {};
     await socket.session.save();
     socket.on("disconnect", async function(){
         socket.session.data.socketAuthed = false;

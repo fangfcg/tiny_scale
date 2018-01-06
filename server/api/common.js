@@ -69,6 +69,22 @@ async function profileUpdate(req,res){
         res.json({success:false});
         return;
     }
+    if(req.user.userType === "admin"){
+        //检查管理员重名
+        var ad = await model.admin.findOne({$or:[{name:req.body.name}, {email:req.body.email}]});
+        if(ad){
+            res.json({success:false});
+            return;
+        }
+    }
+    else{
+        //检查客服重名
+        var op = await model.operator.findOne({$or:[{name:req.body.name}, {email:req.body.email}]});
+        if(op){
+            res.json({success:false});
+            return;
+        }
+    }
     req.user.name = req.body.name;
     req.user.email = req.body.email;
     await req.user.save();

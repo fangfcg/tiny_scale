@@ -11,7 +11,7 @@ module.exports = (schema, mongoose) => {
         crossed:Boolean,    //标识该会话是否被转交
         crosserId:schema.Types.ObjectId,    //对话转接的客服的id
         operatorGroupId:schema.Types.ObjectId,
-    });
+    },{usePushEach:true});
     var chatLogModel = mongoose.model('chatLog', chatLogSchema);
     chatLogModel.contentType = {};
     //定义内容类型常量，注意当内容为文件或图片时content本身是一个链接，文件或者图片存储在服务器上

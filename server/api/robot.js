@@ -47,9 +47,10 @@ async function getQuestions(req, res){
         var tmp = util.doc2Object(ele);
         tmp.cutterCache = null;
         tmp.operatorGroupId = null;
+        tmp.questionId = ele.id;
         result.push(tmp);
     });
-    res.json(questions);
+    res.json(result);
     return;
 }
 /**
@@ -58,11 +59,11 @@ async function getQuestions(req, res){
  * @param {Express.Request} req 
  */
 async function modifyQuestion(req, res){
-    if(!util.bodyContains(req, 'id', 'name', 'content', 'similarities', 'answer')){
+    if(!util.bodyContains(req, 'questionId', 'name', 'content', 'similarities', 'answer')){
         res.json({success:false});
         return;
     }
-    var question = await model.question.findById(req.body.id);
+    var question = await model.question.findById(req.body.questionId);
     if(!question){
         res.json({success:false, err:'queston not found'});
     }
@@ -102,6 +103,7 @@ async function setSpecialAnswer(req, res){
     }
     var opGroup = await model.operatorGroup.findById(req.user.operatorGroupId);
     opGroup.specialRobotAnswer[req.body.type] = req.body.content;
+    opGroup.markModified('specialRobotAnswer');
     await opGroup.save();
     res.json({success:true});
     return;
@@ -123,7 +125,7 @@ async function getSpecialAnswer(req, res){
  * @param {*} question 
  * @param {*} groupId 
  */
-const PICCARD_THRESHOLD = 0.5;
+const PICCARD_THRESHOLD = 0.2;
 async function getAutoAnswer(question, groupId){
     var questionLst = await model.question.find({operatorGroupId:groupId});
     var group = await model.operatorGroup.findById(groupId);
@@ -136,6 +138,7 @@ async function getAutoAnswer(question, groupId){
     //计算最大Piccard距离
     var dMax = 0, result, intersect = 0;
     for(let i = 0; i < questionLst.length; ++i){
+        intersect = 0;
         questionLst[i].cutterCache.forEach(val =>{
             if(qSet.has(val))
                 ++intersect;

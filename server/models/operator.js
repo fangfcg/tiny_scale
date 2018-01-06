@@ -10,6 +10,6 @@ module.exports = (schema, mongoose) => {
         operatorGroupId:schema.Types.ObjectId,  //用作外键
         quickReply:[String],
         serviceData:[schema.Types.Mixed]
-    });
+    }, {usePushEach:true});
     return mongoose.model('operator', operatorSchema);
 };
